@@ -14,9 +14,9 @@ DELETE FROM poll;
 DELETE FROM invitation;
 DELETE FROM joinRequest;
 DELETE FROM comment;
-DELETE FROM notifications;
+DELETE FROM notification;
 DELETE FROM upload;
-DELETE FROM events;
+DELETE FROM event;
 DELETE FROM tag;
 DELETE FROM category;
 DELETE FROM appAdmin;
@@ -24,9 +24,9 @@ DELETE FROM "user";
 
 -- Reset sequences
 ALTER SEQUENCE user_userid_seq RESTART WITH 1;
-ALTER SEQUENCE events_eventid_seq RESTART WITH 1;
+ALTER SEQUENCE event_eventid_seq RESTART WITH 1;
 ALTER SEQUENCE comment_commentid_seq RESTART WITH 1;
-ALTER SEQUENCE notifications_notificationid_seq RESTART WITH 1;
+ALTER SEQUENCE notification_notificationid_seq RESTART WITH 1;
 ALTER SEQUENCE appadmin_adminid_seq RESTART WITH 1;
 ALTER SEQUENCE invitation_invitationid_seq RESTART WITH 1;
 ALTER SEQUENCE poll_pollid_seq RESTART WITH 1;
@@ -83,8 +83,8 @@ INSERT INTO tag (tagName) VALUES
 ('Hackathon'),
 ('Webinar');
 
--- Insert Events (mix of Upcoming, Ongoing, Completed, Cancelled)
-INSERT INTO events (eventName, description, startDate, endDate, capacity, price, isPublic, location, createdBy, eventStatus) VALUES
+-- Insert Event (mix of Upcoming, Ongoing, Completed, Cancelled)
+INSERT INTO event (eventName, description, startDate, endDate, capacity, price, isPublic, location, createdBy, eventStatus) VALUES
 ('Tech Conference 2025', 'Annual technology conference featuring latest innovations in AI and Machine Learning', '2025-12-01 09:00:00', '2025-12-03 18:00:00', 500, 150, TRUE, 'Silicon Valley Convention Center, CA', 1, 'Upcoming'),
 ('Startup Networking Mixer', 'Connect with fellow entrepreneurs and potential investors', '2025-11-15 18:00:00', '2025-11-15 22:00:00', 100, 25, TRUE, 'Downtown Business Hub, NYC', 2, 'Upcoming'),
 ('Art Gallery Opening', 'Exclusive opening night for contemporary art exhibition', '2025-11-10 19:00:00', '2025-11-10 23:00:00', 80, 0, TRUE, 'Metropolitan Art Gallery, Chicago', 3, 'Upcoming'),
@@ -220,7 +220,7 @@ INSERT INTO pollOption (pollId, optionText) VALUES
 (3, 'Large'),
 (3, 'X-Large');
 
--- Insert Favourite Events
+-- Insert Favourite Event
 INSERT INTO favouriteEvent (eventId, userId, addedDate) VALUES
 (1, 2, '2025-10-16 12:00:00'),
 (1, 3, '2025-10-17 14:30:00'),
@@ -273,17 +273,17 @@ INSERT INTO vote (userId, commentId) VALUES
 
 -- Insert Uploads
 INSERT INTO upload (filePath) VALUES
-('/uploads/events/tech_conf_banner.jpg'),
-('/uploads/events/networking_poster.png'),
-('/uploads/events/art_gallery_flyer.pdf'),
-('/uploads/events/marathon_map.jpg'),
-('/uploads/events/cooking_menu.pdf'),
+('/uploads/event/tech_conf_banner.jpg'),
+('/uploads/event/networking_poster.png'),
+('/uploads/event/art_gallery_flyer.pdf'),
+('/uploads/event/marathon_map.jpg'),
+('/uploads/event/cooking_menu.pdf'),
 ('/uploads/profiles/user_avatar_1.jpg'),
 ('/uploads/profiles/user_avatar_2.jpg'),
 ('/uploads/documents/event_guidelines.pdf');
 
--- Insert Notifications (some will be created by triggers, adding manual ones)
-INSERT INTO notifications (title, message, time, isRead, notificationType) VALUES
+-- Insert Notification (some will be created by triggers, adding manual ones)
+INSERT INTO notification (title, message, time, isRead, notificationType) VALUES
 ('Welcome!', 'Welcome to the event platform! Start exploring events near you.', '2024-01-15 10:35:00', TRUE, 'EventUpdate'),
 ('Event Reminder', 'Your event "Tech Conference 2025" starts in 7 days!', '2025-10-25 09:00:00', FALSE, 'EventUpdate'),
 ('New Comment', 'Someone commented on your event.', '2025-10-15 11:05:00', TRUE, 'NewComment'),
@@ -292,7 +292,7 @@ INSERT INTO notifications (title, message, time, isRead, notificationType) VALUE
 ('New Poll', 'A new poll has been created for "Tech Conference 2025"', '2025-10-18 10:05:00', FALSE, 'PollCreated'),
 ('Report Update', 'Your report has been reviewed by our team.', '2025-10-26 11:00:00', TRUE, 'ReportStatus');
 
--- Insert Event Notifications
+-- Insert Event Notification
 INSERT INTO eventNotification (notificationId, eventId) VALUES
 (2, 1),
 (3, 1),
@@ -303,7 +303,7 @@ INSERT INTO eventNotification (notificationId, eventId) VALUES
 -- Display summary
 SELECT 'Database populated successfully!' AS status;
 SELECT COUNT(*) AS total_users FROM "user";
-SELECT COUNT(*) AS total_events FROM events;
+SELECT COUNT(*) AS total_events FROM event;
 SELECT COUNT(*) AS total_comments FROM comment;
 SELECT COUNT(*) AS total_participations FROM eventParticipation;
-SELECT COUNT(*) AS total_notifications FROM notifications;
+SELECT COUNT(*) AS total_notifications FROM notification;
