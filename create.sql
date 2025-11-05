@@ -3,7 +3,7 @@ SET search_path TO lbaw25124;
 -- Drop tables 
 DROP TABLE IF EXISTS eventNotification, favouriteEvent, eventParticipation,
 userReport, commentReport, eventReport, report, pollOption, poll, invitation,
-notifications, comment, events, upload, joinRequest, appAdmin, tag, category, vote, "user" CASCADE;
+notification, comment, event, upload, joinRequest, appAdmin, tag, category, vote, "user" CASCADE;
 
 -- Drop enums
 DROP TYPE IF EXISTS RoleType, EventStatus, NotificationType, ReportType, R_J_Status CASCADE;
@@ -27,7 +27,7 @@ CREATE TABLE "user" (
     isAdmin BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE events (
+CREATE TABLE event (
     eventId SERIAL PRIMARY KEY,
     eventName VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
@@ -47,11 +47,11 @@ CREATE TABLE comment (
     content TEXT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     authorId INT REFERENCES "user"(userId) ON DELETE CASCADE,
-    eventId INT REFERENCES events(eventId) ON DELETE CASCADE,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
     parentId INT REFERENCES comment(commentId) ON DELETE CASCADE
 );
 
-CREATE TABLE notifications (
+CREATE TABLE notification (
     notificationId SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     message TEXT NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE appAdmin (
 
 CREATE TABLE invitation (
     invitationId SERIAL PRIMARY KEY,
-    eventId INT REFERENCES events(eventId) ON DELETE CASCADE,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
     userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
     confirmation BOOLEAN DEFAULT FALSE
 );
@@ -79,7 +79,7 @@ CREATE TABLE poll (
     title VARCHAR(100) NOT NULL,
     content TEXT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    eventId INT REFERENCES events(eventId) ON DELETE CASCADE
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE
 );
 
 CREATE TABLE pollOption (
@@ -99,7 +99,7 @@ CREATE TABLE report (
 
 CREATE TABLE eventReport (
     reportId INT REFERENCES report(reportId) ON DELETE CASCADE,
-    eventId INT REFERENCES events(eventId) ON DELETE CASCADE,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
     PRIMARY KEY (reportId, eventId)
 );
 
@@ -116,7 +116,7 @@ CREATE TABLE userReport (
 );
 
 CREATE TABLE eventParticipation (
-    eventId INT REFERENCES events(eventId) ON DELETE CASCADE,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
     userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
     role RoleType NOT NULL,
     PRIMARY KEY (eventId, userId)
@@ -124,14 +124,14 @@ CREATE TABLE eventParticipation (
 
 CREATE TABLE favouriteEvent (
     favouriteId SERIAL PRIMARY KEY,
-    eventId INT REFERENCES events(eventId) ON DELETE CASCADE,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
     userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
     addedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE eventNotification (
-    notificationId INT REFERENCES notifications(notificationId) ON DELETE CASCADE,
-    eventId INT REFERENCES events(eventId) ON DELETE CASCADE,
+    notificationId INT REFERENCES notification(notificationId) ON DELETE CASCADE,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
     PRIMARY KEY (notificationId, eventId)
 );
 
@@ -155,7 +155,7 @@ CREATE TABLE joinRequest (
     joinId SERIAL PRIMARY KEY,
     j_status R_J_Status NOT NULL DEFAULT 'Pending',
     userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
-    eventId INT REFERENCES events(eventId) ON DELETE CASCADE
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE
 );
 
 CREATE TABLE upload (
@@ -165,13 +165,13 @@ CREATE TABLE upload (
 
 -- Indexes
 CREATE INDEX idx_user_email ON "user" USING btree(email);
-CREATE INDEX idx_event_createdBy ON events USING btree(createdBy);
+CREATE INDEX idx_event_createdBy ON event USING btree(createdBy);
 CREATE INDEX idx_comment_eventId ON comment USING btree(eventId);
 CREATE INDEX idx_eventParticipation_eventId ON eventParticipation USING btree(eventId);
 
 -- FTS (Full Text Search)
-ALTER TABLE events ADD COLUMN event_tsv tsvector;
-CREATE INDEX event_search ON events USING GIN(event_tsv);
+ALTER TABLE event ADD COLUMN event_tsv tsvector;
+CREATE INDEX event_search ON event USING GIN(event_tsv);
 
 -- Optional trigger for automatic FTS update
 CREATE OR REPLACE FUNCTION event_tsv_trigger() RETURNS trigger AS $$
@@ -183,7 +183,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tsv_update BEFORE INSERT OR UPDATE
-  ON events FOR EACH ROW EXECUTE FUNCTION event_tsv_trigger();
+  ON event FOR EACH ROW EXECUTE FUNCTION event_tsv_trigger();
 
 --TRIGGER 1
 CREATE OR REPLACE FUNCTION add_attendee_from_invitation() RETURNS TRIGGER AS
@@ -234,7 +234,7 @@ EXECUTE FUNCTION add_attendee_from_join_request();
       OR (OLD.endDate IS DISTINCT FROM NEW.endDate)
       OR (OLD.location IS DISTINCT FROM NEW.location)
    THEN  
-      INSERT INTO notifications (title, message, notificationType)
+      INSERT INTO notification (title, message, notificationType)
       SELECT
       'Event Updated',
            'The event ""' || NEW.eventName || '" has been updated. Please check the details.',
@@ -245,7 +245,7 @@ EXECUTE FUNCTION add_attendee_from_join_request();
       
       INSERT INTO eventNotification (notificationId, eventId)
       SELECT n.notificationId, NEW.eventId
-      FROM notifications n
+      FROM notification n
       WHERE n.notificationType = 'EventUpdate'
       AND n.title = 'Event Update'
       ORDER BY n.notificationId DESC
@@ -259,7 +259,7 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_notify_attendees_on_event_update
-AFTER UPDATE ON events
+AFTER UPDATE ON event
 FOR EACH ROW
 EXECUTE FUNCTION notify_attendees_on_event_update();
 
@@ -272,11 +272,11 @@ DECLARE
 BEGIN
 
     SELECT createdBy INTO organizer_id
-    FROM events
+    FROM event
     WHERE eventId = NEW.eventId;
     
     IF organizer_id IS NOT NULL AND organizer_id <> NEW.authorId THEN 
-    INSERT INTO notifications (title, message, notificationType)
+    INSERT INTO notification (title, message, notificationType)
     VALUES (
         'New Comment',
     'A new comment was added to your event.',
@@ -304,12 +304,12 @@ DECLARE
      organizer_exists BOOLEAN;
 BEGIN
      SELECT createdBy INTO organizer_id
-     FROM events
+     FROM event
      WHERE eventId = NEW.eventId;
      
      IF organizer_id IS NOT NULL AND organizer_id <> NEW.userId THEN
      
-     INSERT INTO notifications(title, message, notificationType)
+     INSERT INTO notification(title, message, notificationType)
      VALUES (
         'Join Request' ,
      'A user has requested to join your event',
@@ -342,7 +342,7 @@ BEGIN
         WHERE eventId = NEW.eventId
           AND role = 'Attendee'
     LOOP      
-      INSERT INTO notifications(title, message, notificationType)
+      INSERT INTO notification(title, message, notificationType)
       VALUES (
         'New Poll',
       'A new poll has been created for an event you are attending.',
@@ -372,7 +372,7 @@ BEGIN
    FOR admin IN
        SELECT adminId FROM appAdmin
    LOOP
-       INSERT INTO notifications (title, message, notificationType)
+       INSERT INTO notification (title, message, notificationType)
        VALUES (
         'New Report',
        'A new user report has been submitted and requires review.',
@@ -405,12 +405,12 @@ BEGIN
     
     
     SELECT capacity, createdBy INTO event_capacity, organizer_id
-    FROM events
+    FROM event
     WHERE
     eventId = NEW.eventId;
     
     IF attendee_count = event_capacity THEN
-        INSERT INTO notifications (title, message, notificationType)
+        INSERT INTO notification (title, message, notificationType)
         VALUES (
             'Capacity Reached',
         'Your event has reached its maximum capacity of ' || event_capacity || 'attendees.',
@@ -461,6 +461,6 @@ $BODY$
 LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_add_organizer_on_eventParticipation
-AFTER INSERT ON events
+AFTER INSERT ON event
 FOR EACH ROW
 EXECUTE FUNCTION add_organizer_on_eventParticipation();
