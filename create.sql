@@ -174,7 +174,7 @@ ALTER TABLE events ADD COLUMN event_tsv tsvector;
 CREATE INDEX event_search ON events USING GIN(event_tsv);
 
 -- Optional trigger for automatic FTS update
-CREATE FUNCTION event_tsv_trigger() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION event_tsv_trigger() RETURNS trigger AS $$
 BEGIN
   NEW.event_tsv :=
     to_tsvector('english', COALESCE(NEW.eventName, '') || ' ' || COALESCE(NEW.description, ''));
@@ -186,7 +186,7 @@ CREATE TRIGGER tsv_update BEFORE INSERT OR UPDATE
   ON events FOR EACH ROW EXECUTE FUNCTION event_tsv_trigger();
 
 --TRIGGER 1
-CREATE FUNCTION add_attendee_from_invitation() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION add_attendee_from_invitation() RETURNS TRIGGER AS
 $BODY$
 BEGIN
     IF NEW.confirmation = TRUE AND (OLD.confirmation IS DISTINCT FROM TRUE) THEN
@@ -205,7 +205,7 @@ FOR EACH ROW
 EXECUTE FUNCTION add_attendee_from_invitation(); 
 
 --TRIGGER 2
-CREATE FUNCTION add_attendee_from_join_request() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION add_attendee_from_join_request() RETURNS TRIGGER AS
 $BODY$
 BEGIN
     IF NEW.j_status = 'Accepted' AND (OLD.j_status IS DISTINCT FROM 'Accepted') THEN
@@ -224,8 +224,8 @@ FOR EACH ROW
 EXECUTE FUNCTION add_attendee_from_join_request();
 
 --TRIGGER 3
- CREATE FUNCTION notify_attendees_on_event_update()
- RETURN TRIGGER AS
+ CREATE OR REPLACE FUNCTION notify_attendees_on_event_update()
+ RETURNS TRIGGER AS
  $BODY$
  BEGIN
    IF (OLD.eventName IS DISTINCT FROM NEW.eventName)
@@ -234,8 +234,9 @@ EXECUTE FUNCTION add_attendee_from_join_request();
       OR (OLD.endDate IS DISTINCT FROM NEW.endDate)
       OR (OLD.location IS DISTINCT FROM NEW.location)
    THEN  
-      INSERT INTO notifications (message, notificationType)
+      INSERT INTO notifications (title, message, notificationType)
       SELECT
+      'Event Updated',
            'The event ""' || NEW.eventName || '" has been updated. Please check the details.',
            'EventUpdate'
       FROM eventParticipation
@@ -263,8 +264,8 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_attendees_on_event_update();
 
 --TRIGGER 4
-CREATE FUNCTION notify_organizer_on_new_comment()
-RETURN TRIGGER AS
+CREATE OR REPLACE FUNCTION notify_organizer_on_new_comment()
+RETURNS TRIGGER AS
 $BODY$
 DECLARE 
     organizer_id INT;
@@ -275,8 +276,9 @@ BEGIN
     WHERE eventId = NEW.eventId;
     
     IF organizer_id IS NOT NULL AND organizer_id <> NEW.authorId THEN 
-    INSERT INTO notifications (message, notificationType)
+    INSERT INTO notifications (title, message, notificationType)
     VALUES (
+        'New Comment',
     'A new comment was added to your event.',
     'NewComment'
     );   
@@ -294,8 +296,8 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_new_comment();
 
 --TRIGGER 5
-CREATE FUNCTION notify_organizer_on_join_request()
-RETURN TRIGGER AS
+CREATE OR REPLACE FUNCTION notify_organizer_on_join_request()
+RETURNS TRIGGER AS
 $BODY$
 DECLARE 
      organizer_id INT;
@@ -307,8 +309,9 @@ BEGIN
      
      IF organizer_id IS NOT NULL AND organizer_id <> NEW.userId THEN
      
-     INSERT INTO notifications(message, notificationType)
+     INSERT INTO notifications(title, message, notificationType)
      VALUES (
+        'Join Request' ,
      'A user has requested to join your event',
      'JoinRequest'
      );
@@ -326,8 +329,8 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_join_request();
 
 --TRIGGER 6
-CREATE FUNCTION notify_attendees_about_poll()
-RETURN TRIGGER AS
+CREATE OR REPLACE FUNCTION notify_attendees_about_poll()
+RETURNS TRIGGER AS
 $BODY$
 DECLARE 
     attendee RECORD;
@@ -339,8 +342,9 @@ BEGIN
         WHERE eventId = NEW.eventId
           AND role = 'Attendee'
     LOOP      
-      INSERT INTO notifications(message, notificationType)
+      INSERT INTO notifications(title, message, notificationType)
       VALUES (
+        'New Poll',
       'A new poll has been created for an event you are attending.',
       'PollCreated'
       );
@@ -358,8 +362,8 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_attendees_about_poll();
 
 --TRIGGER 7
-CREATE FUNCTION notify_admin_on_report()
-RETURN TRIGGER AS
+CREATE OR REPLACE FUNCTION notify_admin_on_report()
+RETURNS TRIGGER AS
 $BODY$
 DECLARE
     admin RECORD;
@@ -368,12 +372,13 @@ BEGIN
    FOR admin IN
        SELECT adminId FROM appAdmin
    LOOP
-       INSERT INTO notifications (message, notificationType)
-       VALUE (
+       INSERT INTO notifications (title, message, notificationType)
+       VALUES (
+        'New Report',
        'A new user report has been submitted and requires review.',
        'ReportStatus'
        );
-   END LOOP:    
+   END LOOP;    
    
    RETURN NEW;
 END;
@@ -386,8 +391,8 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_admin_on_report();
 
 --TRIGGER 8
-CREATE FUNCTION notify_organizer_on_capacity_reach()
-RETURN TRIGGER AS
+CREATE OR REPLACE FUNCTION notify_organizer_on_capacity_reach()
+RETURNS TRIGGER AS
 $BODY$
 DECLARE
    organizer_id INT;
@@ -405,8 +410,9 @@ BEGIN
     eventId = NEW.eventId;
     
     IF attendee_count = event_capacity THEN
-        INSERT INTO notifications (message, notificationType)
+        INSERT INTO notifications (title, message, notificationType)
         VALUES (
+            'Capacity Reached',
         'Your event has reached its maximum capacity of ' || event_capacity || 'attendees.',
         'EventUpdate'
         );
@@ -423,8 +429,8 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_capacity_reach();
 
 --TRIGGER 9
-CREATE FUNCTION add_default_poll_options()
-RETURN TRIGGER AS
+CREATE OR REPLACE FUNCTION add_default_poll_options()
+RETURNS TRIGGER AS
 $BODY$
 BEGIN
     INSERT INTO pollOption (pollId, optionText)
@@ -442,13 +448,13 @@ FOR EACH ROW
 EXECUTE FUNCTION add_default_poll_options();  
 
 --TRIGGER 10
-CREATE FUNCTION add_organizer_on_eventParticipation()
-RETURN TRIGGER AS
+CREATE OR REPLACE FUNCTION add_organizer_on_eventParticipation()
+RETURNS TRIGGER AS
 $BODY$
 BEGIN
    INSERT INTO eventParticipation (eventId, userId, role)
    VALUES (NEW.eventId, NEW.createdBy, 'Organizer')
-   ON CONFLICT DO NOTHING;
+   ON CONFLICT (eventID, userID) DO NOTHING;
    RETURN NEW;
 END;
 $BODY$
