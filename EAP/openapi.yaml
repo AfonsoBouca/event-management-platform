@@ -7,7 +7,7 @@ info:
 
 servers:
 - url: http://lbaw25124.lbaw.fe.up.pt
- description: Production server
+  description: Production server
 
 externalDocs:
  description: Find more info here.
@@ -27,7 +27,7 @@ paths:
      summary: 'R101: Login Form'
      description: 'Provide login form. Access: PUB'
      tags:
-       - 'M01: Authentication and Individual Profile'
+       - 'M01: Authentication and User Profile'
      responses:
        '200':
          description: 'Ok. Show Log-in UI'
@@ -115,17 +115,17 @@ paths:
              properties:
                name:
                  type: string
-                password:
+               password:
                  type: string
 
-                email:
+               email:
                  type: string
                picture:
                  type: string
                  format: binary
              required:
                                     - email
-                                   - password
+                                    - password
 
      responses:
        '302':
@@ -148,7 +148,7 @@ paths:
      summary: 'R106: View user profile'
      description: 'Show the individual user profile. Access: USR'
      tags:
-       - 'M01: Authentication and Individual Profile'
+       - 'M01: Authentication and User Profile'
 
      parameters:
        - in: path
@@ -162,14 +162,14 @@ paths:
          description: 'Ok. Show User Profile UI'
  
 
- /api/works:
+ /events/search:
    get:
-     operationId: R202
-     summary: 'R202: Search Works API'
-     description: 'Searches for works and returns the results as JSON. Access: PUB.'
+     operationId: R201
+     summary: 'R201: Search Public Events'
+     description: 'Returns a list of public events matching the search criteria. Access: PUB'
 
      tags:
-       - 'M02: Works'
+       - 'M02: Events'
 
      parameters:
        - in: query
@@ -179,33 +179,20 @@ paths:
            type: string
          required: false
        - in: query
-         name: item
-         description: Category of the works
+         name: category
+         description: Category of the events
          schema:
            type: string
          required: false
        - in: query
-         name: loaned
-         description: Boolean with the loaned flag value
+         name: tag 
+         description: Tag associated with the events
          schema:
-           type: boolean
-         required: false
-       - in: query
-         name: owner
-         description: Boolean with the owner flag value
-         schema:
-           type: boolean
-         required: false
-       - in: query
-         name: classification
-         description: Integer corresponding to the work classification
-         schema:
-           type: integer
-         required: false
-
+           type: string
+         required: false  
      responses:
        '200':
-         description: Success
+         description: 'Ok. Return list of events matching the search criteria.'
          content:
            application/json:
              schema:
@@ -213,28 +200,737 @@ paths:
                items:
                  type: object
                  properties:
+                   id: 
+                     type: integer
+                     example: 1
+                   name:
+                     type: string
+                     example: "Tech Conference 2025"
+                   description:
+                     type: string  
+                     example: "Annual technology conference featuring latest innovations in AI and Machine Learning"
+                   startDate:
+                     type: string
+                     format: date-time
+                     example: "2025-12-01T09:00:00"
+                   endDate:
+                     type: string
+                     format: date-time
+                     example: "2025-12-03T18:00:00" 
+                   capacity:
+                     type: integer
+                     example: 500
+                   price:
+                     type: number
+                     format: float
+                     example: 150.00
+                   isPublic:
+                     type: boolean
+                     example: true  
+                   location: 
+                      type: string
+                      example: "Silicon Valley Convention Center, CA"  
+                   createdby:
+                      type: integer
+                      example: 1
+                   eventStatus:
+                     type: string
+                     example: "Upcoming"  
+                   category:
+                     type: string  
+                     example: "Technology"
+                   tags:
+                     type: array
+                     items:
+                       type: string  
+                     example: ["AI", "Machine Learning", "Innovation"] 
+ /events/createEvent:
+  get:
+    operationId: R202
+    summary: 'R202: Create Event Form'
+    description: 'Provide event creation form. Access: USR'
+    tags:
+      - 'M02: Events'
+    responses:
+      '200':
+        description: 'Ok. Show Event Creation UI'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Film Screening & Discussion"
+                description:
+                  type: string
+                  example: "An evening of independent film screenings followed by a panel discussion with filmmakers."
+                startDate:
+                  type: string
+                  format: date-time
+                  example: "2025-11-15T19:00:00Z"
+                endDate:
+                  type: string
+                  format: date-time
+                  example: "2025-11-15T22:00:00Z"
+                capacity:
+                  type: integer
+                  example: 150
+                price:
+                  type: number
+                  format: float
+                  example: 20.00  
+                isPublic:
+                  type: boolean
+                  example: true
+                location:
+                  type: string
+                  example: "Downtown Art House, NY"
+                eventStatus:
+                  type: string
+                  example: "Scheduled"  
+                category:
+                  type: string
+                  example: "Arts & Culture"  
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  example: ["Film", "Discussion", "Independent"]  
+
+  post:
+    operationId: R203
+    summary: 'R203: Create Event Action'
+    description: 'Processes the event creation form submission. Access: USR'
+    tags:
+      - 'M02: Events'
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              startDate:
+                type: string
+                format: date-time
+              endDate:
+                type: string
+                format: date-time
+              capacity:
+                type: integer
+              price:
+                type: number
+                format: float
+              isPublic:
+                type: boolean
+              location:
+                type: string
+              eventStatus:
+                type: string  
+              category:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+    responses:
+      '201':
+        description: 'Created. Event created successfully.'
+      '400':         
+        description: 'Bad Request. Invalid event data provided.'
+      '401':
+        description: 'Unauthorized. User must be authenticated to create an event.'
+      '403':
+        description: 'Forbidden. User does not have permission to create events.'
+      '500':
+        description: 'Internal Server Error. An error occurred while processing the event creation.'
+ 
+ /events/{id}/edit:
+   post:
+     operationId: R204
+     summary: 'R204: Edit Event Action'
+     description: 'Processes the event editing. Access: ORG'
+     tags:
+       - 'M02: Events'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true          
+     requestBody:
+       required: true
+       content:
+         multipart/form-data:
+           schema:
+             type: object
+             properties:
+               id:
+                 type: integer
+               name:
+                 type: string
+               description:
+                 type: string
+               startDate:
+                 type: string
+                 format: date-time
+               endDate:
+                 type: string
+                 format: date-time
+               capacity:
+                 type: integer
+               price:
+                 type: number
+                 format: float
+               isPublic:
+                 type: boolean
+               location:
+                 type: string
+               eventStatus:
+                 type: string 
+               category:
+                 type: string
+               tags:
+                 type: array
+                 items:
+                   type: string
+     responses:
+       '200':
+         description: 'Ok. Event edited successfully.'
+       '400':         
+         description: 'Bad Request. Invalid event data provided.'
+       '401':
+         description: 'Unauthorized. User must be authenticated to edit an event.'
+       '403':
+         description: 'Forbidden. Only the organizer must edit this event.'
+       '500':
+         description: 'Internal Server Error. An error occurred while processing the event editing.'
+
+ /events/{id}/inviteUsers:
+   post:
+     operationId: R205 
+     summary: 'R205: Invite Users to Event'
+     description: 'Invite users to an event. Access: ORG'
+     tags:
+        - 'M02: Events'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true   
+     requestBody:
+       required: true
+       content:
+         multipart/form-data:
+           schema:
+             type: object
+             properties:
+               userIds:
+                 type: array
+                 items:
+                   type: integer
+     responses:
+        '200':
+          description: 'Ok. Users invited successfully.'
+        '400':         
+          description: 'Bad Request. Invalid user IDs provided.'
+        '401':
+          description: 'Unauthorized. User must be authenticated to invite users.'
+        '403':
+          description: 'Forbidden. Only the organizer must invite users to this event.'
+        '500':
+          description: 'Internal Server Error. An error occurred while processing the invitations.'
+
+ /events/{id}/removeUser:
+   post:
+     operationId: R206
+     summary: 'R206: Remove User from Event'
+     description: 'Remove a user from an event. Access: ORG'
+     tags:
+        - 'M02: Events'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true   
+     requestBody:
+       required: true
+       content:
+         multipart/form-data:
+           schema:
+             type: object
+             properties:
+               userId:
+                 type: integer
+     responses:
+         '200':
+            description: 'Ok. User removed successfully.'
+         '400':         
+            description: 'Bad Request. Invalid user ID provided.'
+         '401':
+            description: 'Unauthorized. User must be authenticated to remove users.'
+         '403':
+            description: 'Forbidden. Only the organizer must remove users from this event.'
+         '500':
+            description: 'Internal Server Error. An error occurred while processing the removal.'  
+
+ /events/{id}/requestParticipation:
+   post:
+     operationId: R207
+     summary: 'R207: Request Participation in Event'
+     description: 'Request participation in an event. Access: USR'
+     tags:
+       - 'M02: Events'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true  
+     responses:
+         '200': 
+            description: 'Ok. Participation request sent successfully.'
+         '400':
+            description: 'Bad Request. Invalid event ID provided.'
+         '401':
+            description: 'Unauthorized. User must be authenticated to request participation.'
+         '403':
+            description: 'Forbidden. User cannot request participation in this event.'
+         '500':
+            description: 'Internal Server Error. An error occurred while processing the participation request.'
+
+ /events/{id}/cancelParticipation:
+    post:
+      operationId: R208
+      summary: 'R208: Cancel Participation in Event'
+      description: 'Cancel participation in an event. Access: USR'
+      tags:
+         - 'M02: Events'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true   
+      responses:
+         '200':
+            description: 'Ok. Participation cancelled successfully.'
+         '400':         
+            description: 'Bad Request. Invalid event ID provided.'
+         '401':
+            description: 'Unauthorized. User must be authenticated to cancel participation.'
+         '403':
+            description: 'Forbidden. User cannot cancel participation in this event.'
+         '500':
+            description: 'Internal Server Error. An error occurred while processing the cancellation.'
+
+ /events/{id}/attendees:
+   get:
+      operationId: R209
+      summary: 'R209: List Event Attendees'
+      description: 'Retrieve a list of attendees for a specific event. Access: ATT'
+      tags:
+         - 'M02: Events'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true   
+      responses:
+         '200':
+            description: 'Ok. Return list of event attendees.'
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: "John Doe"
+                      email:
+                        type: string
+                        example: "john@exemple.com"
+         '400':        
+            description: 'Bad Request. Invalid event ID provided.'
+         '401':
+            description: 'Unauthorized. User must be authenticated to view attendees.'
+         '500':
+            description: 'Internal Server Error. An error occurred while retrieving the attendees.'
+
+ /events/{id}/delete:
+    post:
+      operationId: R210
+      summary: 'R210: Delete Event'
+      description: 'Delete a specific event. Access: ORG'
+      tags:
+          - 'M02: Events'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true    
+      responses:
+          '200':
+            description: 'Ok. Event deleted successfully.'
+          '400':         
+            description: 'Bad Request. Invalid event ID provided.'
+          '401':
+            description: 'Unauthorized. User must be authenticated to delete an event.'
+          '403':
+            description: 'Forbidden. Only the organizer must delete this event.'
+
+ /events/{id}/view:
+   get:
+     operationId: R211
+     summary: 'R211: View Event Details'
+     description: 'Show the details of a specific event. Access: PUB'
+     tags:
+       - 'M02: Events'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true
+     requestBody:
+        required: false  
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                description:
+                  type: string
+                startDate:
+                  type: string
+                  format: date-time
+                endDate:
+                  type: string
+                  format: date-time
+                capacity:
+                  type: integer   
+                price:
+                  type: number
+                  format: float
+                isPublic:
+                  type: boolean   
+                location:
+                  type: string
+                createdby:
+                  type: integer
+                eventStatus:
+                  type: string  
+                category:
+                  type: string    
+                tags:
+                  type: array
+                  items:
+                    type: string  
+     responses:
+       '200':
+         description: 'Ok. Show Event Details UI'
+       '404':
+          description: 'Not Found. Event with the specified ID does not exist.'
+
+ /events/{id}/updateStatus:
+   post:
+     operationId: R212
+     summary: 'R212: Update Event Status'
+     description: 'Update the status of a specific event. Access: ORG'
+     tags:
+       - 'M02: Events'
+     parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+     requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                eventStatus:
+                  type: string
+                  example:
+                    eventStatus: "Completed"
+     responses:
+        '200':
+           description: 'Ok. Event status updated successfully.'
+           content:
+             application/json:
+               schema:
+                 type: object
+                 properties:
                    id:
+                     type: integer
+                     example: 1
+                   eventStatus:
                      type: string
-                   title:
+                     example: "Completed"                
+        '400':         
+           description: 'Bad Request. Invalid event ID or status provided.'
+        '401':
+           description: 'Unauthorized. User must be authenticated to update event status.'
+        '403':
+           description: 'Forbidden. Only the organizer must update the status of this event.'
+
+ /events/{id}/acceptParticipation:
+   post:
+    operationId: R213
+    summary: 'R213: Accept Participation Request'
+    description: 'Accept a user participation request for an event. Access: ORG'
+    tags:
+      - 'M02: Events'
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true   
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: integer
+    responses:
+        '200':
+           description: 'Ok. Participation request accepted successfully.'
+           content:
+             application/json:
+               schema:
+                 type: object
+                 properties:
+                   eventId:
+                     type: integer
+                     example: 1
+                   userId:
+                     type: integer
+                     example: 2
+                   status:
                      type: string
-                   obs:
-                     type: string
-                   year:
-                     type: string
-                   owner:
-                     type: string
-                   type:
-                     type: string
-               example:
-                 - id: 1
-                   title: Rihanna - Unapologetic
-                   obs: Good pop music album.
-                   year: 2012
-                   owner: Joana Lima
-                   type: MP3
-                 - id: 15
-                   title: Mr. Bean
-                   obs: The best comedy movie.
-                   year: 1995
-                   owner: Manuel Teixeira
-                   type: DVD
+                     example: "Accepted"
+        '400':         
+           description: 'Bad Request. Invalid event ID or user ID provided.'
+        '401':
+           description: 'Unauthorized. User must be authenticated to accept participation requests.'
+        '500':
+           description: 'Internal Server Error. An error occurred while processing the acceptance.'
+
+ /events/{id}/rejectParticipation:
+   post:
+     operationId: R214
+     summary: 'R214: Reject Participation Request'
+     description: 'Reject a user participation request for an event. Access: ORG'
+     tags:
+       - 'M02: Events'
+     parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+     requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+     responses:
+         '200':
+            description: 'Ok. Participation request rejected successfully.'
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    eventId:
+                      type: integer
+                      example: 1
+                    userId:
+                      type: integer
+                      example: 2
+                    status:
+                      type: string
+                      example: "Rejected"
+         '400':
+             description: 'Bad Request. Invalid event ID or user ID provided.'
+         '401':
+            description: 'Unauthorized. User must be authenticated to reject participation requests.'
+         '500':
+            description: 'Internal Server Error. An error occurred while processing the rejection.'  
+
+ /events/{id}/cancelEvent:
+   post:
+     operationId: R215
+     summary: 'R215: Cancel Event'
+     description: 'Cancel a specific event. Access: ORG'
+     tags:
+         - 'M02: Events'
+     parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+     requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                cancellationReason:
+                  type: string
+     responses: 
+          '200':
+              description: 'Ok. Event cancelled successfully.'
+          '400':         
+              description: 'Bad Request. Invalid event ID provided.'
+          '401':
+              description: 'Unauthorized. User must be authenticated to cancel an event.'
+          '403':
+              description: 'Forbidden. Only the organizer must cancel this event.'
+          '500':
+              description: 'Internal Server Error. An error occurred while processing the cancellation.'
+
+ /events/{id}/eventStatistics:
+   get:
+     operationId: R216
+     summary: 'R216: Get Event Statistics'
+     description: 'Retrieve statistics for a specific event. Access: ORG'
+     tags:
+       - 'M02: Events'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true
+     responses:
+       '200':
+         description: 'Ok. Return event statistics.'
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 totalAttendees:
+                   type: integer
+                   example: 150
+                 totalRevenue:
+                   type: number
+                   format: float
+                   example: 3000.00
+                 averageRating:
+                   type: number
+                   format: float
+                   example: 4.5
+       '400':
+          description: 'Bad Request. Invalid event ID provided.'
+       '401':
+          description: 'Unauthorized. User must be authenticated to view event statistics.'
+       '403':
+          description: 'Forbidden. Only the organizer can view the statistics of this event.'
+       '500':
+          description: 'Internal Server Error. An error occurred while retrieving the statistics.'  
+
+ /events/{id}/searchAttendees:
+   get:
+     operationId: R217
+     summary: 'R217: Filter list of Event Attendees'
+     description: 'Filter the list of participants by confirmed , not confirmed yet or rejected. Access: ORG'
+     tags:
+        - 'M02: Events'
+     parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true   
+        - in: query
+          name: status
+          description: Filter attendees by status (confirmed, pending, rejected)
+          schema:
+            type: string
+            enum: [confirmed, pending, rejected]
+          required: false
+     responses:
+        '200':
+           description: 'Ok. Return filtered list of event attendees.'
+           content:
+             application/json:
+               schema:
+                 type: array
+                 items:
+                   type: object
+                   properties:
+                     id:
+                       type: integer
+                       example: 1
+                     name:
+                       type: string
+                       example: "John Doe"
+                     email:
+                       type: string
+                       example: "john@example.com"
+                     status:
+                       type: string
+                       example: "confirmed"
+        '400':        
+           description: 'Bad Request. Invalid event ID or status provided.'
+        '401':
+           description: 'Unauthorized . User must be authenticated to view attendees.'
+        '403':
+           description: 'Forbidden. Only the organizer can view the attendees of this event.'
+        '500':
+           description: 'Internal Server Error. An error occurred while retrieving the attendees.'
+
+ /events/{id}/leaveEvent:
+   post:
+     operationId: R218
+     summary: 'R218: Leave Event'
+     description: 'Allows an attendee to leave an event they are participating in. Access: ATT'
+     tags:
+        - 'M02: Events'
+     parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true   
+     responses:
+        '200':
+           description: 'Ok. Successfully left the event.'
+        '401':
+           description: 'Unauthorized. User must be authenticated to leave an event.'
+        '500':
+           description: 'Internal Server Error. An error occurred while processing the request.'
+
