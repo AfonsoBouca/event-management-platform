@@ -36,7 +36,7 @@ paths:
      summary: 'R102: Login Action'
      description: 'Processes the login form submission. Access: PUB'
      tags:
-       - 'M01: Authentication and Individual Profile'
+       - 'M01: Authentication and User Profile'
 
      requestBody:
        required: true
@@ -75,7 +75,7 @@ paths:
      summary: 'R103: Logout Action'
      description: 'Logout the current authenticated user. Access: USR, ADM'
      tags:
-       - 'M01: Authentication and Individual Profile'
+       - 'M01: Authentication and User Profile'
      responses:
        '302':
          description: 'Redirect after processing logout.'
@@ -94,7 +94,7 @@ paths:
      summary: 'R104: Register Form'
      description: 'Provide new user registration form. Access: PUB'
      tags:
-       - 'M01: Authentication and Individual Profile'
+       - 'M01: Authentication and User Profile'
      responses:
        '200':
          description: 'Ok. Show Sign-Up UI'
@@ -104,7 +104,7 @@ paths:
      summary: 'R105: Register Action'
      description: 'Processes the new user registration form submission. Access: PUB'
      tags:
-       - 'M01: Authentication and Individual Profile'
+       - 'M01: Authentication and User Profile'
 
      requestBody:
        required: true
@@ -146,7 +146,7 @@ paths:
    get:
      operationId: R106
      summary: 'R106: View user profile'
-     description: 'Show the individual user profile. Access: USR'
+     description: 'Show the user profile. Access: USR'
      tags:
        - 'M01: Authentication and User Profile'
 
@@ -934,3 +934,186 @@ paths:
         '500':
            description: 'Internal Server Error. An error occurred while processing the request.'
 
+ /admin/users/{id}/deactivate:
+  post:
+    operationId: R501
+    summary: 'R501: Deactivate User Account'
+    description: 'Deactivate a specific user account. Access: ADM'
+    tags:
+      - 'M05: User Administration'
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+    responses:
+      '200':
+        description: 'Ok. User account deactivated successfully.'
+      '400':
+        description: 'Bad Request. Invalid user ID provided.'
+      '403':
+        description: 'Forbidden. Only administrators can deactivate user accounts.'
+      '500':
+        description: 'Internal Server Error. An error occurred while processing the deactivation.'
+      
+ /admin/users/{id}/activate:
+  post:
+    operationId: R502
+    summary: 'R502: Activate User Account'
+    description: 'Activate a specific user account. Access: ADM'
+    tags:
+      - 'M05: User Administration'
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+    responses:
+      '200':
+        description: 'Ok. User account activated successfully.'
+      '400':
+        description: 'Bad Request. Invalid user ID provided.'
+      '403':
+        description: 'Forbidden. Only administrators can activate user accounts.'
+      '500':
+        description: 'Internal Server Error. An error occurred while processing the activation.'
+
+ /admin/users/{id}/block:
+   post:
+     operationId: R503
+     summary: 'R503: Block User Account'
+     description: 'Block a specific user account. Access: ADM'
+     tags:
+       - 'M05: User Administration'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true
+     responses:
+       '200':
+         description: 'Ok. User account blocked successfully.'
+       '400':
+         description: 'Bad Request. Invalid user ID provided.'
+       '403':
+         description: 'Forbidden. Only administrators can block user accounts.'
+       '500':
+         description: 'Internal Server Error. An error occurred while processing the blocking.'
+
+ /admin/users/{id}/unblock:
+   post:
+     operationId: R504
+     summary: 'R504: Unblock User Account'
+     description: 'Unblock a specific user account. Access: ADM'
+     tags:
+       - 'M05: User Administration'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true
+     responses:
+       '200':
+         description: 'Ok. User account unblocked successfully.'
+       '400':
+         description: 'Bad Request. Invalid user ID provided.'
+       '403':
+         description: 'Forbidden. Only administrators can unblock user accounts.'
+       '500':
+         description: 'Internal Server Error. An error occurred while processing the unblocking.'  
+
+ /admin/users/{id}/delete:
+  post:
+    operationId: R505
+    summary: 'R505: Delete User Account'
+    description: 'Delete a specific user account. Access: ADM'
+    tags:
+      - 'M05: User Administration'
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+    responses:
+      '200':
+        description: 'Ok. User account deleted successfully.'
+      '400':
+        description: 'Bad Request. Invalid user ID provided.'
+      '403':
+        description: 'Forbidden. Only administrators can delete user accounts.'
+      '500':
+        description: 'Internal Server Error. An error occurred while processing the deletion.'
+      
+ /admin/users/{id}/role:
+  post:
+    operationId: R506
+    summary: 'R506: Change User Role'
+    description: 'Change the role of a specific user account. Access: ADM'
+    tags:
+      - 'M05: User Administration'
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              role:
+                type: string
+                example: "ORG"
+    responses:
+      '200':
+        description: 'Ok. User role changed successfully.'
+      '400':
+        description: 'Bad Request. Invalid user ID or role provided.'
+      '403':
+        description: 'Forbidden. Only administrators can change user roles.'
+      '500':
+        description: 'Internal Server Error. An error occurred while processing the role change.'
+
+ /admin/users/{id}/restore:
+   post:
+     operationId: R507
+     summary: 'R507: Restore Deleted User Account'
+     description: 'Restore a previously deleted user account. Access: ADM'
+     tags:
+       - 'M05: User Administration'
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true
+     requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  example: "Restoring account due to user request."
+     responses:
+        '200':
+          description: 'Ok. User account restored successfully.'
+        '400':
+          description: 'Bad Request. Invalid user ID provided.'
+        '403':
+          description: 'Forbidden. Only administrators can restore deleted user accounts.'
+        '500':
+          description: 'Internal Server Error. An error occurred while processing the restoration.'
+
+
+          
