@@ -20,24 +20,28 @@ tags:
   - name: "M04: Reports System"
   - name: "M05: User Administration"
 
+
+
+
+
+
 paths:
   /login:
     get:
       operationId: R101
-      summary: "R101: Login Form"
-      description: "Provide login form. Access: PUB"
+      summary: 'R101: Login Form'
+      description: 'Provide login form. Access: PUB'
       tags:
-        - "M01: Authentication and User Profile"
+        - 'M01: Authentication and User Profile'
       responses:
-        "200":
-          description: "Ok. Show Log-in UI"
+        '200':
+          description: 'Ok. Show Log-in UI'
     post:
       operationId: R102
-      summary: "R102: Login Action"
-      description: "Processes the login form submission. Access: PUB"
+      summary: 'R102: Login Action'
+      description: 'Processes the login form submission. Access: PUB'
       tags:
-        - "M01: Authentication and User Profile"
-
+        - 'M01: Authentication and User Profile'
       requestBody:
         required: true
         content:
@@ -45,66 +49,63 @@ paths:
             schema:
               type: object
               properties:
-                email: # <!--- form field name
+                email:
                   type: string
-                password: # <!--- form field name
+                password:
                   type: string
               required:
                 - email
                 - password
-
       responses:
-        "302":
-          description: "Redirect after processing the login credentials."
+        '302':
+          description: 'Redirect after processing the login credentials.'
           headers:
             Location:
               schema:
                 type: string
               examples:
                 302Success:
-                  description: "Successful authentication. Redirect to user profile."
-                  value: "/users/{id}"
+                  description: 'Successful authentication. Redirect to user profile.'
+                  value: '/users/{id}'
                 302Error:
-                  description: "Failed authentication. Redirect to login form."
-                  value: "/login"
+                  description: 'Failed authentication. Redirect to login form.'
+                  value: '/login'
 
   /logout:
     post:
       operationId: R103
-      summary: "R103: Logout Action"
-      description: "Logout the current authenticated user. Access: USR, ADM"
+      summary: 'R103: Logout Action'
+      description: 'Logout the current authenticated user. Access: USR, ADM'
       tags:
-        - "M01: Authentication and User Profile"
+        - 'M01: Authentication and User Profile'
       responses:
-        "302":
-          description: "Redirect after processing logout."
+        '302':
+          description: 'Redirect after processing logout.'
           headers:
             Location:
               schema:
                 type: string
               examples:
                 302Success:
-                  description: "Successful logout. Redirect to login form."
-                  value: "/login"
+                  description: 'Successful logout. Redirect to login form.'
+                  value: '/login'
 
   /register:
     get:
       operationId: R104
-      summary: "R104: Register Form"
-      description: "Provide new user registration form. Access: PUB"
+      summary: 'R104: Register Form'
+      description: 'Provide new user registration form. Access: PUB'
       tags:
-        - "M01: Authentication and User Profile"
+        - 'M01: Authentication and User Profile'
       responses:
-        "200":
-          description: "Ok. Show Sign-Up UI"
-
+        '200':
+          description: 'Ok. Show Sign-Up UI'
     post:
       operationId: R105
-      summary: "R105: Register Action"
-      description: "Processes the new user registration form submission. Access: PUB"
+      summary: 'R105: Register Action'
+      description: 'Processes the new user registration form submission. Access: PUB'
       tags:
-        - "M01: Authentication and User Profile"
-
+        - 'M01: Authentication and User Profile'
       requestBody:
         required: true
         content:
@@ -116,7 +117,6 @@ paths:
                   type: string
                 password:
                   type: string
-
                 email:
                   type: string
                 picture:
@@ -125,40 +125,194 @@ paths:
               required:
                 - email
                 - password
-
       responses:
-        "302":
-          description: "Redirect after processing the new user information."
+        '302':
+          description: 'Redirect after processing the new user information.'
           headers:
             Location:
               schema:
                 type: string
               examples:
                 302Success:
-                  description: "Successful authentication. Redirect to user profile."
-                  value: "/users/{id}"
+                  description: 'Successful authentication. Redirect to user profile.'
+                  value: '/users/{id}'
                 302Failure:
-                  description: "Failed authentication. Redirect to login form."
-                  value: "/login"
+                  description: 'Failed authentication. Redirect to login form.'
+                  value: '/login'
 
   /users/{id}:
     get:
       operationId: R106
-      summary: "R106: View user profile"
-      description: "Show the user profile. Access: USR"
+      summary: 'R106: View user profile'
+      description: 'Show the individual user profile. Access: USR'
       tags:
-        - "M01: Authentication and User Profile"
-
+        - 'M01: Authentication and User Profile'
       parameters:
         - in: path
           name: id
           schema:
             type: integer
           required: true
-
       responses:
-        "200":
-          description: "Ok. Show User Profile UI"
+        '200':
+          description: 'Ok. Show User Profile UI'
+
+  /users/{id}/edit:
+    get:
+      operationId: R107
+      summary: 'R107: Edit User information Form'
+      description: 'Provide user form to update profile information. Access: USR, ADM'
+      tags:
+        - 'M01: Authentication and User Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Show Edit User Profile Form'
+        '403':
+          description: 'Forbidden. User can only edit own profile'
+    post:
+      operationId: R108
+      summary: 'R108: Edit User information Action'
+      description: 'Processes the user profile update form submission. Access: USR, ADM'
+      tags:
+        - 'M01: Authentication and User Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                picture:
+                  type: string
+                  format: binary
+              required:
+                - name
+                - email
+      responses:
+        '302':
+          description: 'Redirect after processing the user information update.'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: 'Successful update. Redirect to user profile.'
+                  value: '/users/{id}'
+                302Error:
+                  description: 'Failed update. Redirect to edit form.'
+                  value: '/users/{id}/edit'
+
+  /users/{id}/password:
+    get:
+      operationId: R109
+      summary: 'R109: Change Password Form'
+      description: 'Provide form to change user password. Access: USR, ADM'
+      tags:
+        - 'M01: Authentication and User Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Show Change Password Form'
+    post:
+      operationId: R110
+      summary: 'R110: Change Password Action'
+      description: 'Processes the password change form submission. Access: USR, ADM'
+      tags:
+        - 'M01: Authentication and User Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+                confirm_password:
+                  type: string
+              required:
+                - current_password
+                - new_password
+                - confirm_password
+      responses:
+        '302':
+          description: 'Redirect after processing the password change.'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: 'Successful password change. Redirect to user profile.'
+                  value: '/users/{id}'
+                302Error:
+                  description: 'Failed password change. Redirect to password form.'
+                  value: '/users/{id}/password'
+
+  /users/{id}/calendar:
+    get:
+      operationId: R111
+      summary: 'R111: View Personal Calendar'
+      description: 'Show the personal calendar with all events the user is participating in. Access: USR'
+      tags:
+        - 'M01: Authentication and User Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: month
+          description: 'Month to display (1-12)'
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: year
+          description: 'Year to display'
+          schema:
+            type: integer
+          required: false
+      responses:
+        '200':
+          description: 'Ok. Show Personal Calendar UI'
+          content:
+            text/html:
+              schema:
+                type: string
+
+
 
   /events/search:
     get:
@@ -1491,6 +1645,209 @@ paths:
           description: "Not Found. Poll does not exist."
         "500":
           description: "Internal Server Error. An error occurred while retrieving poll results."
+
+  # M04: Reports System
+  /reports:
+    get:
+      operationId: R401
+      summary: 'R401: View My Reports'
+      description: 'Show all reports submitted by the current user. Access: USR, ADM'
+      tags:
+        - 'M04: Reports System'
+      responses:
+        '200':
+          description: 'Ok. Show list of user reports'
+        '401':
+          description: 'Unauthorized. User must be logged in'
+
+    post:
+      operationId: R402
+      summary: 'R402: Create Report'
+      description: 'Submit a new report for inappropriate content or behavior. Access: USR, ADM'
+      tags:
+        - 'M04: Reports System'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                report_type:
+                  type: string
+                  enum: [event, comment, user]
+                  description: 'Type of content being reported'
+                target_id:
+                  type: integer
+                  description: 'ID of the event, comment or user being reported'
+                reason:
+                  type: string
+                  description: 'Reason for the report'
+                description:
+                  type: string
+                  description: 'Detailed description of the issue'
+              required:
+                - report_type
+                - target_id
+                - reason
+      responses:
+        '302':
+          description: 'Redirect after submitting report'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: 'Report submitted successfully. Redirect to reports list.'
+                  value: '/reports'
+                302Error:
+                  description: 'Failed to submit report. Redirect to report form.'
+                  value: '/reports/new'
+
+  /reports/new:
+    get:
+      operationId: R403
+      summary: 'R403: New Report Form'
+      description: 'Show form to create a new report. Access: USR, ADM'
+      tags:
+        - 'M04: Reports System'
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [event, comment, user]
+          required: false
+          description: 'Pre-select report type in form'
+        - in: query
+          name: target_id
+          schema:
+            type: integer
+          required: false
+          description: 'Pre-fill target ID in form'
+      responses:
+        '200':
+          description: 'Ok. Show new report form'
+
+  /reports/{id}:
+    get:
+      operationId: R404
+      summary: 'R404: View Report Details'
+      description: 'Show details of a specific report. Users can only view their own reports. Access: USR, ADM'
+      tags:
+        - 'M04: Reports System'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: 'Report ID'
+      responses:
+        '200':
+          description: 'Ok. Show report details'
+        '403':
+          description: 'Forbidden. User can only view own reports'
+        '404':
+          description: 'Report not found'
+
+  /admin/reports:
+    get:
+      operationId: R405
+      summary: 'R405: Admin - View All Reports'
+      description: 'Show all reports in the system for administration. Access: ADM'
+      tags:
+        - 'M04: Reports System'
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, reviewed, resolved, dismissed]
+          required: false
+          description: 'Filter by report status'
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [event, comment, user]
+          required: false
+          description: 'Filter by report type'
+      responses:
+        '200':
+          description: 'Ok. Show all reports for administration'
+        '403':
+          description: 'Forbidden. Admin access required'
+
+  /admin/reports/{id}:
+    get:
+      operationId: R406
+      summary: 'R406: Admin - View Report Details'
+      description: 'Show detailed view of a report for administration. Access: ADM'
+      tags:
+        - 'M04: Reports System'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: 'Report ID'
+      responses:
+        '200':
+          description: 'Ok. Show admin report details'
+        '404':
+          description: 'Report not found'
+
+    post:
+      operationId: R407
+      summary: 'R407: Admin - Update Report Status'
+      description: 'Update the status and resolution of a report. Access: ADM'
+      tags:
+        - 'M04: Reports System'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: 'Report ID'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [pending, reviewed, resolved, dismissed]
+                  description: 'New status of the report'
+                admin_notes:
+                  type: string
+                  description: 'Administrator notes about the report'
+                action_taken:
+                  type: string
+                  description: 'Description of actions taken'
+              required:
+                - status
+      responses:
+        '302':
+          description: 'Redirect after updating report'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: 'Report updated successfully. Redirect to admin reports.'
+                  value: '/admin/reports'
+                302Error:
+                  description: 'Failed to update report. Redirect to report details.'
+                  value: '/admin/reports/{id}'
+
+
 
   /admin/users/{id}/deactivate:
     post:
