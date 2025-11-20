@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\UserController;
 
 // Home -> redireciona conforme autenticação
 Route::get('/', function () {
@@ -38,3 +39,10 @@ Route::middleware('auth')->group(function() {
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
 });
+
+// User Profile Page
+// Route::get('/user', function () {
+//     return view('user/user');   
+// });
+Route::get('/user', [UserController::class, 'show'])->name('user.show');
+
