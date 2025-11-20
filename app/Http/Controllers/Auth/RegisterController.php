@@ -33,31 +33,23 @@ class RegisterController extends Controller
      * - Regenerates the session to prevent fixation attacks.
      * - Redirects the user to the cards page with a success message.
      */
-    public function register(Request $request)
+    public function register(Request $request): RedirectResponse
     {
-        // Validate registration input.
-        $request->validate([
-            'name' => 'required|string|max:250',
-            'email' => 'required|email|max:250|unique:users',
-            'password' => 'required|min:8|confirmed'
-        ]);
+    $credentials = $request->validate([
+        'username' => ['required', 'string', 'max:50', 'unique:user,username'],
+        'email' => ['required', 'email', 'max:100', 'unique:user,email'],
+        'password' => ['required', 'confirmed', 'min:6'],
+    ]);
 
-        // Create the new user.
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
+    $user = User::create([
+        'username' => $credentials['username'],
+        'email' => $credentials['email'],
+        'passwordhash' => bcrypt($credentials['password']),
+        'isadmin' => false,
+    ]);
 
-        // Attempt login for the newly registered user.
-        $credentials = $request->only('email', 'password');
-        Auth::attempt($credentials);
+    Auth::login($user);
 
-        // Regenerate session for security (protection against session fixation).
-        $request->session()->regenerate();
-
-        // Redirect to cards page with a success message.
-        return redirect()->route('cards.index')
-            ->withSuccess('You have successfully registered & logged in!');
+    return redirect()->route('events.index');
     }
 }

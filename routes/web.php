@@ -1,37 +1,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\CardController;
-use App\Http\Controllers\ItemController;
-
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\EventController;
 
-// Home
-Route::redirect('/', '/login');
-
-// Cards (authentication required)
-Route::middleware('auth')->controller(CardController::class)->group(function () {
-    Route::get('/cards', 'index')->name('cards.index');
-    Route::get('/cards/{card}', 'show')->name('cards.show');
+// Home -> redireciona conforme autenticação
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('events.index');
+    }
+    return redirect()->route('login');
 });
-
-
-// API (authentication required)
-Route::middleware('auth')->controller(CardController::class)->group(function () {
-    Route::post('/api/cards', 'store');              // create card
-    Route::delete('/api/cards/{card}', 'destroy');   // delete card
-});
-
-Route::middleware('auth')->controller(ItemController::class)->group(function () {
-    Route::post('/api/cards/{card}/items', 'store'); // add item to card
-    Route::patch('/api/items/{item}', 'update');     // update item
-    Route::delete('/api/items/{item}', 'destroy');   // delete item
-});
-
 
 // Authentication
 Route::controller(LoginController::class)->group(function () {
@@ -48,11 +29,12 @@ Route::controller(RegisterController::class)->group(function () {
     Route::post('/register', 'register');
 });
 
-Route::get('/', [EventController::class, 'index']);
+// Events (públicos)
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/events/{event:eventid}', [EventController::class, 'show'])->name('events.show');
 
+// Events (autenticados)
 Route::middleware('auth')->group(function() {
-    Route::get('/events/create', [EventController::class, 'create']);
-    Route::post('/events', [EventController::class, 'store']);
+    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
 });
-
-Route::get('/events/{id}', [EventController::class, 'show']);
