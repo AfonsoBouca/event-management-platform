@@ -8,6 +8,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\EventController;
 
 // Home
 Route::redirect('/', '/login');
@@ -46,3 +47,12 @@ Route::controller(RegisterController::class)->group(function () {
     Route::get('/register', 'showRegistrationForm')->name('register');
     Route::post('/register', 'register');
 });
+
+Route::get('/', [EventController::class, 'index']);
+
+Route::middleware('auth')->group(function() {
+    Route::get('/events/create', [EventController::class, 'create']);
+    Route::post('/events', [EventController::class, 'store']);
+});
+
+Route::get('/events/{id}', [EventController::class, 'show']);
