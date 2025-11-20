@@ -11,8 +11,8 @@ class Event extends Model
     protected $fillable = [
         'eventName',
         'description',
-        'startDate',
-        'endDate',
+        'startdate',
+        'enddate',
         'capicity',
         'price',
         'isPublic',
@@ -22,4 +22,10 @@ class Event extends Model
     ];
 
     public $timestamps = false;
+
+    protected $casts = [
+        'startdate' => 'datetime',
+        'enddate' => 'datetime',
+    
+    ];
 }

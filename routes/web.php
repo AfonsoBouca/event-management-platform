@@ -9,10 +9,9 @@ use App\Http\Controllers\UserController;
 
 // Home -> redireciona conforme autenticação
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('events.index');
-    }
-    return redirect()->route('login');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
 // Authentication
@@ -21,28 +20,37 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('/login', 'authenticate');
 });
 
-Route::controller(LogoutController::class)->group(function () {
-    Route::get('/logout', 'logout')->name('logout');
-});
-
 Route::controller(RegisterController::class)->group(function () {
     Route::get('/register', 'showRegistrationForm')->name('register');
     Route::post('/register', 'register');
 });
 
-// Events (públicos)
+Route::controller(LogoutController::class)->group(function () {
+    Route::post('/logout', 'logout')->name('logout');
+});
+
+// Dashboard
+Route::get('/dashboard', [EventController::class, 'dashboard'])
+    ->middleware('auth')
+    ->name('dashboard');
+
+// Pesquisa de eventos públicos
+Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
+
+
+// Eventos públicos
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events/{event:eventid}', [EventController::class, 'show'])->name('events.show');
 
-// Events (autenticados)
+// Eventos (autenticados)
 Route::middleware('auth')->group(function() {
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
 });
 
-// User Profile Page
-// Route::get('/user', function () {
-//     return view('user/user');   
-// });
-Route::get('/user', [UserController::class, 'show'])->name('user.show');
+Route::get('/user/{userid}', [UserController::class, 'showProfile'])
+     ->name('user.showProfile');
+
+
+
 

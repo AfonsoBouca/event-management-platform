@@ -7,6 +7,39 @@ use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
+    //dashboard de eventos
+    public function dashboard()
+    {
+      $upcomingEvents = Event::where('startdate', '>', now())
+        ->orderBy('startdate', 'desc')
+        ->get();
+
+       $recentEvents = Event::orderBy('eventid', 'desc')
+        ->take(5)
+        ->get();
+
+        return view('events.dashboard', compact('upcomingEvents', 'recentEvents'));
+    }
+
+    //barra de pesquisa
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+    
+        // Corrige nomes das colunas para minúsculas
+        $events = Event::where('ispublic', true)
+            ->where(function ($q) use ($query) {
+                $q->where('eventname', 'ILIKE', '%' . $query . '%')  // ILIKE = case-insensitive
+                  ->orWhere('description', 'ILIKE', '%' . $query . '%');
+            })
+            ->get();
+    
+        // Passa o query também para a view
+        return view('events.searchresults', compact('events', 'query'));
+
+    }
+    
+    
     public function index()
     {
         $events = Event::all();
@@ -53,4 +86,13 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
         return view('events.show', compact('event'));
     }
+
+    public function destroy($id)
+    {
+        $event = Event::findOrFail($id);
+        $event->delete();
+
+        return redirect('events.index');
+    }
+
 }
