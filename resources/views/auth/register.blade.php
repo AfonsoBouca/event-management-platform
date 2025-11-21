@@ -4,18 +4,18 @@
 <form method="POST" action="{{ route('register') }}">
     @csrf
 
-    <label for="name">Name</label>
+    <label for="username">Username</label>
     <input
-        id="name"
+        id="username"
         type="text"
-        name="name"
-        value="{{ old('name') }}"
+        name="username"
+        value="{{ old('username') }}"
         required
         autofocus
-        autocomplete="name"
+        autocomplete="username"
     >
-    @error('name')
-      <span id="name-error" class="error" role="alert">{{ $message }}</span>
+    @error('username')
+      <span id="username-error" class="error" role="alert">{{ $message }}</span>
     @enderror
 
     <label for="email">E-Mail Address</label>
