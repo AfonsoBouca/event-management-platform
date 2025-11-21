@@ -18,6 +18,17 @@
         </div>
     </header>
 
+    <header class="dashboard-header">
+     <div class="user-info"> 
+
+            <!-- Logout button -->
+              <form action="{{ route('logout') }}" method="POST" style="display:inline"> 
+                @csrf
+                 <button type="submit">Logout</button>
+                 </form> 
+                </div> 
+            </header>
+
     <!-- Barra de pesquisa -->
     <section class="search-bar">
         <form action="{{ route('events.search') }}" method="GET">
