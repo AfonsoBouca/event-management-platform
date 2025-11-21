@@ -19,8 +19,11 @@
                 <h1><a href="{{ route('events.index') }}">Wevent</a></h1>
 
                 @auth
-                    <a class="button" href="{{ url('/logout') }}">Logout</a>
                     <span>{{ Auth::user()->username }}</span>
+                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="button">Logout</button>
+                    </form>
                 @endauth
 
                 @guest
