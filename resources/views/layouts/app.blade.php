@@ -16,7 +16,7 @@
     <body>
         <main>
             <header>
-                <h1><a href="{{ route('events.index') }}">Wevent</a></h1>
+                <h1><a href="{{ route('events.dashboard') }}">Wevent</a></h1>
 
                 @auth
                     <span>{{ Auth::user()->username }}</span>

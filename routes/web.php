@@ -45,12 +45,11 @@ Route::get('/events/search', [EventController::class, 'search'])->name('events.s
 
 // Eventos públicos
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
-Route::get('/events/{event:eventid}', [EventController::class, 'show'])->name('events.show');
+
 
 // Eventos (autenticados)
 Route::middleware('auth')->group(function() {
-    Route::get('/events/index', [EventController::class, 'index'])->name('events.index');
-    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::get('/events/dashboard', [EventController::class, 'dashboard'])->name('events.dashboard');
 });
 
 
