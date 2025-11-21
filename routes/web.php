@@ -29,6 +29,11 @@ Route::controller(LogoutController::class)->group(function () {
     Route::post('/logout', 'logout')->name('logout');
 });
 
+
+Route::get('/user/{id}', [UserController::class, 'showProfile'])
+     ->middleware('auth')
+     ->name('user.profile');
+
 // Dashboard
 Route::get('/dashboard', [EventController::class, 'dashboard'])
     ->middleware('auth')
@@ -44,12 +49,10 @@ Route::get('/events/{event:eventid}', [EventController::class, 'show'])->name('e
 
 // Eventos (autenticados)
 Route::middleware('auth')->group(function() {
-    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::get('/events/index', [EventController::class, 'index'])->name('events.index');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
 });
 
-Route::get('/user/{userid}', [UserController::class, 'showProfile'])
-     ->name('user.showProfile');
 
 
 

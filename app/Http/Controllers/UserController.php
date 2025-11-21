@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +16,9 @@ class UserController extends Controller
     }
 
     // Perfil do usuário por ID (rota com {userid})
-    public function showProfile($userid)
+    public function showProfile($id)
     {
-        $user = User::findOrFail($userid); // busca usuário pelo ID
+        $user = User::findOrFail($id); // busca usuário pelo ID
         return view('user.user', compact('user'));
     }
 }

@@ -95,4 +95,20 @@ class EventController extends Controller
         return redirect('events.index');
     }
 
+    public function favorites($id) {
+        $events = Event::whereHas('favorites', fn($q) => $q->where('userd', $id))->get();
+        return view('events.favorites', compact('events'));
+    }
+    
+    public function attending($id) {
+        $events = Event::whereHas('attendees', fn($q) => $q->where('userid', $id))->get();
+        return view('events.attending', compact('events'));
+    }
+    
+    public function organizing($id) {
+        $events = Event::where('createdBy', $id)->get();
+        return view('events.organizing', compact('events'));
+    }
+    
+
 }

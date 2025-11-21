@@ -1,39 +1,24 @@
-<form method='GET' action="/user">
-    @csrf 
-
-
-
-</form>    
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Perfil do Utilizador</title>
-    <!-- <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            margin: 0;
-            padding: 0;
-        }
-
+    <title>Perfil do Usuário</title>
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+    <style>
         .profile-container {
-            max-width: 600px;
+            max-width: 700px;
             margin: 40px auto;
-            background: #ffffff;
+            background: #fff;
             padding: 24px 32px;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         }
-
         .profile-header {
             display: flex;
             align-items: center;
             gap: 20px;
             margin-bottom: 24px;
         }
-
         .profile-header img {
             width: 96px;
             height: 96px;
@@ -41,60 +26,50 @@
             object-fit: cover;
             border: 2px solid #ddd;
         }
-
         .profile-header h1 {
             margin: 0;
             font-size: 24px;
         }
-
-        .profile-header span {
-            color: #666;
-            font-size: 14px;
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
         }
-
-        .profile-info {
-            margin-top: 10px;
-        }
-
-        .profile-info-row {
-            margin-bottom: 10px;
-        }
-
-        .label {
+        .button-group a {
+            padding: 10px 16px;
+            border-radius: 8px;
+            background-color: #4f46e5;
+            color: white;
+            text-decoration: none;
             font-weight: bold;
-            display: inline-block;
-            width: 120px;
+            transition: background 0.2s;
         }
-    </style> -->
+        .button-group a:hover {
+            background-color: #3730a3;
+        }
+    </style>
 </head>
 <body>
     <div class="profile-container">
         <div class="profile-header">
-            <!-- Imagem de perfil (podes trocar o src por outra imagem qualquer) -->
-            <img src="{{$user->profileImage ?? '/images/default-profile.png'}}" alt="Foto de perfil">
+            <img src="{{ $user->profileimage ?? '/images/default-profile.png' }}" alt="Foto de perfil">
             <div>
-            
-                <span>User Profile</span>
+                <h1>{{ $user->username }}</h1>
+                <span>{{ $user->email }}</span>
             </div>
         </div>
 
-        <div class="profile-info">
-            <div class="profile-info-row">
-                <span class="label">Username:</span>
-                <span>{{ $user->username }}</span>
-            </div>
+        <div class="profile-actions button-group">
+            @auth
+                @if(Auth::id() === $user->userid)
+                    <a href="{{ route('events.index') }}">Criar Evento</a>
+                @endif
+            @endauth
 
-            <div class="profile-info-row">
-                <span class="label">Email:</span>
-                <span>{{ $user->email }}</span>
-            </div>
-
-            <div class="profile-info-row">
-                <span class="label">Password:</span>
-               
-                <span>************</span>
-            </div>
+           
         </div>
     </div>
 </body>
 </html>
+

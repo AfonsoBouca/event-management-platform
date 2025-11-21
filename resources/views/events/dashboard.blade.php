@@ -13,10 +13,12 @@
             <h2>Wevent</h2>
         </div>
         <div class="profile">
-                <span>{{ Auth::user()->name }}</span>
+            <a href="{{ route('user.profile', ['id' => Auth::user()->userid]) }}">
+                <span>{{ Auth::user()->username }}</span>
             </a>
         </div>
     </header>
+
 
     <header class="dashboard-header">
      <div class="user-info"> 
