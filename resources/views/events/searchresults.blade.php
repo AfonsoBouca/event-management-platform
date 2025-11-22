@@ -1,74 +1,80 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Results</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0 20px;
-        }
+@extends('layouts.app')
 
-        h2 {
-            color: #333;
-            margin-top: 30px;
-            text-align: center;
-        }
+@section('content')
+<style>
+    .container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+        color: #fff;
+    }
 
-        p {
-            text-align: center;
-            color: #666;
-        }
+    h2 {
+        text-align: auto;
+        color: #dda0dd; 
+        margin-bottom: 20px;
+    }
 
-        ul {
-            list-style: none;
-            padding: 0;
-            max-width: 800px;
-            margin: 20px auto;
-        }
+    p {
+        text-align: auto;
+        color: #000;
+        font-size: 0.95em;
+    }
 
-        li {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }
 
-        li strong {
-            font-size: 1.1em;
-            color: #17a2b8;
-        }
+    li {
+        background-color:rgb(255, 255, 255);
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-        li p, li span {
-            color: #555;
-            margin: 5px 0;
-            font-size: 0.95em;
-        }
+    li:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgb(255, 255, 255);
+    }
 
-        /* Botão voltar para homepage */
-        .back-btn {
-            display: inline-block;
-            margin: 20px auto;
-            padding: 8px 15px;
-            background-color: #17a2b8;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
+    li strong {
+        font-size: 1.1em;
+        color: #dda0dd; /* roxo suave */
+        display: block;
+        margin-bottom: 5px;
+    }
 
-        .back-btn:hover {
-            background-color: #138496;
-        }
-    </style>
-</head>
-<body>
+    li p, li span {
+        color: #000;
+        margin: 5px 0;
+        font-size: 0.95em;
+    }
+
+    .back-btn {
+        display: inline-block;
+        margin: 20px auto;
+        padding: 8px 15px;
+        background: linear-gradient(45deg, #6a0dad, #7d1dcf);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+        background: linear-gradient(45deg, #7d1dcf, #9a33e0);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgb(255, 255, 255);
+    }
+</style>
+
+<div class="container">
     <h2>Results for: "{{ $query }}"</h2>
 
     @if($events->isEmpty())
@@ -77,8 +83,8 @@
         <ul>
         @foreach($events as $event)
             <li>
-                <strong>{{ $event->eventname }}</strong><br>
-                {{ $event->description }}<br>
+                <strong>{{ $event->eventname }}</strong>
+                <p>{{ $event->description }}</p>
                 @if($event->startdate)
                     <span>Begin: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span>
                 @else
@@ -92,5 +98,5 @@
     <div style="text-align: center;">
         <a href="{{ route('dashboard') }}" class="back-btn">Back to Homepage</a>
     </div>
-</body>
-</html>
+</div>
+@endsection

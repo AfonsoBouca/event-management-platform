@@ -32,10 +32,13 @@ class EventController extends Controller
         $query = Event::query();
     
         // Filtra por status se existir
+      
         if ($request->has('status') && $request->status != '') {
-            $query->where('eventstatus', strtolower($request->status));
-        }
-    
+        $status = ucfirst(strtolower($request->status)); // transforma "upcoming" → "Upcoming"
+        $query->where('eventstatus', $status);
+}
+
+       
         // Filtra por categoria se existir
         if ($request->has('category') && $request->category != '') {
             $query->where('category', $request->category); // precisa da coluna category na tabela event

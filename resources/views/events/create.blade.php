@@ -1,126 +1,121 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Criar Novo Evento</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
+@extends('layouts.app')
 
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+@section('content')
+<style>
+    .container {
+        max-width: 800px;
+        margin: 40px auto;
+        background-color:rgb(255, 255, 255); 
+        padding: 25px;
+        border-radius: 8px;
+        color: #000;
+    }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #17a2b8;
-        }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #dda0dd; 
+    }
 
-        form label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
+    form label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+        color: #000;
+    }
 
-        form input,
-        form textarea,
-        form select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
+    form input,
+    form textarea,
+    form select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #444;
+        border-radius: 5px;
+        background-color:rgb(255, 251, 251);
+        color: #000;
+        box-sizing: border-box;
+    }
 
-        form textarea {
-            resize: vertical;
-        }
+    form textarea {
+        resize: vertical;
+    }
 
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #17a2b8;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-        }
+    button[type="submit"] {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: linear-gradient(45deg, #6a0dad, #7d1dcf);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: all 0.3s ease;
+    }
 
-        button:hover {
-            background-color: #138496;
-        }
+    button[type="submit"]:hover {
+        background: linear-gradient(45deg, #7d1dcf, #9a33e0);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
 
-        .back-home {
-            display: inline-block;
-            margin-top: 15px;
-            color: #17a2b8;
-            text-decoration: none;
-        }
+    .back-home {
+        display: inline-block;
+        margin-top: 15px;
+        color: #6a0dad;
+        text-decoration: none;
+    }
 
-        .back-home:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>New Event</h1>
+    .back-home:hover {
+        text-decoration: underline;
+        color: #7d1dcf;
+    }
+</style>
 
-        <form method="POST" action="{{ route('events.store') }}">
-            @csrf
+<div class="container">
+    <h1>New Event</h1>
 
-            <label for="eventname">Event Name</label>
-            <input type="text" name="eventname" id="eventname" required>
+    <form method="POST" action="{{ route('events.store') }}">
+        @csrf
 
-            <label for="description">Description</label>
-            <textarea name="description" id="description" required></textarea>
+        <label for="eventname">Event Name</label>
+        <input type="text" name="eventname" id="eventname" required>
 
-            <label for="startdate">Start Date</label>
-            <input type="datetime-local" name="startdate" id="startdate" required>
+        <label for="description">Description</label>
+        <textarea name="description" id="description" required></textarea>
 
-            <label for="enddate">End Date</label>
-            <input type="datetime-local" name="enddate" id="enddate" required>
+        <label for="startdate">Start Date</label>
+        <input type="datetime-local" name="startdate" id="startdate" required>
 
-            <label for="capacity">Capacity</label>
-            <input type="number" name="capacity" id="capacity" min="1" required>
+        <label for="enddate">End Date</label>
+        <input type="datetime-local" name="enddate" id="enddate" required>
 
-            <label for="price">Price</label>
-            <input type="number" name="price" id="price" min="0" required>
+        <label for="capacity">Capacity</label>
+        <input type="number" name="capacity" id="capacity" min="1" required>
 
-            <label for="ispublic">Visibility</label>
-            <select name="ispublic" id="ispublic" required>
-                <option value="1">Público</option>
-                <option value="0">Privado</option>
-            </select>
+        <label for="price">Price</label>
+        <input type="number" name="price" id="price" min="0" required>
 
-            <label for="location">Location</label>
-            <input type="text" name="location" id="location" required>
+        <label for="ispublic">Visibility</label>
+        <select name="ispublic" id="ispublic" required>
+            <option value="1">Público</option>
+            <option value="0">Privado</option>
+        </select>
 
-            <label for="eventstatus">Status</label>
-            <select name="eventstatus" id="eventstatus" required>
-                <option value="Upcoming">Upcoming</option>
-                <option value="Ongoing">Ongoing</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-            </select>
+        <label for="location">Location</label>
+        <input type="text" name="location" id="location" required>
 
-            <button type="submit">Create Event</button>
-        </form>
+        <label for="eventstatus">Status</label>
+        <select name="eventstatus" id="eventstatus" required>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Ongoing">Ongoing</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
 
-        <a class="back-home" href="{{ route('dashboard') }}">← Back to Homepage</a>
-    </div>
-</body>
-</html>
+        <button type="submit">Create Event</button>
+    </form>
+
+    <a class="back-home" href="{{ route('dashboard') }}">← Back to Homepage</a>
+</div>
+@endsection

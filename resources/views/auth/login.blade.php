@@ -1,165 +1,55 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        /* --- Reset básico --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+@extends('layouts.app')
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+@section('content')
+<div class="container" style="max-width: 400px; margin: 50px auto; background-color: #fff; padding: 30px; border-radius: 8px;">
 
-        .login-container {
-            background-color: #fff;
-            padding: 40px 35px;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
+    <h2 style="text-align: center; color: #6a0dad; margin-bottom: 25px;">Login</h2>
 
-        h2 {
-            text-align: center;
-            color: #17a2b8;
-            margin-bottom: 25px;
-            font-size: 1.8em;
-        }
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
 
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-            color: #333;
-        }
+        <label for="email" style="color:#000;">E-mail</label>
+        <input
+            id="email"
+            name="email"
+            type="email"
+            value="{{ old('email') }}"
+            required
+            autofocus
+            style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border-radius: 5px; border:1px solid #ccc; color:#000;"
+        >
+        @error('email')
+            <span style="color: #dc3545; font-size:0.85em;">{{ $message }}</span>
+        @enderror
 
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px 12px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 0.95em;
-        }
+        <label for="password" style="color:#000;">Password</label>
+        <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border-radius: 5px; border:1px solid #ccc; color:#000;"
+        >
+        @error('password')
+            <span style="color: #dc3545; font-size:0.85em;">{{ $message }}</span>
+        @enderror
 
-        input[type="checkbox"] {
-            margin-right: 5px;
-        }
+        <label style="color:#000;">
+            <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
+            Remember me
+        </label>
 
-        button {
-            margin-top: 20px;
-            padding: 10px 15px;
-            width: 100%;
-            background-color: #17a2b8;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+        <button type="submit" class="view-event-btn" style="width:100%; margin-top:15px;">
+            Login
+        </button>
 
-        button:hover {
-            background-color: #138496;
-        }
+        <a href="{{ route('register') }}" class="view-event-btn" style="width:100%; margin-top:10px; display:block; text-align:center;">
+            Register
+        </a>
 
-        .button-outline {
-            display: block;
-            text-align: center;
-            margin-top: 10px;
-            padding: 10px 15px;
-            border: 1px solid #17a2b8;
-            color: #17a2b8;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .button-outline:hover {
-            background-color: #17a2b8;
-            color: #fff;
-        }
-
-        .error {
-            color: #dc3545;
-            font-size: 0.85em;
-            margin-top: 3px;
-            display: block;
-        }
-
-        .success {
-            color: #28a745;
-            font-size: 0.9em;
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        label input[type="checkbox"] {
-            width: auto;
-            display: inline-block;
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <h2>Login</h2>
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <label for="email">E-mail</label>
-            <input
-                id="email"
-                name="email"
-                type="email"
-                value="{{ old('email') }}"
-                required
-                autofocus
-                inputmode="email"
-                autocomplete="email"
-            >
-            @error('email')
-                <span id="email-error" class="error" role="alert">
-                    {{ $message }}
-                </span>
-            @enderror
-
-            <label for="password">Password</label>
-            <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autocomplete="current-password"
-            >
-            @error('password')
-                <span id="password-error" class="error" role="alert">
-                    {{ $message }}
-                </span>
-            @enderror
-
-            <label>
-                <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
-                Remember me
-            </label>
-
-            <button type="submit">Login</button>
-            <a class="button-outline" href="{{ route('register') }}">Register</a>
-
-            @if (session('status'))
-                <p class="success" role="status">{{ session('status') }}</p>
-            @endif
-        </form>
-    </div>
-</body>
-</html>
+        @if (session('status'))
+            <p class="success" style="color: #28a745; text-align:center; margin-top:10px;">{{ session('status') }}</p>
+        @endif
+    </form>
+</div>
+@endsection
