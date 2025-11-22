@@ -13,6 +13,7 @@ class EventController extends Controller
     {
         $upcomingEvents = Event::where('startdate', '>', now())
             ->orderBy('startdate', 'desc')
+            ->take(5)
             ->get();
 
         $recentEvents = Event::orderBy('eventid', 'desc')
@@ -23,6 +24,27 @@ class EventController extends Controller
     }
 
     // Barra de pesquisa
+
+    public function browse(Request $request)
+    {
+        $query = Event::query();
+    
+        // Filtra por status se existir
+        if ($request->has('status') && $request->status != '') {
+            $query->where('eventstatus', strtolower($request->status));
+        }
+    
+        // Filtra por categoria se existir
+        if ($request->has('category') && $request->category != '') {
+            $query->where('category', $request->category); // precisa da coluna category na tabela event
+        }
+    
+        // Ordena por data de início
+        $events = $query->orderBy('startdate', 'asc')->paginate(10);
+    
+        return view('events.browse', compact('events'));
+    }
+    
     public function search(Request $request)
     {
         $query = $request->input('query');

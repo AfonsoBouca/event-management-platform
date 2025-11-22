@@ -60,6 +60,9 @@ Route::post('/events', [EventController::class, 'store'])
 
 Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])->name('user.organizing');
 
+Route::get('/events/browse', [EventController::class, 'browse'])->name('events.browse');
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+
 
 
 
