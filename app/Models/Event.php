@@ -8,19 +8,18 @@ class Event extends Model
 {
     protected $table = 'event';
     protected $primaryKey = 'eventid';  
-  
 
     protected $fillable = [
         'eventname',
         'description',
         'startdate',
         'enddate',
-        'capicity',
+        'capacity',
         'price',
-        'isPublic',
+        'ispublic',
         'location',
-        'createdBy',
-        'status',
+        'createdby',
+        'eventstatus',
     ];
 
     public $timestamps = false;
@@ -28,6 +27,15 @@ class Event extends Model
     protected $casts = [
         'startdate' => 'datetime',
         'enddate' => 'datetime',
-    
+        'ispublic' => 'boolean',
     ];
+
+    // Relacionamento com o usuário organizador
+    public function organizer()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'createdby', 'userid');
+    }
+
+    // Relacionamento com favoritos
+
 }

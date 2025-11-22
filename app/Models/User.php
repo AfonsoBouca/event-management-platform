@@ -48,5 +48,10 @@ class User extends Authenticatable
         return 'email';
     }
 
+
+    public function organizing()
+    {
+        return $this->hasMany(\App\Models\Event::class, 'createdby', 'userid');
+    }
    
 }

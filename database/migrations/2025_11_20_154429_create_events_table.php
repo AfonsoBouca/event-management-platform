@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('event', function (Blueprint $table) {
             $table->id();
-            $table->string('eventName');
+            $table->string('eventname');
             $table->text('description');
-            $table->dateTime('startDate');
-            $table->dateTime('endDate');
-            $table->tinyInteger('capicity');
+            $table->dateTime('startdate');
+            $table->dateTime('enddate');
+            $table->tinyInteger('capacity');
             $table->unsignedMediumInteger('price');
-            $table->boolean('isPublic');
+            $table->boolean('ispublic');
             $table->string('location');
-            $table->foreignId('createdBy')->constrained('user')->onDelete('cascade');
-            $table->enum('status', ['upcoming', 'ongoing', 'completed', 'cancelled'])->default('upcoming');
+            $table->foreignId('createdby')->constrained('user')->onDelete('cascade');
+            $table->enum('eventstatus', ['Upcoming', 'Ongoing', 'Completed', 'Cancelled'])->default('U  pcoming');
         });
     }
 

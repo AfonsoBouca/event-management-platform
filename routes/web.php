@@ -43,14 +43,25 @@ Route::get('/dashboard', [EventController::class, 'dashboard'])
 Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
 
 
-// Eventos públicos
-Route::get('/events', [EventController::class, 'index'])->name('events.index');
-
-
 // Eventos (autenticados)
 Route::middleware('auth')->group(function() {
     Route::get('/events/dashboard', [EventController::class, 'dashboard'])->name('events.dashboard');
 });
+
+// Página de criar evento
+Route::get('/events/create', [EventController::class, 'create'])
+    ->middleware('auth')
+    ->name('events.create');
+
+// Salvar evento
+Route::post('/events', [EventController::class, 'store'])
+    ->middleware('auth')
+    ->name('events.store');
+
+Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])->name('user.organizing');
+
+
+
 
 
 

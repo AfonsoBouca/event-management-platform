@@ -4,46 +4,37 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
-    //dashboard de eventos
+    // Dashboard de eventos
     public function dashboard()
     {
-      $upcomingEvents = Event::where('startdate', '>', now())
-        ->orderBy('startdate', 'desc')
-        ->get();
+        $upcomingEvents = Event::where('startdate', '>', now())
+            ->orderBy('startdate', 'desc')
+            ->get();
 
-       $recentEvents = Event::orderBy('eventid', 'desc')
-        ->take(5)
-        ->get();
+        $recentEvents = Event::orderBy('eventid', 'desc')
+            ->take(5)
+            ->get();
 
         return view('events.dashboard', compact('upcomingEvents', 'recentEvents'));
     }
 
-    //barra de pesquisa
+    // Barra de pesquisa
     public function search(Request $request)
     {
         $query = $request->input('query');
-    
-        // Corrige nomes das colunas para minúsculas
+
         $events = Event::where('ispublic', true)
             ->where(function ($q) use ($query) {
-                $q->where('eventname', 'ILIKE', '%' . $query . '%')  // ILIKE = case-insensitive
+                $q->where('eventname', 'ILIKE', '%' . $query . '%')
                   ->orWhere('description', 'ILIKE', '%' . $query . '%');
             })
             ->get();
-    
-        // Passa o query também para a view
-        return view('events.searchresults', compact('events', 'query'));
 
-    }
-    
-    
-    public function index()
-    {
-        $events = Event::all();
-        return view('events.index', ['events' => $events]);
+        return view('events.searchresults', compact('events', 'query'));
     }
 
     public function create()
@@ -53,32 +44,44 @@ class EventController extends Controller
 
     public function store(Request $request)
     {
+        // Confirma que o usuário está logado
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please log in first.');
+        }
+
+        // Validação dos dados
         $request->validate([
-            'eventName' => 'required|string|max:255',
+            'eventname'   => 'required|string|max:255',
             'description' => 'required|string',
-            'startDate' => 'required|date',
-            'endDate' => 'required|date|after_or_equal:startDate',
-            'capicity' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
-            'isPublic' => 'required|boolean',
-            'location' => 'required|string|max:255',
-            'status' => 'required|in:upcoming,ongoing,completed,cancelled',
+            'startdate'   => 'required|date',
+            'enddate'     => 'required|date|after_or_equal:startdate',
+            'capacity'    => 'required|integer|min:1',
+            'price'       => 'required|numeric|min:0',
+            'ispublic'    => 'required|boolean',
+            'location'    => 'required|string|max:255',
+            'eventstatus' => 'required|in:Upcoming,Ongoing,Completed,Cancelled',
         ]);
 
-        Event::create([
-            'eventName' => $request->input('eventName'),
+        // Cria o evento
+        $event = Event::create([
+            'eventname'   => $request->input('eventname'),
             'description' => $request->input('description'),
-            'startDate' => $request->input('startDate'),
-            'endDate' => $request->input('endDate'),
-            'capicity' => $request->input('capicity'),
-            'price' => $request->input('price'),
-            'isPublic' => $request->input('isPublic'),
-            'location' => $request->input('location'),
-            'createdBy' => auth()->id(),
-            'status' => $request->input('status'),
+            'startdate'   => $request->input('startdate'),
+            'enddate'     => $request->input('enddate'),
+            'capacity'    => $request->input('capacity'),
+            'price'       => $request->input('price'),
+            'ispublic'    => $request->input('ispublic'),
+            'location'    => $request->input('location'),
+            'createdby'   => Auth::user()->userid, 
+            'eventstatus' => $request->input('eventstatus'),
         ]);
 
-        return redirect('/');
+        if ($event) {
+            return redirect()->route('user.profile', auth()->user()->userid)
+                             ->with('success', 'Event created successfully!');
+        }
+        return back()->with('error', 'Failed to create event.');        
+
     }
 
     public function show($id)
@@ -92,23 +95,24 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
         $event->delete();
 
-        return redirect('events.index');
+        return redirect()->route('events.create');
     }
 
-    public function favorites($id) {
-        $events = Event::whereHas('favorites', fn($q) => $q->where('userd', $id))->get();
+    public function favorites($id)
+    {
+        $events = Event::whereHas('favorites', fn($q) => $q->where('userid', $id))->get();
         return view('events.favorites', compact('events'));
     }
-    
-    public function attending($id) {
+
+    public function attending($id)
+    {
         $events = Event::whereHas('attendees', fn($q) => $q->where('userid', $id))->get();
         return view('events.attending', compact('events'));
     }
-    
-    public function organizing($id) {
-        $events = Event::where('createdBy', $id)->get();
+
+    public function organizing($id)
+    {
+        $events = Event::where('createdby', $id)->get();
         return view('events.organizing', compact('events'));
     }
-    
-
 }

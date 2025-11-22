@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Event;
 
 class UserController extends Controller
 {
@@ -12,14 +13,21 @@ class UserController extends Controller
     public function show()
     {
         $user = Auth::user();
-        return view('user.user', compact('user'));
+    
+        // Pega eventos do usuário logado
+        $events = Event::where('createdby', $user->userid)->get();
+    
+        return view('user.user', compact('user', 'events'));
     }
-
-    // Perfil do usuário por ID (rota com {userid})
+    
     public function showProfile($id)
     {
-        $user = User::findOrFail($id); // busca usuário pelo ID
-        return view('user.user', compact('user'));
+        $user = User::findOrFail($id);
+    
+        // Pega eventos do usuário do perfil
+        $events = Event::where('createdby', $user->userid)->get();
+    
+        return view('user.user', compact('user', 'events'));
     }
 }
 
