@@ -45,6 +45,7 @@ class RegisterController extends Controller
         'username' => $credentials['username'],
         'email' => $credentials['email'],
         'passwordhash' => bcrypt($credentials['password']),
+        'profileimage' => 'avatars/default.png',
         'isadmin' => false,
     ]);
 

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -40,13 +41,33 @@ class UserController extends Controller
     public function update(Request $request)
     {
         //dd('UPDATE FOI CHAMADO');
-        
+
         $user = Auth::user();
+
+        if ($user->profileimage === null) {
+            $user->profileimage = 'avatars/default.png';
+        }
+        
+
+        if ($request->hasFile('profileimage')) {
+
+            // apagar imagem antiga (desde que não seja a default!)
+            if ($user->profileimage !== 'avatars/default.png') {
+                Storage::disk('public')->delete($user->profileimage);
+            }
+        
+            // guardar nova imagem
+            $path = $request->file('profileimage')->store('avatars', 'public');
+        
+            // atualizar utilizador
+            $user->profileimage = $path;
+        }        
     
         // validar inputs
         $request->validate([
             'email' => 'required|email',
-            'password' => 'nullable|min:6'
+            'password' => 'nullable|min:6',
+            'profileimage' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
     
         // atualizar email
@@ -58,12 +79,22 @@ class UserController extends Controller
         }
     
         $user->save();
-        Auth::login($user);
+        //Auth::login($user);
     
         return redirect()
-            ->route('user.profile', ['id' => $user->userid])
+            ->route('user.profile', $user->username)
             ->with('success', 'Dados atualizados com sucesso!');
-    }    
+    }  
+    
+    public function showByUsername($username)
+{
+    $user = User::where('username', $username)->firstOrFail();
+
+    $events = Event::where('createdby', $user->userid)->get();
+
+    return view('user.user', compact('user', 'events'));
+}
+
     
 }
 

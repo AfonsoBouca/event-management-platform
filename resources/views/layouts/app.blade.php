@@ -163,7 +163,7 @@
 
             <div class="user-actions">
                 @auth
-                    <a href="{{ route('user.profile', ['id' => Auth::user()->userid]) }}"> <!-- está a ser carregado em /register mesmo quando não existe um user -->
+                <a href="{{ route('user.profile', Auth::user()->username) }}">             <!-- está a ser carregado em /register mesmo quando não existe um user -->
                         {{ Auth::user()->username }}
                     </a>
                     <form method="POST" action="{{ route('logout') }}" style="display: inline;">

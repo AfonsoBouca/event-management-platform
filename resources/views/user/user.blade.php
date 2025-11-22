@@ -149,7 +149,7 @@
 <div class="profile-container">
     <!-- Header do Perfil -->
     <div class="profile-header">
-        <img src="{{ $user->profileimage ?? '/images/default-profile.png' }}" alt="Foto de perfil">
+    <img src="{{ asset('storage/' . $user->profileimage) }}" alt="Foto de perfil">
         <div>
             <h1>{{ $user->username }}</h1>
             <span>{{ $user->email }}</span>
