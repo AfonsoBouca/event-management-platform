@@ -40,7 +40,7 @@ class User extends Authenticatable
 
     public function getAuthPasswordName()
     {
-    return 'passwordHash';
+    return 'passwordhash';
     }
 
     public function getAuthIdentifierName()
