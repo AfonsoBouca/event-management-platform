@@ -18,13 +18,13 @@ class User extends Authenticatable
     protected $fillable = [
         'username',
         'email',
-        'passwordhash',
+        'passwordHash',
         'profileimage',
         'isadmin'
     ];
 
     protected $hidden = [
-        'passwordhash',
+        'passwordHash',
         'remember_token',
     ];
 
@@ -40,7 +40,7 @@ class User extends Authenticatable
 
     public function getAuthPasswordName()
     {
-    return 'passwordhash';
+    return 'passwordHash';
     }
 
     public function getAuthIdentifierName()
@@ -53,5 +53,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Event::class, 'createdby', 'userid');
     }
+
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['passwordHash'] = bcrypt($value);
+    }
+
+
    
 }

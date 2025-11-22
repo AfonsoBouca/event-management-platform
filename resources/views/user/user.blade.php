@@ -154,6 +154,8 @@
             <h1>{{ $user->username }}</h1>
             <span>{{ $user->email }}</span>
         </div>
+        <a href="{{ route('user.edit') }}" class="edit-button">Edit</a>
+
     </div>
 
     <!-- Ações do Usuário -->

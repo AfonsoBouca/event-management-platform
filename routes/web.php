@@ -70,3 +70,6 @@ Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show'
 
 
 
+Route::get('/user/edit', [UserController::class, 'edit'])->name('user.edit');
+Route::post('/user/update', [UserController::class, 'update'])->name('user.update');
+
