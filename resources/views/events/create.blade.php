@@ -77,36 +77,36 @@
 </head>
 <body>
     <div class="container">
-        <h1>Criar Novo Evento</h1>
+        <h1>New Event</h1>
 
         <form method="POST" action="{{ route('events.store') }}">
             @csrf
 
-            <label for="eventname">Nome do Evento</label>
+            <label for="eventname">Event Name</label>
             <input type="text" name="eventname" id="eventname" required>
 
-            <label for="description">Descrição</label>
+            <label for="description">Description</label>
             <textarea name="description" id="description" required></textarea>
 
-            <label for="startdate">Data de Início</label>
+            <label for="startdate">Start Date</label>
             <input type="datetime-local" name="startdate" id="startdate" required>
 
-            <label for="enddate">Data de Fim</label>
+            <label for="enddate">End Date</label>
             <input type="datetime-local" name="enddate" id="enddate" required>
 
-            <label for="capacity">Capacidade</label>
+            <label for="capacity">Capacity</label>
             <input type="number" name="capacity" id="capacity" min="1" required>
 
-            <label for="price">Preço</label>
+            <label for="price">Price</label>
             <input type="number" name="price" id="price" min="0" required>
 
-            <label for="ispublic">Visibilidade</label>
+            <label for="ispublic">Visibility</label>
             <select name="ispublic" id="ispublic" required>
                 <option value="1">Público</option>
                 <option value="0">Privado</option>
             </select>
 
-            <label for="location">Localização</label>
+            <label for="location">Location</label>
             <input type="text" name="location" id="location" required>
 
             <label for="eventstatus">Status</label>
@@ -117,10 +117,10 @@
                 <option value="Cancelled">Cancelled</option>
             </select>
 
-            <button type="submit">Criar Evento</button>
+            <button type="submit">Create Event</button>
         </form>
 
-        <a class="back-home" href="{{ route('dashboard') }}">← Voltar à Página Inicial</a>
+        <a class="back-home" href="{{ route('dashboard') }}">← Back to Homepage</a>
     </div>
 </body>
 </html>
