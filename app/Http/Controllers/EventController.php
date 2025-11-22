@@ -12,11 +12,13 @@ class EventController extends Controller
     public function dashboard()
     {
         $upcomingEvents = Event::where('startdate', '>', now())
+            ->where('ispublic', true)
             ->orderBy('startdate', 'desc')
             ->take(5)
             ->get();
 
         $recentEvents = Event::orderBy('eventid', 'desc')
+            ->where('ispublic', true)
             ->take(5)
             ->get();
 
