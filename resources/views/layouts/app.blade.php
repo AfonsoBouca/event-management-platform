@@ -90,7 +90,6 @@
             padding: 20px;
             border-radius: 8px;
         }
-
         /* --- Event Cards --- */
         .event-card {
             background-color:rgb(255, 255, 255); 
@@ -164,7 +163,7 @@
 
             <div class="user-actions">
                 @auth
-                    <a href="{{ route('user.profile', ['id' => Auth::user()->userid]) }}">
+                    <a href="{{ route('user.profile', ['id' => Auth::user()->userid]) }}"> <!-- está a ser carregado em /register mesmo quando não existe um user -->
                         {{ Auth::user()->username }}
                     </a>
                     <form method="POST" action="{{ route('logout') }}" style="display: inline;">

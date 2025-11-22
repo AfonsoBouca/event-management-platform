@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -38,6 +39,8 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
+        //dd('UPDATE FOI CHAMADO');
+        
         $user = Auth::user();
     
         // validar inputs
@@ -56,8 +59,9 @@ class UserController extends Controller
     
         $user->save();
     
-        return redirect()->route('user.show')
-                         ->with('success', 'Dados atualizados com sucesso!');
+        return redirect()
+            ->route('user.profile', ['id' => $user->userid])
+            ->with('success', 'Dados atualizados com sucesso!');
     }    
     
 }

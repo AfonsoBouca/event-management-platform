@@ -31,6 +31,7 @@ Route::controller(LogoutController::class)->group(function () {
 
 
 Route::get('/user/{id}', [UserController::class, 'showProfile'])
+     ->where('id', '[0-9]+') // para não apanhar /user/edit
      ->middleware('auth')
      ->name('user.profile');
 
@@ -63,13 +64,13 @@ Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])->nam
 Route::get('/events/browse', [EventController::class, 'browse'])->name('events.browse');
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
+// Editar Perfil
+Route::get('/user/edit', [UserController::class, 'edit'])
+    ->middleware('auth')
+    ->name('user.edit');
 
-
-
-
-
-
-
-Route::get('/user/edit', [UserController::class, 'edit'])->name('user.edit');
-Route::post('/user/update', [UserController::class, 'update'])->name('user.update');
+// Atualizar Perfil
+Route::post('/user/update', [UserController::class, 'update'])
+    ->middleware('auth')
+    ->name('user.update');
 

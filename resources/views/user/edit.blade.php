@@ -27,7 +27,7 @@
 </form>
 
 <br>
-<a href="{{ route('user.show') }}">Back</a>
+<a href="{{ route('user.update') }}">Back</a>
 
 </body>
 </html>

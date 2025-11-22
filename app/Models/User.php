@@ -18,7 +18,7 @@ class User extends Authenticatable
     protected $fillable = [
         'username',
         'email',
-        'passwordHash',
+        'passwordhash',
         'profileimage',
         'isadmin'
     ];
@@ -56,7 +56,7 @@ class User extends Authenticatable
 
     public function setPasswordAttribute($value)
     {
-        $this->attributes['passwordHash'] = bcrypt($value);
+        $this->attributes['passwordhash'] = bcrypt($value);
     }
 
 
