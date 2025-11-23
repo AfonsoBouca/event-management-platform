@@ -30,12 +30,20 @@ class Event extends Model
         'ispublic' => 'boolean',
     ];
 
-    public function organizer()
+    public function isOrganizer(int $userId): bool
+    {
+        return $this->createdby === $userId;
+    }
+
+    public function organizer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class, 'createdby', 'userid');
     }
 
-    public function attendees()
+    /**
+     * Get all attendees for this event.
+     */
+    public function attendees(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             \App\Models\User::class,
@@ -45,12 +53,18 @@ class Event extends Model
         )->withPivot('role');
     }
 
-    public function isAttendee($userId)
+    /**
+     * Check if a user is an attendee of this event.
+     */
+    public function isAttendee(int $userId): bool
     {
-    return $this->attendees()->where('eventparticipation.userid', $userId)->exists();
+        return $this->attendees()->where('eventparticipation.userid', $userId)->exists();
     }
 
-    public function joinRequests()
+    /**
+     * Get all join requests for this event.
+     */
+    public function joinRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\App\Models\JoinRequest::class, 'eventid', 'eventid');
     }

@@ -71,33 +71,6 @@
         margin-bottom: 10px;
     }
 
-    .attendees-section {
-        margin-top: 30px;
-        padding: 20px;
-        background-color: #f5f5f5;
-        border-radius: 8px;
-    }
-
-    .attendees-section h3 {
-        color: #6a0dad;
-        margin-bottom: 15px;
-    }
-
-    .attendee-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .attendee-badge {
-        display: inline-block;
-        padding: 8px 15px;
-        background-color: #dda0dd;
-        color: white;
-        border-radius: 20px;
-        font-size: 0.9em;
-    }
-
     .action-buttons {
         margin-top: 30px;
         display: flex;
@@ -258,6 +231,12 @@
 
     <div class="action-buttons">
         @auth
+            @if(Auth::check() && $event->createdby === Auth::user()->userid)
+                <a href="{{ route('events.manage', $event->eventid) }}" class="btn btn-primary">
+                    Manage Participation
+                </a>
+            @endif
+
             @if($isAttendee)
                 <span class="btn btn-success">You are participating</span>
             @elseif($hasPendingRequest)

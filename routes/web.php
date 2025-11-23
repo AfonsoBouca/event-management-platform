@@ -76,6 +76,23 @@ Route::post('/user/update', [UserController::class, 'update'])
     ->middleware('auth')
     ->name('user.update');
 
+// Gestão de Participação em Eventos (apenas organizadores)
+Route::get('/events/{id}/manage', [EventController::class, 'manageParticipation'])
+    ->middleware('auth')
+    ->name('events.manage');
+
+Route::post('/events/{eventId}/join-requests/{joinId}/approve', [EventController::class, 'approveJoinRequest'])
+    ->middleware('auth')
+    ->name('events.join-requests.approve');
+
+Route::post('/events/{eventId}/join-requests/{joinId}/reject', [EventController::class, 'rejectJoinRequest'])
+    ->middleware('auth')
+    ->name('events.join-requests.reject');
+
+Route::delete('/events/{eventId}/participants/{userId}', [EventController::class, 'removeParticipant'])
+    ->middleware('auth')
+    ->name('events.participants.remove');
+
 Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])
     ->where('userid', '[0-9]+')
     ->name('user.organizing');
