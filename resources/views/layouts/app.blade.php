@@ -28,11 +28,11 @@
             color:rgb(255, 255, 255); 
         }
 
-        header h1 a {
+        /*header h1 a {
             text-decoration: none;
             color: inherit;
-            pointer-events: none; /* desativa link */
-        }
+            pointer-events: none;
+        }*/
 
         header .user-actions {
             display: flex;
@@ -159,8 +159,7 @@
     <main>
         <!-- Header -->
         <header>
-            <h1>Wevent</h1>
-
+            <h1><a href="{{ route('dashboard') }}">Wevent</a></h1>
             <div class="user-actions">
                 @auth
                 <a href="{{ route('user.profile', Auth::user()->username) }}">             <!-- está a ser carregado em /register mesmo quando não existe um user -->
