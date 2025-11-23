@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -87,13 +88,32 @@ class UserController extends Controller
     }  
     
     public function showByUsername($username)
-{
-    $user = User::where('username', $username)->firstOrFail();
+    {
+        $user = User::where('username', $username)->firstOrFail();
+        $events = Event::where('createdby', $user->userid)->get();
 
-    $events = Event::where('createdby', $user->userid)->get();
+        return view('user.user', compact('user', 'events'));
+    }
 
-    return view('user.user', compact('user', 'events'));
-}
+    public function destroy(Request $request)
+    {
+        $user = auth()->user();
+
+        $user ->isdeleted = true;
+        $user ->username = 'Deleted account';
+        $user->email = 'deleted_user_' . $user->userid . '@deleted.local';
+        $user ->profileimage = 'avatars/deleted.png';
+
+        $user->passwordhash = bcrypt(Str::random(32));
+
+        $user->save();
+
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login')->with('status', 'Your account has been deleted.');
+    }
 
     
 }
