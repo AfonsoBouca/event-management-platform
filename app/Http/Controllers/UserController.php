@@ -102,7 +102,7 @@ class UserController extends Controller
         $user = auth()->user();
 
         $user ->isdeleted = true;
-        $user ->username = 'Deleted account';
+        $user->username = 'deleted_user_' . $user->userid;
         $user->email = 'deleted_user_' . $user->userid . '@deleted.local';
         $user ->profileimage = 'avatars/deleted.png';
 
