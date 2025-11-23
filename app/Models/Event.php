@@ -30,12 +30,28 @@ class Event extends Model
         'ispublic' => 'boolean',
     ];
 
-    // Relacionamento com o usuário organizador
     public function organizer()
     {
         return $this->belongsTo(\App\Models\User::class, 'createdby', 'userid');
     }
 
-    // Relacionamento com favoritos
+    public function attendees()
+    {
+        return $this->belongsToMany(
+            \App\Models\User::class,
+            'eventparticipation',
+            'eventid',
+            'userid'
+        )->withPivot('role');
+    }
 
+    public function isAttendee($userId)
+    {
+    return $this->attendees()->where('eventparticipation.userid', $userId)->exists();
+    }
+
+    public function joinRequests()
+    {
+        return $this->hasMany(\App\Models\JoinRequest::class, 'eventid', 'eventid');
+    }
 }

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\JoinRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
-    // Dashboard de eventos
     public function dashboard()
     {
         $upcomingEvents = Event::where('startdate', '>', now())
@@ -25,26 +25,19 @@ class EventController extends Controller
         return view('events.dashboard', compact('upcomingEvents', 'recentEvents'));
     }
 
-    // Barra de pesquisa
-
     public function browse(Request $request)
     {
         $query = Event::query();
     
-        // Filtra por status se existir
-      
         if ($request->has('status') && $request->status != '') {
-        $status = ucfirst(strtolower($request->status)); // transforma "upcoming" → "Upcoming"
-        $query->where('eventstatus', $status);
-}
-
+            $status = ucfirst(strtolower($request->status));
+            $query->where('eventstatus', $status);
+        }
        
-        // Filtra por categoria se existir
         if ($request->has('category') && $request->category != '') {
-            $query->where('category', $request->category); // precisa da coluna category na tabela event
+            $query->where('category', $request->category);
         }
     
-        // Ordena por data de início
         $events = $query->orderBy('startdate', 'asc')->paginate(10);
     
         return view('events.browse', compact('events'));
@@ -64,6 +57,75 @@ class EventController extends Controller
         return view('events.searchresults', compact('events', 'query'));
     }
 
+    public function show($id)
+    {
+        $event = Event::with(['organizer', 'attendees'])->findOrFail($id);
+        
+        $user = Auth::user();
+        
+        if (!$event->ispublic) {
+            if (!$user) {
+                abort(403, 'This event is private.');
+            }
+            
+            $isOrganizer = $event->createdby === $user->userid;
+            $isAttendee = $event->isAttendee($user->userid);
+            
+            if (!$isOrganizer && !$isAttendee) {
+                abort(403, 'You do not have permission to view this private event.');
+            }
+        }
+        
+        $hasPendingRequest = false;
+        $isAttendee = false;
+        
+        if ($user) {
+            $isAttendee = $event->isAttendee($user->userid);
+            
+            $hasPendingRequest = JoinRequest::where('eventid', $id)
+                ->where('userid', $user->userid)
+                ->where('j_status', 'Pending')
+                ->exists();
+        }
+        
+        return view('events.show', compact('event', 'isAttendee', 'hasPendingRequest'));
+    }
+
+    public function requestToJoin($id)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Please log in to join events.');
+        }
+        
+        $event = Event::findOrFail($id);
+        
+        if ($event->isAttendee($user->userid)) {
+            return redirect()->route('events.show', $id)
+                ->with('info', 'You are already a participant of this event.');
+        }
+        
+        $existingRequest = JoinRequest::where('eventid', $id)
+            ->where('userid', $user->userid)
+            ->where('j_status', 'Pending')
+            ->first();
+            
+        if ($existingRequest) {
+            return redirect()->route('events.show', $id)
+                ->with('info', 'You already have a pending request for this event.');
+        }
+        
+        JoinRequest::create([
+            'eventid' => $id,
+            'userid' => $user->userid,
+            'j_status' => 'Pending',
+        ]);
+        
+        return redirect()->route('events.show', $id)
+            ->with('success', 'Your request to join has been sent!');
+    }
+
     public function create()
     {
         return view('events.create');
@@ -71,12 +133,10 @@ class EventController extends Controller
 
     public function store(Request $request)
     {
-        // Confirma que o usuário está logado
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Please log in first.');
         }
 
-        // Validação dos dados
         $request->validate([
             'eventname'   => 'required|string|max:255',
             'description' => 'required|string',
@@ -89,7 +149,6 @@ class EventController extends Controller
             'eventstatus' => 'required|in:Upcoming,Ongoing,Completed,Cancelled',
         ]);
 
-        // Cria o evento
         $event = Event::create([
             'eventname'   => $request->input('eventname'),
             'description' => $request->input('description'),
@@ -99,47 +158,11 @@ class EventController extends Controller
             'price'       => $request->input('price'),
             'ispublic'    => $request->input('ispublic'),
             'location'    => $request->input('location'),
-            'createdby'   => Auth::user()->userid, 
+            'createdby'   => Auth::id(),
             'eventstatus' => $request->input('eventstatus'),
         ]);
 
-        if ($event) {
-            return redirect()->route('user.profile', auth()->user()->userid)
-                             ->with('success', 'Event created successfully!');
-        }
-        return back()->with('error', 'Failed to create event.');        
-
-    }
-
-    public function show($id)
-    {
-        $event = Event::findOrFail($id);
-        return view('events.show', compact('event'));
-    }
-
-    public function destroy($id)
-    {
-        $event = Event::findOrFail($id);
-        $event->delete();
-
-        return redirect()->route('events.create');
-    }
-
-    public function favorites($id)
-    {
-        $events = Event::whereHas('favorites', fn($q) => $q->where('userid', $id))->get();
-        return view('events.favorites', compact('events'));
-    }
-
-    public function attending($id)
-    {
-        $events = Event::whereHas('attendees', fn($q) => $q->where('userid', $id))->get();
-        return view('events.attending', compact('events'));
-    }
-
-    public function organizing($id)
-    {
-        $events = Event::where('createdby', $id)->get();
-        return view('events.organizing', compact('events'));
+        return redirect()->route('events.show', $event->eventid)
+            ->with('success', 'Event created successfully!');
     }
 }

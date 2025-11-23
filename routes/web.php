@@ -29,11 +29,6 @@ Route::controller(LogoutController::class)->group(function () {
     Route::post('/logout', 'logout')->name('logout');
 });
 
-// Route::get('/user/{id}', [UserController::class, 'showProfile'])
-//      ->where('id', '[0-9]+') // para não apanhar /user/edit
-//      ->middleware('auth')
-//      ->name('user.profile');
- 
 // Dashboard
 Route::get('/dashboard', [EventController::class, 'dashboard'])
     ->middleware('auth')
@@ -41,7 +36,6 @@ Route::get('/dashboard', [EventController::class, 'dashboard'])
 
 // Pesquisa de eventos públicos
 Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
-
 
 // Eventos (autenticados)
 Route::middleware('auth')->group(function() {
@@ -58,9 +52,15 @@ Route::post('/events', [EventController::class, 'store'])
     ->middleware('auth')
     ->name('events.store');
 
-
 Route::get('/events/browse', [EventController::class, 'browse'])->name('events.browse');
+
+// Ver evento específico
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+
+// Pedir para entrar no evento
+Route::post('/events/{id}/join', [EventController::class, 'requestToJoin'])
+    ->middleware('auth')
+    ->name('events.join');
 
 // Editar Perfil
 Route::get('/user/edit', [UserController::class, 'edit'])
@@ -70,8 +70,6 @@ Route::get('/user/edit', [UserController::class, 'edit'])
 Route::get('/user/{username}', [UserController::class, 'showByUsername'])
     ->middleware('auth')
     ->name('user.profile');
-
-
 
 // Atualizar Perfil
 Route::post('/user/update', [UserController::class, 'update'])
