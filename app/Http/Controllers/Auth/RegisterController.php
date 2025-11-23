@@ -51,6 +51,6 @@ class RegisterController extends Controller
 
     Auth::login($user);
 
-    return redirect()->route('events.index');
+    return redirect()->route('events.dashboard');
     }
 }
