@@ -37,7 +37,9 @@ class EventController extends Controller
         }
        
         if ($request->has('category') && $request->category != '') {
-            $query->where('category', $request->category);
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('category.categoryname', $request->category);
+            });
         }
     
         $events = $query->orderBy('startdate', 'asc')->paginate(10);

@@ -3,7 +3,7 @@ CREATE SCHEMA IF NOT EXISTS lbaw25124;
 SET search_path TO lbaw25124;
 
 -- Drop tables 
-DROP TABLE IF EXISTS eventNotification, favouriteEvent, eventParticipation,
+DROP TABLE IF EXISTS eventCategory, eventTag, eventNotification, favouriteEvent, eventParticipation,
 userReport, commentReport, eventReport, report, pollOption, poll, invitation,
 notification, comment, event, upload, joinRequest, appAdmin, tag, category, vote, "user" CASCADE;
 
@@ -164,6 +164,18 @@ CREATE TABLE joinRequest (
 CREATE TABLE upload (
     uploadId SERIAL PRIMARY KEY,
     filePath VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE eventCategory (
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
+    categoryId INT REFERENCES category(categoryId) ON DELETE CASCADE,
+    PRIMARY KEY (eventId, categoryId)
+);
+
+CREATE TABLE eventTag (
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
+    tagId INT REFERENCES tag(tagId) ON DELETE CASCADE,
+    PRIMARY KEY (eventId, tagId)
 );
 
 -- Indexes
@@ -769,6 +781,23 @@ INSERT INTO eventNotification (notificationId, eventId) VALUES
 (4, 5),
 (5, 2),
 (6, 1);
+
+INSERT INTO eventCategory (eventId, categoryId) VALUES
+(1, 1),
+(2, 9),
+(3, 3),
+(4, 4),
+(5, 8),
+(6, 7),
+(7, 10),
+(8, 6),
+(9, 1),
+(10, 5),
+(11, 3),
+(12, 8),
+(13, 2),
+(14, 10),
+(15, 3);
 
 -- Display summary
 SELECT 'Database populated successfully!' AS status;

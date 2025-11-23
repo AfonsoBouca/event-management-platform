@@ -82,16 +82,13 @@
     @else
         <ul>
         @foreach($events as $event)
-            <li>
-                <strong>{{ $event->eventname }}</strong>
-                <p>{{ $event->description }}</p>
-                @if($event->startdate)
-                    <span>Begin: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span>
-                @else
-                    <span>Begin: Not defined</span>
-                @endif
-            </li>
-        @endforeach
+        <div class="event-card">
+            <strong>{{ $event->eventname }}</strong>
+            <p>{{ $event->description }}</p>
+            <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
+            <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
+        </div>
+    @endforeach
         </ul>
     @endif
 

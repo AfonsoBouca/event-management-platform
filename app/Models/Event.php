@@ -68,4 +68,14 @@ class Event extends Model
     {
         return $this->hasMany(\App\Models\JoinRequest::class, 'eventid', 'eventid');
     }
+
+    public function categories(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(
+            \App\Models\Category::class,
+            'eventcategory',
+            'eventid',
+            'categoryid'
+        );
+    }
 }
