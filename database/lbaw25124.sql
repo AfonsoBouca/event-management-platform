@@ -26,7 +26,8 @@ CREATE TABLE "user" (
     passwordHash VARCHAR(255) NOT NULL,
     profileImage VARCHAR(255),
     registrationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    isAdmin BOOLEAN DEFAULT FALSE
+    isAdmin BOOLEAN DEFAULT FALSE,
+    isDeleted BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE event (

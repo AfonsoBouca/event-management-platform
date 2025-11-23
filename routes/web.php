@@ -79,3 +79,10 @@ Route::post('/user/update', [UserController::class, 'update'])
 Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])
     ->where('userid', '[0-9]+')
     ->name('user.organizing');
+
+
+ //apagar conta
+Route::delete('/user/delete', [UserController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('user.delete');
+

@@ -59,6 +59,14 @@ class User extends Authenticatable
         $this->attributes['passwordhash'] = bcrypt($value);
     }
 
+    public function getDisplayNameAttribute()
+    {
+        return $this->isDeleted ? 'Deleted account' : $this->username;
+
+        //nao usar : x $event->creator->username x, usar :  $event->creator->display_name
+    }
+
+
 
    
 }
