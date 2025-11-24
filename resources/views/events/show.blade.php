@@ -33,6 +33,17 @@
         text-transform: uppercase;
     }
 
+    .organizer-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+   }
+
+  .event-delete,
+  .event-edit {
+    display: inline-block;
+
+   }   
     .status-upcoming { background-color: #4caf50; color: white; }
     .status-ongoing { background-color: #ff9800; color: white; }
     .status-completed { background-color: #9e9e9e; color: white; }
@@ -187,6 +198,33 @@
             {{ $event->eventstatus }}
         </span>
     </div>
+   
+    <div class="organizer-actions"> 
+    <div class="delete-event">
+        @auth
+            @if($event->createdby === Auth::user()->userid)
+                <form action="{{ route('events.deleteEvent', $event->eventid) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this event?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">
+                        Delete Event
+                    </button>
+                </form>
+            @endif
+        @endauth
+    </div>     
+    
+    <div class="edit-event">
+        @auth
+            @if($event->createdby === Auth::user()->userid)
+                <a href="{{ route('events.editEvent', $event->eventid) }}" class="btn btn-primary">
+                    Edit Event
+                </a>
+            @endif
+        @endauth
+    </div>
+</div>
+
 
     <div class="event-details">
         <div class="detail-row">

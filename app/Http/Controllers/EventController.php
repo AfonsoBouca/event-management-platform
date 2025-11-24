@@ -13,7 +13,7 @@ class EventController extends Controller
 {
     public function dashboard()
     {
-        $upcomingEvents = Event::where('startdate', '>', now())
+        $upcomingEvents = Event::where('startdate', '<', now())
             ->where('ispublic', true)
             ->orderBy('startdate', 'desc')
             ->take(5)
@@ -30,6 +30,8 @@ class EventController extends Controller
     public function browse(Request $request)
     {
         $query = Event::query();
+
+        $query->where('ispublic', true);
     
         if ($request->has('status') && $request->status != '') {
             $status = ucfirst(strtolower($request->status));
@@ -162,7 +164,7 @@ class EventController extends Controller
             'price'       => $request->input('price'),
             'ispublic'    => $request->input('ispublic'),
             'location'    => $request->input('location'),
-            'createdby'   => Auth::id(),
+            'createdby'   => Auth::user()->userid,
             'eventstatus' => $request->input('eventstatus'),
         ]);
 
@@ -253,4 +255,75 @@ class EventController extends Controller
             ->route('events.manage', $eventId)
             ->with('success', 'Participante removido com sucesso.');
     }
+
+    public function editEvent($eventId)
+{
+    $event = Event::findOrFail($eventId);
+    $userId = Auth::user()->userid;
+
+    if (!$event->isOrganizer($userId)) {
+        return redirect() ->route('user.profile', ['username' => Auth::user()->username])
+         ->with('error', 'You do not have permission to delete this event.');
+    }
+
+    return view('events.edit', compact('event'));
 }
+
+public function deleteEvent($eventId)
+{
+    $event = Event::findOrFail($eventId);
+    $userId = Auth::user()->userid;
+
+    if (!$event ->isOrganizer($userId)) {
+        return redirect() ->route('user.profile', ['username' => Auth::user()->username])
+         ->with('error', 'You do not have permission to delete this event.');
+    }
+
+    $event->delete();
+
+    return redirect()
+        ->route('user.profile', ['username' => Auth::user()->username])
+        ->with('success', 'Event deleted successfully.');
+}
+
+public function updateEvent(Request $request, $eventId)
+    {
+        $event = Event::findOrFail($eventId);
+        $userId = Auth::user()->userid;
+
+        // Só o organizador pode atualizar
+        if ($event->createdby !== $userId) {
+            return redirect()
+                ->route('user.profile', ['username' => Auth::user()->username])
+                ->with('error', 'You do not have permission to edit this event.');
+        }
+
+        // Validação 
+        $request->validate([
+            'eventname' => 'required|string|max:255',
+            'description' => 'required|string',
+            'location' => 'required|string|max:255',
+            'startdate' => 'required|date',
+            'enddate' => 'required|date|after_or_equal:startdate',
+            'capacity' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        // Atualiza os campos
+        $event->update([
+            'eventname' => $request->eventname,
+            'description' => $request->description,
+            'location' => $request->location,
+            'startdate' => $request->startdate,
+            'enddate' => $request->enddate,
+            'capacity' => $request->capacity,
+            'price' => $request->price,
+        ]);
+
+        return redirect()
+            ->route('events.show', $event->eventid)
+            ->with('success', 'Event updated successfully.');
+    }
+}
+    
+      

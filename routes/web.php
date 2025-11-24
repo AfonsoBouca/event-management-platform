@@ -7,11 +7,12 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 
+
 // Home -> redireciona conforme autenticação
 Route::get('/', function () {
     return auth()->check()
         ? redirect()->route('dashboard')
-        : redirect()->route('login');
+        : redirect()->route('events.dashboard');
 });
 
 // Authentication
@@ -31,16 +32,13 @@ Route::controller(LogoutController::class)->group(function () {
 
 // Dashboard
 Route::get('/dashboard', [EventController::class, 'dashboard'])
-    ->middleware('auth')
     ->name('dashboard');
 
 // Pesquisa de eventos públicos
 Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
 
-// Eventos (autenticados)
-Route::middleware('auth')->group(function() {
-    Route::get('/events/dashboard', [EventController::class, 'dashboard'])->name('events.dashboard');
-});
+Route::get('/events/dashboard', [EventController::class, 'dashboard'])->name('events.dashboard');
+
 
 // Página de criar evento
 Route::get('/events/create', [EventController::class, 'create'])
@@ -51,6 +49,8 @@ Route::get('/events/create', [EventController::class, 'create'])
 Route::post('/events', [EventController::class, 'store'])
     ->middleware('auth')
     ->name('events.store');
+ 
+Route::get('/events', [EventController::class, 'browse'])->name('events.index');
 
 Route::get('/events/browse', [EventController::class, 'browse'])->name('events.browse');
 
@@ -102,4 +102,19 @@ Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])
 Route::delete('/user/delete', [UserController::class, 'destroy'])
     ->middleware('auth')
     ->name('user.delete');
+
+ //apagar evento
+ Route::delete('/events/{id}', [EventController::class, 'deleteEvent'])
+    ->middleware('auth')
+    ->name('events.deleteEvent');
+
+ //editar evento
+ Route::get('/events/{id}/edit', [EventController::class, 'editEvent'])
+    ->middleware('auth')
+    ->name('events.editEvent');
+    
+Route::put('/events/{id}', [EventController::class, 'updateEvent'])
+    ->middleware('auth')
+    ->name('events.updateEvent');
+   
 

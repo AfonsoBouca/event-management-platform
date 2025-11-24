@@ -78,4 +78,5 @@ class Event extends Model
             'categoryid'
         );
     }
+
 }
