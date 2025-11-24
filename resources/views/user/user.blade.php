@@ -185,40 +185,78 @@
     </div>
 
     <!-- Ações do Usuário -->
-    <div class="profile-actions">
-        @if(Auth::check() && Auth::user()->userid === $user->userid)
-            <a href="{{ route('events.create') }}" class="button">Create Event</a>
-        @endif
+<!-- Ações do Usuário -->
+<div class="profile-actions">
+    @if(Auth::check() && Auth::user()->userid === $user->userid)
+        <a href="{{ route('events.create') }}" class="button">Create Event</a>
+    @endif
 
-        <a href="{{ route('dashboard') }}" class="button secondary-button">Homepage</a>
+    <a href="{{ route('dashboard') }}" class="button secondary-button">Homepage</a>
 
-        <h2>My Events</h2>
-
-        <div class="events-carousel">
-            @forelse($events as $event)
-                <div class="event-card">
-                    <strong>{{ $event->eventname }}</strong>
-                    <p>{{ Str::limit($event->description, 100) }}</p>
-                    <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
-                    <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
-                </div>
-            @empty
-                <p style="color:#fff;">You did not create any event.</p>
-            @endforelse
-        </div>
-
-        <h2>Attending Events</h2>
-
-        <div class="events-carousel">
-            @forelse($participants as $event)
-                <div class="event-card">
-                    <strong>{{ $event->eventname }}</strong>
-                    <p>{{ Str::limit($event->description, 100) }}</p>
-                    <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
-                    <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
+    <!-- MY EVENTS -->
+    <h2>My Events</h2>
+    <div class="events-carousel">
+        @forelse($events as $event)
+            <div class="event-card">
+                <strong>{{ $event->eventname }}</strong>
+                <p>{{ Str::limit($event->description, 100) }}</p>
+                <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
+                <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
             </div>
-            @empty
-                <p style="color:#fff;">You are not attending any event.</p>
-            @endforelse
-</div>
+        @empty
+            <p style="color:#fff;">You did not create any event.</p>
+        @endforelse
+    </div>
+
+    <!-- ATTENDING -->
+    <h2>Attending Events</h2>
+    <div class="events-carousel">
+        @forelse($participants as $event)
+            <div class="event-card">
+                <strong>{{ $event->eventname }}</strong>
+                <p>{{ Str::limit($event->description, 100) }}</p>
+                <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
+                <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
+            </div>
+        @empty
+            <p style="color:#fff;">You are not attending any event.</p>
+        @endforelse
+    </div>
+
+
+    <!-- INVITATIONS -->
+    @if($pendingInvitations->count() > 0)
+        <h2 style="margin-top: 30px;">Invitations</h2>
+
+        <div class="events-carousel">
+            @foreach($pendingInvitations as $inv)
+                <div class="event-card">
+                    <strong>{{ $inv->event->eventname }}</strong>
+
+                    <p>{{ Str::limit($inv->event->description, 100) }}</p>
+
+                    <span>
+                        Starts:
+                        {{ \Carbon\Carbon::parse($inv->event->startdate)->format('d/m/Y H:i') }}
+                    </span><br>
+
+                    <div style="margin-top: 10px;">
+                        <form action="{{ route('invitation.accept', $inv->invitationid) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                        </form>
+
+                        <form action="{{ route('invitation.reject', $inv->invitationid) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+</div> <!-- end actions -->
+
 @endsection
+

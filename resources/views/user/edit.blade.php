@@ -161,7 +161,7 @@
         <input type="email" name="email" value="{{ $user->email }}" required>
 
         <!-- Password -->
-        <label>New Password <small>(leave blank to keep current)</small></label>
+        <label>New Password <small>(leave blank to keep current, mininum length = 6)</small></label>
         <input type="password" name="password">
 
         <!-- Profile Image -->

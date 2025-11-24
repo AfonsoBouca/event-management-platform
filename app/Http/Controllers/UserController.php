@@ -9,6 +9,7 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\Invitation;
 
 class UserController extends Controller
 {
@@ -94,7 +95,13 @@ class UserController extends Controller
 
         $participants = $user->attendingEvents()->get();
 
-        return view('user.user', compact('user', 'events', 'participants'));
+        $pendingInvitations = Invitation::where('userid', $user->userid)
+            ->where('confirmation', false)
+            ->with('event')
+            ->get();
+
+
+        return view('user.user', compact('user', 'events', 'participants', 'pendingInvitations'));
     }
 
     public function destroy(Request $request)

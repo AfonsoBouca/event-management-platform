@@ -16,8 +16,42 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <h2>Pending Join Requests</h2>
-    
+    @if(!$event->ispublic)
+        <h2>Invite Participants</h2>
+
+        <a href="{{ route('events.invite.search', $event->eventid) }}" class="btn btn-primary">
+            Add Participant
+        </a>
+
+        <h2> Invited Participants </h2>
+            @if($pendingInvitations->count() > 0)
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Invite Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pendingInvitations as $inv)
+                            <tr>
+                                <td>{{ $inv->user->username }}</td>
+                                <td>{{ $inv->user->email }}</td>
+                                <td>
+                                    <span class="badge bg-warning">Invitation Sent</span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <p class="text-muted">No pending invitations.</p>
+            @endif        
+
+    @endif
+
+    <h2>Pending Join Requests</h2>   
     @if($pendingRequests->count() > 0)
         <table class="table">
             <thead>

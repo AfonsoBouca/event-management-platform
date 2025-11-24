@@ -8,9 +8,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use App\Models\Invitation;
+use App\Models\EventParticipation;
+
 
 class EventController extends Controller
 {
+    // --------------------------------------------------------------------------------------------------------------------------------
+    // DashBoard Actions
+    // ---------------------------------------------------------------------------------------------------------------------------------
     public function dashboard()
     {
         $upcomingEvents = Event::where('startdate', '<', now())
@@ -61,7 +68,7 @@ class EventController extends Controller
             ->get();
 
         return view('events.searchresults', compact('events', 'query'));
-    }
+    }  
 
     public function show($id)
     {
@@ -97,40 +104,9 @@ class EventController extends Controller
         return view('events.show', compact('event', 'isAttendee', 'hasPendingRequest'));
     }
 
-    public function requestToJoin($id)
-    {
-        $user = Auth::user();
-        
-        if (!$user) {
-            return redirect()->route('login')->with('error', 'Please log in to join events.');
-        }
-        
-        $event = Event::findOrFail($id);
-        
-        if ($event->isAttendee($user->userid)) {
-            return redirect()->route('events.show', $id)
-                ->with('info', 'You are already a participant of this event.');
-        }
-        
-        $existingRequest = JoinRequest::where('eventid', $id)
-            ->where('userid', $user->userid)
-            ->where('j_status', 'Pending')
-            ->first();
-            
-        if ($existingRequest) {
-            return redirect()->route('events.show', $id)
-                ->with('info', 'You already have a pending request for this event.');
-        }
-        
-        JoinRequest::create([
-            'eventid' => $id,
-            'userid' => $user->userid,
-            'j_status' => 'Pending',
-        ]);
-        
-        return redirect()->route('events.show', $id)
-            ->with('success', 'Your request to join has been sent!');
-    }
+    // --------------------------------------------------------------------------------------------------------------------------------
+    // Event Management
+    // ---------------------------------------------------------------------------------------------------------------------------------
 
     public function create()
     {
@@ -172,102 +148,18 @@ class EventController extends Controller
             ->with('success', 'Event created successfully!');
     }
 
-    /**
-     * Show event participation management page (organizer only).
-     */
-    public function manageParticipation($id)
-    {
-        $event = Event::with(['organizer', 'attendees', 'joinRequests.user'])
-            ->findOrFail($id);
-        
-        Gate::authorize('manage', $event);
-        
-        $pendingRequests = $event->joinRequests()
-            ->where('j_status', 'Pending')
-            ->with('user')
-            ->get();
-        
-        $participants = $event->attendees()->withPivot('role')->get();
-        
-        return view('events.manage-participation', compact('event', 'pendingRequests', 'participants'));
-    }
-
-    /**
-     * Approve a join request.
-     */
-    public function approveJoinRequest($eventId, $joinId)
+public function editEvent($eventId)
     {
         $event = Event::findOrFail($eventId);
-        Gate::authorize('manage', $event);
-        
-        $joinRequest = JoinRequest::where('joinid', $joinId)
-            ->where('eventid', $eventId)
-            ->firstOrFail();
-        
-        $joinRequest->j_status = 'Accepted';
-        $joinRequest->save();
-        
-        return redirect()
-            ->route('events.manage', $eventId)
-            ->with('success', 'Pedido aprovado com sucesso!');
-    }
+        $userId = Auth::user()->userid;
 
-    /**
-     * Reject a join request.
-     */
-    public function rejectJoinRequest($eventId, $joinId)
-    {
-        $event = Event::findOrFail($eventId);
-        Gate::authorize('manage', $event);
-        
-        $joinRequest = JoinRequest::where('joinid', $joinId)
-            ->where('eventid', $eventId)
-            ->firstOrFail();
-        
-        $joinRequest->j_status = 'Rejected';
-        $joinRequest->save();
-        
-        return redirect()
-            ->route('events.manage', $eventId)
-            ->with('success', 'Pedido rejeitado.');
-    }
-
-    /**
-     * Remove a participant from the event.
-     */
-    public function removeParticipant($eventId, $userId)
-    {
-        $event = Event::findOrFail($eventId);
-        Gate::authorize('manage', $event);
-        
-        if ($event->createdby == $userId) {
-            return redirect()
-                ->route('events.manage', $eventId)
-                ->with('error', 'Não podes remover o organizador do evento.');
+        if (!$event->isOrganizer($userId) || $event->createdby !== $userId) {
+            return redirect() ->route('user.profile', ['username' => Auth::user()->username])
+                ->with('error', 'You do not have permission to delete this event.');
         }
-        
-        DB::table('eventparticipation')
-            ->where('eventid', $eventId)
-            ->where('userid', $userId)
-            ->delete();
-        
-        return redirect()
-            ->route('events.manage', $eventId)
-            ->with('success', 'Participante removido com sucesso.');
+
+        return view('events.edit', compact('event'));
     }
-
-    public function editEvent($eventId)
-{
-    $event = Event::findOrFail($eventId);
-    $userId = Auth::user()->userid;
-
-    if (!$event->isOrganizer($userId) || $event->createdby !== $userId) {
-        return redirect() ->route('user.profile', ['username' => Auth::user()->username])
-         ->with('error', 'You do not have permission to delete this event.');
-    }
-
-    return view('events.edit', compact('event'));
-}
 
 public function deleteEvent($eventId)
 {
@@ -324,6 +216,219 @@ public function updateEvent(Request $request, $eventId)
             ->route('events.show', $event->eventid)
             ->with('success', 'Event updated successfully.');
     }
-}
+
+
+    // --------------------------------------------------------------------------------------------------------------------------------
+    // User Management
+    // ---------------------------------------------------------------------------------------------------------------------------------
     
+    
+    /**
+     * Show event participation management page (organizer only).
+     */
+    public function manageParticipation($id)
+    {
+        $event = Event::with(['organizer', 'attendees', 'joinRequests.user'])
+            ->findOrFail($id);
+
+        $ispublic = $event->ispublic;
+        
+        Gate::authorize('manage', $event);
+        
+        $pendingRequests = $event->joinRequests()
+            ->where('j_status', 'Pending')
+            ->with('user')
+            ->get();
+        
+        $participants = $event->attendees()->withPivot('role')->get();
+
+        $pendingInvitations = Invitation::where('eventid', $id)
+            ->where('confirmation', false)
+            ->with('user')
+            ->get();
+
+        
+        return view('events.manage-participation', compact('event', 'pendingRequests', 'pendingInvitations', 'participants', 'ispublic'));
+    }
+
+    public function requestToJoin($id)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Please log in to join events.');
+        }
+        
+        $event = Event::findOrFail($id);
+        
+        if ($event->isAttendee($user->userid)) {
+            return redirect()->route('events.show', $id)
+                ->with('info', 'You are already a participant of this event.');
+        }
+        
+        $existingRequest = JoinRequest::where('eventid', $id)
+            ->where('userid', $user->userid)
+            ->where('j_status', 'Pending')
+            ->first();
+            
+        if ($existingRequest) {
+            return redirect()->route('events.show', $id)
+                ->with('info', 'You already have a pending request for this event.');
+        }
+        
+        JoinRequest::create([
+            'eventid' => $id,
+            'userid' => $user->userid,
+            'j_status' => 'Pending',
+        ]);
+        
+        return redirect()->route('events.show', $id)
+            ->with('success', 'Your request to join has been sent!');
+    }
+
+    /**
+     * Approve a join request.
+     */
+    public function approveJoinRequest($eventId, $joinId)
+    {
+        $event = Event::findOrFail($eventId);
+        Gate::authorize('manage', $event);
+        
+        $joinRequest = JoinRequest::where('joinid', $joinId)
+            ->where('eventid', $eventId)
+            ->firstOrFail();
+        
+        $joinRequest->j_status = 'Accepted';
+        $joinRequest->save();
+        
+        return redirect()
+            ->route('events.manage', $eventId)
+            ->with('success', 'Pedido aprovado com sucesso!');
+    }
+
+    /**
+     * Reject a join request.
+     */
+    public function rejectJoinRequest($eventId, $joinId)
+    {
+        $event = Event::findOrFail($eventId);
+        Gate::authorize('manage', $event);
+        
+        $joinRequest = JoinRequest::where('joinid', $joinId)
+            ->where('eventid', $eventId)
+            ->firstOrFail();
+        
+        $joinRequest->j_status = 'Rejected';
+        $joinRequest->save();
+        
+        return redirect()
+            ->route('events.manage', $eventId)
+            ->with('success', 'Pedido rejeitado.');
+    }
+
+    public function inviteSearch($id)
+        {
+            $event = Event::findOrFail($id);
+            Gate::authorize('manage', $event);
+        
+            return view('events.invite-users', ['event' => $event, 'users' => [], 'query' => '']);
+        }    
+    
+    public function searchUsers(Request $request, $id)
+    {
+        $event = Event::findOrFail($id);
+        Gate::authorize('manage', $event);
+    
+        $query = $request->input('q');
+        $users = [];
+    
+        if ($query) {
+            $users = User::where('username', 'ILIKE', "%$query%")
+                         ->orWhere('email', 'ILIKE', "%$query%")
+                         ->take(20)
+                         ->get();
+        }
+        return view('events.invite-users', compact('event', 'users', 'query'));
+    }
+
+    public function inviteUser($eventid, $userid)
+    {
+        $event = Event::findOrFail($eventid);
+    
+        Gate::authorize('manage', $event);
+    
+        // Não convidar quem já está no evento ou já foi convidado
+        $already = Invitation::where('eventid', $eventid)
+                    ->where('userid', $userid)
+                    ->first();
+    
+        if (!$already) {
+            Invitation::create([
+                'eventid' => $eventid,
+                'userid' => $userid,
+                'confirmation' => false
+            ]);
+        }
+    
+        return back()->with('status', 'Invitation sent!');
+    }
+    
+    public function acceptInvitation($invitationid)
+    {
+        $inv = Invitation::findOrFail($invitationid);
+    
+        if ($inv->userid !== Auth::user()->userid) {
+            abort(403, "Not authorized");
+        }
+    
+        $inv->confirmation = true;
+        $inv->save();
+    
+        EventParticipation::firstOrCreate([
+            'userid' => $inv->userid,
+            'eventid' => $inv->eventid
+        ]);
+    
+        return back()->with('success', 'Invitation accepted!');
+    }
+    
+    public function rejectInvitation($invitationid)
+    {
+        $inv = Invitation::findOrFail($invitationid);
+    
+        if ($inv->userid !== Auth::user()->userid) {
+            abort(403, "Not authorized");
+        }
+    
+        $inv->delete();
+    
+        return back()->with('success', 'Invitation rejected');
+    }
+    
+    /**
+     * Remove a participant from the event.
+     */
+public function removeParticipant($eventId, $userId)
+    {
+        $event = Event::findOrFail($eventId);
+        Gate::authorize('manage', $event);
+        
+        if ($event->createdby == $userId) {
+            return redirect()
+                ->route('events.manage', $eventId)
+                ->with('error', 'Não podes remover o organizador do evento.');
+        }
+        
+        DB::table('eventparticipation')
+            ->where('eventid', $eventId)
+            ->where('userid', $userId)
+            ->delete();
+        
+        return redirect()
+            ->route('events.manage', $eventId)
+            ->with('success', 'Participante removido com sucesso.');
+    }
+
+
+}    
       

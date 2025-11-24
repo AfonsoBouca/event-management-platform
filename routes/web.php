@@ -116,5 +116,31 @@ Route::delete('/user/delete', [UserController::class, 'destroy'])
 Route::put('/events/{id}', [EventController::class, 'updateEvent'])
     ->middleware('auth')
     ->name('events.updateEvent');
+
+// Entrar em página de pesquisa
+Route::get('/events/{id}/invite/users', [EventController::class, 'inviteSearch'])
+    ->middleware('auth')
+    ->name('events.invite.search');
+    
+// Página onde organizador procura utilizadores
+Route::get('/events/{id}/invite/search', [EventController::class, 'searchUsers'])
+    ->middleware('auth')
+    ->name('events.searchUsers');
+
+// Enviar convite
+Route::post('/events/{eventid}/invite/{userid}', [EventController::class, 'inviteUser'])
+    ->middleware('auth')
+    ->name('events.inviteUser');
+
+// Accept / Reject Invitations
+Route::post('/invitation/{invitationid}/accept', [EventController::class, 'acceptInvitation'])
+    ->middleware('auth')
+    ->name('invitation.accept');
+
+Route::post('/invitation/{invitationid}/reject', [EventController::class, 'rejectInvitation'])
+    ->middleware('auth')
+    ->name('invitation.reject');
+
+
    
 
