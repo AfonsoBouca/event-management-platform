@@ -98,8 +98,8 @@
 
         <label for="ispublic">Visibility</label>
         <select name="ispublic" id="ispublic" required>
-            <option value="1">Público</option>
-            <option value="0">Privado</option>
+            <option value="1">Public</option>
+            <option value="0">Private</option>
         </select>
 
         <label for="location">Location</label>

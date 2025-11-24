@@ -92,7 +92,9 @@ class UserController extends Controller
         $user = User::where('username', $username)->firstOrFail();
         $events = Event::where('createdby', $user->userid)->get();
 
-        return view('user.user', compact('user', 'events'));
+        $participants = $user->attendingEvents()->get();
+
+        return view('user.user', compact('user', 'events', 'participants'));
     }
 
     public function destroy(Request $request)

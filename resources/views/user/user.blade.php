@@ -132,6 +132,32 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
+    .events-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+}
+
+.events-carousel::-webkit-scrollbar {
+    height: 8px;
+}
+
+.events-carousel::-webkit-scrollbar-thumb {
+    background-color: rgba(106, 13, 173, 0.7);
+    border-radius: 4px;
+}
+
+.event-card {
+    flex: 0 0 250px; /* largura fixa de cada card */
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
     /* --- Responsivo --- */
     @media screen and (max-width: 600px) {
         .profile-header {
@@ -168,7 +194,7 @@
 
         <h2>My Events</h2>
 
-        <div class="events-list">
+        <div class="events-carousel">
             @forelse($events as $event)
                 <div class="event-card">
                     <strong>{{ $event->eventname }}</strong>
@@ -180,6 +206,19 @@
                 <p style="color:#fff;">You did not create any event.</p>
             @endforelse
         </div>
-    </div>
+
+        <h2>Attending Events</h2>
+
+        <div class="events-carousel">
+            @forelse($participants as $event)
+                <div class="event-card">
+                    <strong>{{ $event->eventname }}</strong>
+                    <p>{{ Str::limit($event->description, 100) }}</p>
+                    <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
+                    <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
+            </div>
+            @empty
+                <p style="color:#fff;">You are not attending any event.</p>
+            @endforelse
 </div>
 @endsection

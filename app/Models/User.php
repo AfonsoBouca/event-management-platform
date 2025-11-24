@@ -66,6 +66,13 @@ class User extends Authenticatable
         //nao usar : x $event->creator->username x, usar :  $event->creator->display_name
     }
 
+    // App\Models\User.php
+public function attendingEvents()
+{
+    return $this->belongsToMany(Event::class, 'eventparticipation', 'userid', 'eventid');
+}
+
+
 
 
    

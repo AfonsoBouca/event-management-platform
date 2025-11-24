@@ -261,7 +261,7 @@ class EventController extends Controller
     $event = Event::findOrFail($eventId);
     $userId = Auth::user()->userid;
 
-    if (!$event->isOrganizer($userId)) {
+    if (!$event->isOrganizer($userId) || $event->createdby !== $userId) {
         return redirect() ->route('user.profile', ['username' => Auth::user()->username])
          ->with('error', 'You do not have permission to delete this event.');
     }
@@ -274,7 +274,7 @@ public function deleteEvent($eventId)
     $event = Event::findOrFail($eventId);
     $userId = Auth::user()->userid;
 
-    if (!$event ->isOrganizer($userId)) {
+    if (!$event ->isOrganizer($userId) || $event->createdby !== $userId) {
         return redirect() ->route('user.profile', ['username' => Auth::user()->username])
          ->with('error', 'You do not have permission to delete this event.');
     }
@@ -292,7 +292,7 @@ public function updateEvent(Request $request, $eventId)
         $userId = Auth::user()->userid;
 
         // Só o organizador pode atualizar
-        if ($event->createdby !== $userId) {
+        if ($event->createdby !== $userId || !$event->isOrganizer($userId)) {
             return redirect()
                 ->route('user.profile', ['username' => Auth::user()->username])
                 ->with('error', 'You do not have permission to edit this event.');
