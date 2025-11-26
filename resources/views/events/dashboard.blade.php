@@ -13,10 +13,10 @@
 <section class="mb-4">
     <h5 class="text-purple mb-3">Browse by Status</h5>
     <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-sm btn-outline-success filter-btn" data-status="upcoming" href="#">Upcoming</a>
-        <a class="btn btn-sm btn-outline-warning filter-btn" data-status="ongoing" href="#">Ongoing</a>
-        <a class="btn btn-sm btn-outline-secondary filter-btn" data-status="completed" href="#">Completed</a>
-        <a class="btn btn-sm btn-outline-danger filter-btn" data-status="cancelled" href="#">Cancelled</a>
+        <a class="btn btn-sm btn-outline-success" href="{{ route('events.browse') }}?status=upcoming">Upcoming</a>
+        <a class="btn btn-sm btn-outline-warning" href="{{ route('events.browse') }}?status=ongoing">Ongoing</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ route('events.browse') }}?status=completed">Completed</a>
+        <a class="btn btn-sm btn-outline-danger" href="{{ route('events.browse') }}?status=cancelled">Cancelled</a>
     </div>
 </section>
 
@@ -24,16 +24,16 @@
 <section class="mb-4">
     <h5 class="text-purple mb-3">Browse by Category</h5>
     <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Music" href="#">Music</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Tech" href="#">Technology</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Sports" href="#">Sports</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Business" href="#">Business</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Arts & Culture" href="#">Arts & Culture</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Education" href="#">Education</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Health & Wellness" href="#">Health & Wellness</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Food & Drink" href="#">Food & Drink</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Networking" href="#">Networking</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Charity" href="#">Charity</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Music">Music</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Tech">Technology</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Sports">Sports</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Business">Business</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Arts%20%26%20Culture">Arts & Culture</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Education">Education</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Health%20%26%20Wellness">Health & Wellness</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Food%20%26%20Drink">Food & Drink</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Networking">Networking</a>
+        <a class="btn btn-sm btn-outline-purple" href="{{ route('events.browse') }}?category=Charity">Charity</a>
     </div>
 </section>
 
