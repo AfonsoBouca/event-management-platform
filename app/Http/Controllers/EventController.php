@@ -458,7 +458,7 @@ public function removeParticipant($eventId, $userId)
         
         return redirect()
             ->route('events.manage', $eventId)
-            ->with('success', 'Participante removido com sucesso.');
+            ->with('success', 'Participant removed successfully.');
     }
 
 
