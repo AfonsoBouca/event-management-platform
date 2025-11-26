@@ -1,125 +1,55 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    /* --- Container --- */
-    .container {
-        margin: 20px auto;
-        max-width: 900px;
-        padding: 0 15px;
-    }
-
-    /* --- Título --- */
-    h1 {
-        color:rgb(0, 0, 0); 
-        margin-bottom: 20px;
-    }
-
-    /* --- Cartões de evento --- */
-    .event-card {
-        border: 1px solid #444;
-        border-radius: 5px;
-        padding: 15px;
-        margin-bottom: 15px;
-        background-color:rgb(255, 255, 255); 
-        color: rgb(0, 0, 0);
-    }
-
-    .event-card strong {
-        font-size: 1.1em;
-        display: block;
-        margin-bottom: 5px;
-        color: #dda0dd; 
-    }
-
-    .event-card p {
-        margin: 5px 0;
-    }
-
-    .event-card span {
-        font-size: 0.85em;
-        color: #ccc;
-    }
-
-    .view-event-btn {
-        display: inline-block;
-        margin-top: 8px;
-        padding: 5px 10px;
-        background-color: #6a0dad; 
-        color: #fff;
-        text-decoration: none;
-        border-radius: 3px;
-        font-size: 0.85em;
-    }
-
-    .view-event-btn:hover {
-        background-color: #7d1dcf; /* roxo claro */
-    }
-
-    /* --- Paginação customizada --- */
-    .pagination-container {
-        margin-top: 20px;
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .pagination-container .page-link {
-        padding: 5px 10px;
-        color: #6a0dad; 
-        border: 1px solid #6a0dad;
-        border-radius: 3px;
-        font-size: 0.85em;
-        text-decoration: none;
-    }
-
-    .pagination-container .page-link:hover {
-        background-color: #6a0dad;
-        color: #fff;
-    }
-
-    .pagination-container .active {
-        background-color: #6a0dad;
-        color: #fff;
-        border-color: #6a0dad;
-    }
-</style>
-
-@section('content')
 <div class="container">
-    <h1>Browse Events</h1>
+    <h1 class="text-purple mb-4">Browse Events</h1>
 
     @if($events->count() == 0)
-        <p>No events found.</p>
-    @endif
-
-    <div id="events-list-home">
-    @foreach($events as $event)
-        <div class="event-card">
-            <strong>{{ $event->eventname }}</strong>
-            <p>{{ Str::limit($event->description,80) }}</p>
-            <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
-            <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
+        <div class="alert alert-info">No events found.</div>
+    @else
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach($events as $event)
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title text-purple">{{ $event->eventname }}</h5>
+                            <p class="card-text text-muted">{{ Str::limit($event->description, 100) }}</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}
+                                </small>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{{ route('events.show', $event->eventid) }}" class="btn btn-purple btn-sm">View Event</a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
-    @endforeach
-</div>
 
-    <!-- Paginação -->
-   <div id="events-pagination-home">  
-    <div class="pagination-container">
-        @if ($events->onFirstPage() === false)
-            <a href="{{ $events->previousPageUrl() }}" class="page-link">&laquo; Prev</a>
-        @endif
+        <!-- Paginacao Bootstrap -->
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @if ($events->onFirstPage())
+                    <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+                @else
+                    <li class="page-item"><a class="page-link" href="{{ $events->previousPageUrl() }}">&laquo; Prev</a></li>
+                @endif
 
-        @foreach ($events->getUrlRange(1, $events->lastPage()) as $page => $url)
-            <a href="{{ $url }}" class="page-link {{ $events->currentPage() == $page ? 'active' : '' }}">{{ $page }}</a>
-        @endforeach
+                @foreach ($events->getUrlRange(1, $events->lastPage()) as $page => $url)
+                    <li class="page-item {{ $events->currentPage() == $page ? 'active' : '' }}">
+                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                    </li>
+                @endforeach
 
-        @if ($events->hasMorePages())
-            <a href="{{ $events->nextPageUrl() }}" class="page-link">Next &raquo;</a>
-        @endif
-    </div>
-</div>
+                @if ($events->hasMorePages())
+                    <li class="page-item"><a class="page-link" href="{{ $events->nextPageUrl() }}">Next &raquo;</a></li>
+                @else
+                    <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+                @endif
+            </ul>
+        </nav>
+    @endif
 </div>
 @endsection

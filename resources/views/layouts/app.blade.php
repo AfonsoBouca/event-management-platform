@@ -8,192 +8,73 @@
 
     <title>{{ config('app.name', 'Wevent') }}</title>
 
-    <!-- CSS principal -->
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- CSS customizado (opcional) -->
     <link href="{{ url('css/app.css') }}" rel="stylesheet">
-
-    <style>
-        /* --- Header --- */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 30px;
-            background-color:rgb(255, 253, 253); /* Preto */
-            color: #ffffff; 
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 1.8em;
-            color:rgb(255, 255, 255); 
-        }
-
-        /*header h1 a {
-            text-decoration: none;
-            color: inherit;
-            pointer-events: none;
-        }*/
-
-        header .user-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        header .user-actions a {
-            background-color: #6a0dad; /* Roxo */
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-        }
-
-        header .user-actions a:hover {
-            background-color: #7d1dcf; /* Roxo claro */
-        }
-
-        header .user-actions button {
-            background-color: #6a0dad;
-            color: #fff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        header .user-actions button:hover {
-            background-color: #7d1dcf;
-        }
-
-        /* --- Alerts --- */
-        .alert {
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin: 15px 30px;
-            color: #fff;
-        }
-
-        .alert-success {
-            background-color: #28a745;
-        }
-
-        .alert-danger {
-            background-color: #dc3545;
-        }
-
-        /* --- Main Content --- */
-        #content {
-            margin: 20px 30px;
-            font-family: Arial, sans-serif;
-            color:rgb(0, 0, 0);
-            background-color:rgb(255, 255, 255); 
-            padding: 20px;
-            border-radius: 8px;
-        }
-        /* --- Event Cards --- */
-        .event-card {
-            background-color:rgb(255, 255, 255); 
-            color:rgb(0, 0, 0);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #444;
-        }
-
-        .event-card strong {
-            font-size: 1.2em;
-            color: #dda0dd; /* Roxo suave */
-        }
-
-        .event-card p {
-            margin: 5px 0;
-        }
-
-        .event-card span {
-            font-size: 0.85em;
-            color: #ccc;
-        }
-
-        /* --- Buttons --- */
-        .view-event-btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 6px 12px;
-            background-color: #6a0dad;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
-        .view-event-btn:hover {
-            background-color: #7d1dcf;
-        }
-
-        /* --- Search Bar --- */
-        .search-bar {
-            margin: 20px 30px;
-        }
-
-        .search-bar input {
-            padding: 8px;
-            width: 200px;
-        }
-
-        .search-bar button {
-            padding: 8px 12px;
-            background-color: #6a0dad;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .search-bar button:hover {
-            background-color: #7d1dcf;
-        }
-    </style>
 
     @stack('scripts')
 </head>
-<body>
-    <main>
-        <!-- Header -->
-        <header>
-            <h1><a href="{{ route('dashboard') }}">Wevent</a></h1>
-            <div class="user-actions">
-                @auth
-                <a href="{{ route('user.profile', Auth::user()->username) }}">             <!-- está a ser carregado em /register mesmo quando não existe um user -->
-                        {{ Auth::user()->username }}
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                        @csrf
-                        <button type="submit">Logout</button>
-                    </form>
-                @endauth
+<body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-purple">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ route('dashboard') }}">Wevent</a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-2">
+                    @auth
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm" href="{{ route('user.profile', Auth::user()->username) }}">
+                                {{ Auth::user()->username }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-light btn-sm">Logout</button>
+                            </form>
+                        </li>
+                    @endauth
 
-                @guest
-                    <a href="{{ route('login') }}">Login</a>
-                    <a href="{{ route('register') }}">Register</a>
-                @endguest
+                    @guest
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm" href="{{ route('login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-light btn-sm" href="{{ route('register') }}">Register</a>
+                        </li>
+                    @endguest
+                </ul>
             </div>
-        </header>
+        </div>
+    </nav>
 
-        <!-- Content -->
-        <section id="content">
-            @if(session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
+    <!-- Content -->
+    <main class="container py-4">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
 
-            @if(session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
-            @endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
 
-            @yield('content')
-        </section>
+        @yield('content')
     </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

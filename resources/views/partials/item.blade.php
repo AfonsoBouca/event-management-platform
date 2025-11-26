@@ -1,12 +1,7 @@
-<li class="item" data-id="{{$item->id}}">
-    <label>
-        {{-- Checkbox reflects whether the item is done --}}
-        <input type="checkbox" @checked($item->done)>
-
-        {{-- Item description --}}
-        <span>{{ $item->description }}</span>
-
-        {{-- Delete button (handled via JS) --}}
-        <a href="#" class="delete">&#10761;</a>
-    </label>
+<li class="list-group-item d-flex justify-content-between align-items-center item" data-id="{{$item->id}}">
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" @checked($item->done)>
+        <span class="{{ $item->done ? 'text-decoration-line-through text-muted' : '' }}">{{ $item->description }}</span>
+    </div>
+    <a href="#" class="delete text-danger">&times;</a>
 </li>

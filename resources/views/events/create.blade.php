@@ -1,121 +1,79 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    .container {
-        max-width: 800px;
-        margin: 40px auto;
-        background-color:rgb(255, 255, 255); 
-        padding: 25px;
-        border-radius: 8px;
-        color: #000;
-    }
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h2 class="text-center text-purple mb-4">New Event</h2>
 
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #dda0dd; 
-    }
+                <form method="POST" action="{{ route('events.store') }}">
+                    @csrf
 
-    form label {
-        display: block;
-        margin-top: 15px;
-        font-weight: bold;
-        color: #000;
-    }
+                    <div class="mb-3">
+                        <label for="eventname" class="form-label">Event Name</label>
+                        <input type="text" name="eventname" id="eventname" class="form-control" required>
+                    </div>
 
-    form input,
-    form textarea,
-    form select {
-        width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        border: 1px solid #444;
-        border-radius: 5px;
-        background-color:rgb(255, 251, 251);
-        color: #000;
-        box-sizing: border-box;
-    }
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea name="description" id="description" class="form-control" rows="4" required></textarea>
+                    </div>
 
-    form textarea {
-        resize: vertical;
-    }
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="startdate" class="form-label">Start Date</label>
+                            <input type="datetime-local" name="startdate" id="startdate" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="enddate" class="form-label">End Date</label>
+                            <input type="datetime-local" name="enddate" id="enddate" class="form-control" required>
+                        </div>
+                    </div>
 
-    button[type="submit"] {
-        margin-top: 20px;
-        padding: 10px 20px;
-        background: linear-gradient(45deg, #6a0dad, #7d1dcf);
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1em;
-        transition: all 0.3s ease;
-    }
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="capacity" class="form-label">Capacity</label>
+                            <input type="number" name="capacity" id="capacity" class="form-control" min="1" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="price" class="form-label">Price (€)</label>
+                            <input type="number" name="price" id="price" class="form-control" min="0" step="0.01" required>
+                        </div>
+                    </div>
 
-    button[type="submit"]:hover {
-        background: linear-gradient(45deg, #7d1dcf, #9a33e0);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="ispublic" class="form-label">Visibility</label>
+                            <select name="ispublic" id="ispublic" class="form-select" required>
+                                <option value="1">Public</option>
+                                <option value="0">Private</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="eventstatus" class="form-label">Status</label>
+                            <select name="eventstatus" id="eventstatus" class="form-select" required>
+                                <option value="Upcoming">Upcoming</option>
+                                <option value="Ongoing">Ongoing</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
 
-    .back-home {
-        display: inline-block;
-        margin-top: 15px;
-        color: #6a0dad;
-        text-decoration: none;
-    }
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" name="location" id="location" class="form-control" required>
+                    </div>
 
-    .back-home:hover {
-        text-decoration: underline;
-        color: #7d1dcf;
-    }
-</style>
+                    <button type="submit" class="btn btn-purple w-100">Create Event</button>
+                </form>
 
-<div class="container">
-    <h1>New Event</h1>
-
-    <form method="POST" action="{{ route('events.store') }}">
-        @csrf
-
-        <label for="eventname">Event Name</label>
-        <input type="text" name="eventname" id="eventname" required>
-
-        <label for="description">Description</label>
-        <textarea name="description" id="description" required></textarea>
-
-        <label for="startdate">Start Date</label>
-        <input type="datetime-local" name="startdate" id="startdate" required>
-
-        <label for="enddate">End Date</label>
-        <input type="datetime-local" name="enddate" id="enddate" required>
-
-        <label for="capacity">Capacity</label>
-        <input type="number" name="capacity" id="capacity" min="1" required>
-
-        <label for="price">Price</label>
-        <input type="number" name="price" id="price" min="0" required>
-
-        <label for="ispublic">Visibility</label>
-        <select name="ispublic" id="ispublic" required>
-            <option value="1">Public</option>
-            <option value="0">Private</option>
-        </select>
-
-        <label for="location">Location</label>
-        <input type="text" name="location" id="location" required>
-
-        <label for="eventstatus">Status</label>
-        <select name="eventstatus" id="eventstatus" required>
-            <option value="Upcoming">Upcoming</option>
-            <option value="Ongoing">Ongoing</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-        </select>
-
-        <button type="submit">Create Event</button>
-    </form>
-
-    <a class="back-home" href="{{ route('dashboard') }}">← Back to Homepage</a>
+                <div class="text-center mt-3">
+                    <a href="{{ route('dashboard') }}">← Back to Homepage</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

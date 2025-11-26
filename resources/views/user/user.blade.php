@@ -1,262 +1,101 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    /* --- Container Principal --- */
-    .profile-container {
-        max-width: 900px;
-        margin: 30px auto;
-        padding: 20px;
-    }
-
-    /* --- Header do Perfil --- */
-    .profile-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-
-    .profile-header img {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #6a0dad; 
-    }
-
-    .profile-header h1 {
-        font-size: 1.8em;
-        margin: 0;
-        color: #000; 
-    }
-
-    .profile-header span {
-        color: #000; 
-        font-size: 0.95em;
-    }
-
-    /* --- Botões --- */
-    .profile-actions {
-        margin-top: 20px;
-    }
-
-    .profile-actions .button {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #6a0dad;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        transition: background-color 0.3s ease;
-    }
-
-    .profile-actions .button:hover {
-        background-color: #7d1dcf; 
-    }
-
-    .profile-actions .secondary-button {
-        background-color: #444; 
-        margin-left: 10px;
-    }
-
-    .profile-actions .secondary-button:hover {
-        background-color: #555;
-    }
-
-    /* --- Lista de Eventos --- */
-    .profile-actions h2 {
-        margin-bottom: 15px;
-        font-size: 1.5em;
-        border-bottom: 2px solid #6a0dad; /* roxo */
-        padding-bottom: 5px;
-        color: #000;
-    }
-
-    .events-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-    }
-
-    /* --- Cards de Evento --- */
-    .event-card {
-        border-radius: 8px;
-        padding: 15px;
-        background: linear-gradient(135deg, #fff, #dda0dd); /* branco + roxo suave */
-        color: #000;
-        border: 1px solid #444;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .event-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    }
-
-    .event-card strong {
-        font-size: 1.1em;
-        margin-bottom: 5px;
-        color: #6a0dad; /* roxo */
-    }
-
-    .event-card p {
-        flex-grow: 1;
-        margin: 5px 0;
-    }
-
-    .event-card span {
-        font-size: 0.85em;
-        color: #555;
-    }
-
-    .view-event-btn {
-        display: inline-block;
-        margin-top: 10px;
-        padding: 6px 12px;
-        background: linear-gradient(45deg, #6a0dad, #7d1dcf);
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-    }
-
-    .view-event-btn:hover {
-        background: linear-gradient(45deg, #7d1dcf, #9a33e0);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-
-    .events-carousel {
-    display: flex;
-    overflow-x: auto;
-    gap: 15px;
-    padding-bottom: 10px;
-    scroll-behavior: smooth;
-}
-
-.events-carousel::-webkit-scrollbar {
-    height: 8px;
-}
-
-.events-carousel::-webkit-scrollbar-thumb {
-    background-color: rgba(106, 13, 173, 0.7);
-    border-radius: 4px;
-}
-
-.event-card {
-    flex: 0 0 250px; /* largura fixa de cada card */
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-
-    /* --- Responsivo --- */
-    @media screen and (max-width: 600px) {
-        .profile-header {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .profile-header img {
-            width: 100px;
-            height: 100px;
-        }
-    }
-</style>
-
-<div class="profile-container">
-    <!-- Header do Perfil -->
-    <div class="profile-header">
-    <img src="{{ asset('storage/' . $user->profileimage) }}" alt="Foto de perfil">
-        <div>
-            <h1>{{ $user->username }}</h1>
-            <span>{{ $user->email }}</span>
+<!-- Profile Header -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-4 flex-wrap">
+            <img src="{{ asset('storage/' . $user->profileimage) }}" 
+                 alt="Profile" 
+                 class="rounded-circle border border-3 border-purple"
+                 style="width: 100px; height: 100px; object-fit: cover;">
+            <div class="flex-grow-1">
+                <h3 class="text-purple mb-1">{{ $user->username }}</h3>
+                <p class="text-muted mb-0">{{ $user->email }}</p>
+            </div>
+            @if(Auth::check() && Auth::user()->userid === $user->userid)
+                <a href="{{ route('user.edit') }}" class="btn btn-outline-purple">Edit Profile</a>
+            @endif
         </div>
-        <a href="{{ route('user.edit') }}" class="edit-button">Edit</a>
-
     </div>
+</div>
 
-    <!-- Ações do Usuário -->
-<!-- Ações do Usuário -->
-<div class="profile-actions">
+<!-- Actions -->
+<div class="d-flex gap-2 mb-4">
     @if(Auth::check() && Auth::user()->userid === $user->userid)
-        <a href="{{ route('events.create') }}" class="button">Create Event</a>
+        <a href="{{ route('events.create') }}" class="btn btn-purple">Create Event</a>
     @endif
+    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Homepage</a>
+</div>
 
-    <a href="{{ route('dashboard') }}" class="button secondary-button">Homepage</a>
-
-    <!-- MY EVENTS -->
-    <h2>My Events</h2>
+<!-- My Events -->
+<section class="mb-5">
+    <h5 class="text-purple border-bottom pb-2 mb-3">My Events</h5>
     <div class="events-carousel">
         @forelse($events as $event)
-            <div class="event-card">
-                <strong>{{ $event->eventname }}</strong>
-                <p>{{ Str::limit($event->description, 100) }}</p>
-                <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
-                <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title text-purple">{{ $event->eventname }}</h6>
+                    <p class="card-text small text-muted">{{ Str::limit($event->description, 80) }}</p>
+                    <small class="text-muted">{{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</small>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ route('events.show', $event->eventid) }}" class="btn btn-purple btn-sm">View</a>
+                </div>
             </div>
         @empty
-            <p style="color:#fff;">You did not create any event.</p>
+            <p class="text-muted">You haven't created any events yet.</p>
         @endforelse
     </div>
+</section>
 
-    <!-- ATTENDING -->
-    <h2>Attending Events</h2>
+<!-- Attending Events -->
+<section class="mb-5">
+    <h5 class="text-purple border-bottom pb-2 mb-3">Attending Events</h5>
     <div class="events-carousel">
         @forelse($participants as $event)
-            <div class="event-card">
-                <strong>{{ $event->eventname }}</strong>
-                <p>{{ Str::limit($event->description, 100) }}</p>
-                <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
-                <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title text-purple">{{ $event->eventname }}</h6>
+                    <p class="card-text small text-muted">{{ Str::limit($event->description, 80) }}</p>
+                    <small class="text-muted">{{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</small>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ route('events.show', $event->eventid) }}" class="btn btn-purple btn-sm">View</a>
+                </div>
             </div>
         @empty
-            <p style="color:#fff;">You are not attending any event.</p>
+            <p class="text-muted">You're not attending any events.</p>
         @endforelse
     </div>
+</section>
 
-
-    <!-- INVITATIONS -->
-    @if($pendingInvitations->count() > 0)
-        <h2 style="margin-top: 30px;">Invitations</h2>
-
-        <div class="events-carousel">
-            @foreach($pendingInvitations as $inv)
-                <div class="event-card">
-                    <strong>{{ $inv->event->eventname }}</strong>
-
-                    <p>{{ Str::limit($inv->event->description, 100) }}</p>
-
-                    <span>
-                        Starts:
-                        {{ \Carbon\Carbon::parse($inv->event->startdate)->format('d/m/Y H:i') }}
-                    </span><br>
-
-                    <div style="margin-top: 10px;">
-                        <form action="{{ route('invitation.accept', $inv->invitationid) }}" method="POST" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                        </form>
-
-                        <form action="{{ route('invitation.reject', $inv->invitationid) }}" method="POST" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                        </form>
-                    </div>
+<!-- Invitations -->
+@if($pendingInvitations->count() > 0)
+<section class="mb-4">
+    <h5 class="text-purple border-bottom pb-2 mb-3">Pending Invitations</h5>
+    <div class="events-carousel">
+        @foreach($pendingInvitations as $inv)
+            <div class="card border-warning">
+                <div class="card-body">
+                    <h6 class="card-title text-purple">{{ $inv->event->eventname }}</h6>
+                    <p class="card-text small text-muted">{{ Str::limit($inv->event->description, 80) }}</p>
+                    <small class="text-muted">{{ \Carbon\Carbon::parse($inv->event->startdate)->format('d/m/Y H:i') }}</small>
                 </div>
-            @endforeach
-        </div>
-    @endif
-
-</div> <!-- end actions -->
-
+                <div class="card-footer bg-transparent d-flex gap-2">
+                    <form action="{{ route('invitation.accept', $inv->invitationid) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                    </form>
+                    <form action="{{ route('invitation.reject', $inv->invitationid) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                </div>
+            </div>
+        @endforeach
+    </div>
+</section>
+@endif
 @endsection
 

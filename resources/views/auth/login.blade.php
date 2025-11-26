@@ -1,55 +1,64 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container" style="max-width: 400px; margin: 50px auto; background-color: #fff; padding: 30px; border-radius: 8px;">
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h2 class="text-center text-purple mb-4">Login</h2>
 
-    <h2 style="text-align: center; color: #6a0dad; margin-bottom: 25px;">Login</h2>
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            class="form-control @error('email') is-invalid @enderror"
+                            value="{{ old('email') }}"
+                            required
+                            autofocus
+                        >
+                        @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-        <label for="email" style="color:#000;">E-mail</label>
-        <input
-            id="email"
-            name="email"
-            type="email"
-            value="{{ old('email') }}"
-            required
-            autofocus
-            style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border-radius: 5px; border:1px solid #ccc; color:#000;"
-        >
-        @error('email')
-            <span style="color: #dc3545; font-size:0.85em;">{{ $message }}</span>
-        @enderror
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="form-control @error('password') is-invalid @enderror"
+                            required
+                        >
+                        @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-        <label for="password" style="color:#000;">Password</label>
-        <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border-radius: 5px; border:1px solid #ccc; color:#000;"
-        >
-        @error('password')
-            <span style="color: #dc3545; font-size:0.85em;">{{ $message }}</span>
-        @enderror
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" name="remember" id="remember" value="1" @checked(old('remember'))>
+                        <label class="form-check-label" for="remember">Remember me</label>
+                    </div>
 
-        <label style="color:#000;">
-            <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
-            Remember me
-        </label>
+                    <button type="submit" class="btn btn-purple w-100 mb-2">
+                        Login
+                    </button>
 
-        <button type="submit" class="view-event-btn" style="width:100%; margin-top:15px;">
-            Login
-        </button>
+                    <a href="{{ route('register') }}" class="btn btn-outline-purple w-100">
+                        Register
+                    </a>
 
-        <a href="{{ route('register') }}" class="view-event-btn" style="width:100%; margin-top:10px; display:block; text-align:center;">
-            Register
-        </a>
-
-        @if (session('status'))
-            <p class="success" style="color: #28a745; text-align:center; margin-top:10px;">{{ session('status') }}</p>
-        @endif
-    </form>
+                    @if (session('status'))
+                        <p class="text-success text-center mt-3">{{ session('status') }}</p>
+                    @endif
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

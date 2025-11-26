@@ -1,161 +1,94 @@
-body {
-    background-color: #ffffff;
-    color: #9b4dca;
+:root {
+    --purple: #6a0dad;
+    --purple-light: #7d1dcf;
+    --purple-dark: #5a0b91;
 }
-main > header {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    align-items: center;
-    background-color: #d2afe7;
-    padding: 1em;
-    margin: 1em;
+
+.bg-purple {
+    background-color: var(--purple) !important;
 }
-main > header h1 {
-    margin: 0;
+
+.bg-purple-light {
+    background-color: rgba(106, 13, 173, 0.1) !important;
 }
-main > header a.button {
-    margin: 1em;
-    justify-self: center;
+
+.btn-purple {
+    background-color: var(--purple);
+    border-color: var(--purple);
+    color: #fff;
 }
-main > header span {
-    margin: 1em;
-    justify-self: center;
+
+.btn-purple:hover {
+    background-color: var(--purple-light);
+    border-color: var(--purple-light);
+    color: #fff;
 }
-#cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+.btn-outline-purple {
+    color: var(--purple);
+    border-color: var(--purple);
 }
-#cards article.card {
-    display: flex;
-    flex-direction: column;
-    background-color: #d3edc3;
-    padding: 1em;
-    margin: 1em;
+
+.btn-outline-purple:hover {
+    background-color: var(--purple);
+    color: #fff;
 }
-#cards article.card header {
-    display: flex;
-    align-items: center;
-}
-#cards article.card header h2 {
-    flex-grow: 1;
-}
-#cards article.card header a.delete {
-    display: none;
-    font-size: 2.6rem;
-    margin-top: 0.5rem;
-    margin-bottom: 2.5rem;
-    line-height: 1.25;
-}
-#cards article.card header:hover a.delete {
-    display: inline;
-}
-#cards article.card li {
-    list-style-type: none;
-}
-#cards article.card li label {
-    display: flex;
-    align-items: baseline;
-}
-#cards article.card li label span {
-    margin-left: 0.5em;
-    flex-grow: 1;
-}
-#cards article.card li label a {
-    display: none;
-}
-#cards article.card li label:hover a {
-    display: inline;
-}
-#cards article.card input:checked + span {
-    text-decoration: var(--primary-color) solid line-through;
-}
-#cards article.card ul {
-    margin: 0;
-}
-#cards article.card form {
-    margin: 0;
-}
-#cards article.card input[type="text"] {
-    background-color: white;
-    margin: 0;
-}
-#content label {
-    font-weight: normal;
-}
-#content > form {
-    margin: 0 auto;
-    padding: 1em;
-    max-width: 20em;
-    border: 1px solid #d2afe7;
-}
-#content > form .error {
-    font-weight: bold;
-    color: #ff3333;
-}
-#content > form .success {
-    font-weight: bold;
-    color: #106af1;
-}
-#content > form input {
-    background-color: white;
-}
-@media (max-width: 70em) {
-    #cards {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    main > header {
-        display: grid;
-        grid-template-columns: 1fr auto;
-    }
-    main > header h1 {
-        grid-row-end: span 2;
-    }
-}
-@media (max-width: 40em) {
-    #cards {
-        grid-template-columns: 1fr;
-    }
-}
-@media (max-width: 25em) {
-    body {
-        margin: 0;
-    }
-    main > header {
-        margin: 0;
-        padding: 0.5em;
-    }
-    main > header span {
-        margin: 0;
-    }
-    #content form {
-        margin: 0;
-        max-width: 25em;
-    }
-    article.card {
-        margin: 0;
-        border-bottom: 1px solid rgba(96, 108, 118, 0.4);
-    }
-}
-/**
-   * Override milligram colors
-   * Some styles might be missing
-   **/
-button {
-    background-color: #9b4dca;
-    border-color: #9b4dca;
-}
-a.button {
-    background-color: #9b4dca;
-    border-color: #9b4dca;
-}
-a.button.button-outline {
-    color: #9b4dca;
-}
+
 a {
-    color: #9b4dca;
+    color: var(--purple);
 }
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus {
-    border-color: #9b4dca;
+
+a:hover {
+    color: var(--purple-light);
+}
+
+.badge-upcoming {
+    background-color: #28a745;
+}
+.badge-ongoing {
+    background-color: #ffc107;
+    color: #000;
+}
+.badge-completed {
+    background-color: #6c757d;
+}
+.badge-cancelled {
+    background-color: #dc3545;
+}
+
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.events-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+}
+
+.events-carousel::-webkit-scrollbar {
+    height: 8px;
+}
+
+.events-carousel::-webkit-scrollbar-thumb {
+    background-color: var(--purple);
+    border-radius: 4px;
+}
+
+.events-carousel .card {
+    flex: 0 0 280px;
+}
+
+.text-purple {
+    color: var(--purple) !important;
+}
+
+.border-purple {
+    border-color: var(--purple) !important;
 }
