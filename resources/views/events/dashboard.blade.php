@@ -3,12 +3,11 @@
 @section('content')
 <div class="container">
     <!-- Search Bar -->
-    <section class="search-bar">
-        <form action="{{ route('events.search') }}" method="GET">
-            <input type="text" name="query" placeholder="Search Events..." required>
-            <button type="submit">Search</button>
-        </form>
+    <section class="search-bar" style="position:relative;">
+    <input id="ajax-search" type="text" placeholder="Search Events..." autocomplete="off" style="width:100%; padding:10px;">
+    <div id="search-results" style="position:absolute; top:100%; left:0; width:100%; z-index:999; background:#fff; border:1px solid #ccc; display:none;"></div>
     </section>
+
 
     <!-- Browsing -->
     <section class="browse-events">
@@ -61,3 +60,59 @@
     </section>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('ajax-search');
+    const resultsBox = document.getElementById('search-results');
+
+    searchInput.addEventListener('keyup', function() {
+        const query = this.value.trim();
+
+        if (query.length < 2) {
+            resultsBox.innerHTML = '';
+            resultsBox.style.display = 'none';
+            return;
+        }
+
+        fetch(`/ajax/search?query=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+
+                if (!data || data.length === 0) {
+                    html = '<div style="padding:10px;">No events found.</div>';
+                } else {
+                    data.forEach(event => {
+                        html += `
+                            <div style="padding:10px; border-bottom:1px solid #ddd;">
+                                <strong>${event.eventname}</strong><br>
+                                <small>${event.description.substring(0, 50)}...</small><br>
+                                <a href="/events/${event.eventid}" style="color:#6a0dad;">View</a>
+                            </div>
+                        `;
+                    });
+                }
+
+                resultsBox.innerHTML = html;
+                resultsBox.style.display = 'block';
+            });
+    });
+
+    // Enter vai para a página de search
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); 
+            const q = this.value.trim();
+            if(q.length > 0) {
+                window.location.href = `/events/search?query=${encodeURIComponent(q)}`;
+            }
+        }
+    });
+});
+</script>
+@endpush
+
+
+

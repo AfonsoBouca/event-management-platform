@@ -35,8 +35,11 @@ Route::get('/dashboard', [EventController::class, 'dashboard'])
     ->name('dashboard');
 
 // Pesquisa de eventos públicos
-Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
 
+Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
+Route::get('/ajax/search', [EventController::class, 'ajaxSearch'])->name('events.ajaxSearch');
+
+Route::get('/events/browse', [EventController::class, 'browse'])->name('events.browse');
 Route::get('/events/dashboard', [EventController::class, 'dashboard'])->name('events.dashboard');
 
 
@@ -55,7 +58,9 @@ Route::get('/events', [EventController::class, 'browse'])->name('events.index');
 Route::get('/events/browse', [EventController::class, 'browse'])->name('events.browse');
 
 // Ver evento específico
-Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+Route::get('/events/{id}', [EventController::class, 'show'])
+       ->where('id', '[0-9]+')
+       ->name('events.show');
 
 // Pedir para entrar no evento
 Route::post('/events/{id}/join', [EventController::class, 'requestToJoin'])

@@ -16,7 +16,7 @@ use App\Models\EventParticipation;
 class EventController extends Controller
 {
     // --------------------------------------------------------------------------------------------------------------------------------
-    // DashBoard Actions
+    // HOMEPAGE Actions
     // ---------------------------------------------------------------------------------------------------------------------------------
     public function dashboard()
     {
@@ -60,15 +60,46 @@ class EventController extends Controller
     {
         $query = $request->input('query');
 
-        $events = Event::where('ispublic', true)
-            ->where(function ($q) use ($query) {
-                $q->where('eventname', 'ILIKE', '%' . $query . '%')
-                  ->orWhere('description', 'ILIKE', '%' . $query . '%');
-            })
+        if(!$query || strlen(trim($query)) < 1) {
+            return view('search', ['events' => collect(), 'query' => $query]);
+        }
+
+        $escaped = str_replace(['%', '|', '!', ':'], ' ', $query);
+
+        $tsquery = implode('&', array_map(function($word) {
+            return $word . ':*';
+        }, explode(' ', $escaped)));
+
+        $events = Event::whereRaw("event_tsv @@ to_tsquery('english', ?)", [$tsquery])
+            ->orderByRaw("ts_rank(event_tsv, to_tsquery('english', ?)) DESC", [$tsquery])
             ->get();
 
         return view('events.searchresults', compact('events', 'query'));
     }  
+
+    public function ajaxSearch(Request $request)
+{
+    $query = $request->input('query');
+
+    if (!$query || strlen(trim($query)) < 1) {
+        return response()->json([]);
+    }
+
+    $escaped = str_replace(['&', '|', '!', ':'], ' ', $query);
+
+    $tsquery = implode(' & ', array_map(function ($w) {
+        return $w . ':*';
+    }, explode(' ', $escaped)));
+
+    $events = Event::whereRaw("event_tsv @@ to_tsquery('english', ?)", [$tsquery])
+        ->orderByRaw("ts_rank(event_tsv, to_tsquery('english', ?)) DESC", [$tsquery])
+        ->take(8)
+        ->get();
+
+    return response()->json($events);
+}
+
+    
 
     public function show($id)
     {
