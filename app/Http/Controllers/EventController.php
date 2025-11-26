@@ -40,18 +40,19 @@ class EventController extends Controller
 
         $query->where('ispublic', true);
     
-        if ($request->has('status') && $request->status != '') {
-            $status = ucfirst(strtolower($request->status));
-            $query->where('eventstatus', $status);
+        if ($request->status) {
+            $query->where('eventstatus', ucfirst(strtolower($request->status)));
         }
        
-        if ($request->has('category') && $request->category != '') {
-            $query->whereHas('categories', function ($q) use ($request) {
-                $q->where('category.categoryname', $request->category);
-            });
+        if ($request->category) {
+            $query->whereHas('categories', fn($q) => $q->where('category.categoryname', $request->category));
         }
     
         $events = $query->orderBy('startdate', 'asc')->paginate(10);
+
+        if ($request->ajax()) {
+            return view('events.browse', compact('events'))->render();
+        }
     
         return view('events.browse', compact('events'));
     }

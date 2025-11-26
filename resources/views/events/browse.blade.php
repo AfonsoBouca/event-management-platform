@@ -86,6 +86,7 @@
     }
 </style>
 
+@section('content')
 <div class="container">
     <h1>Browse Events</h1>
 
@@ -93,16 +94,19 @@
         <p>No events found.</p>
     @endif
 
+    <div id="events-list-home">
     @foreach($events as $event)
         <div class="event-card">
             <strong>{{ $event->eventname }}</strong>
-            <p>{{ $event->description }}</p>
+            <p>{{ Str::limit($event->description,80) }}</p>
             <span>Starts: {{ \Carbon\Carbon::parse($event->startdate)->format('d/m/Y H:i') }}</span><br>
             <a href="{{ route('events.show', $event->eventid) }}" class="view-event-btn">View Event</a>
         </div>
     @endforeach
+</div>
 
     <!-- Paginação -->
+   <div id="events-pagination-home">  
     <div class="pagination-container">
         @if ($events->onFirstPage() === false)
             <a href="{{ $events->previousPageUrl() }}" class="page-link">&laquo; Prev</a>
@@ -116,5 +120,6 @@
             <a href="{{ $events->nextPageUrl() }}" class="page-link">Next &raquo;</a>
         @endif
     </div>
+</div>
 </div>
 @endsection

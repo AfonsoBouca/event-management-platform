@@ -13,41 +13,39 @@
     <section class="browse-events">
         <h3>Browse Events</h3>
         <div class="browse-buttons">
-           <a class="view-event-btn" href="{{ route('events.browse') }}?status=upcoming">Upcoming</a>
-           <a class="view-event-btn" href="{{ route('events.browse') }}?status=ongoing">Ongoing</a>
-           <a class="view-event-btn" href="{{ route('events.browse') }}?status=completed">Completed</a>
-           <a class="view-event-btn" href="{{ route('events.browse') }}?status=cancelled">Cancelled</a>
+           <a class="view-event-btn filter-btn" data-status="upcoming">Upcoming</a>
+           <a class="view-event-btn filter-btn" data-status="ongoing">Ongoing</a>
+           <a class="view-event-btn filter-btn" data-status="completed">Completed</a>
+           <a class="view-event-btn filter-btn" data-status="cancelled">Cancelled</a>
 
     <!-- Categories -->
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Music">Music</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Tech">Technology</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Sports">Sports</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Business">Business</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Arts & Culture">Arts & Culture</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Education">Education</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Health & Wellness">Health & Wellness</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Food & Drink">Food & Drink</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Networking">Networking</a>
-            <a class="view-event-btn" href="{{ route('events.browse') }}?category=Charity">Charity</a>
+            <a class="view-event-btn filter-btn" data-category="Music">Music</a>
+            <a class="view-event-btn filter-btn" data-category="Tech">Technology</a>
+            <a class="view-event-btn filter-btn" data-category="Sports">Sports</a>
+            <a class="view-event-btn filter-btn" data-category="Business">Business</a>
+            <a class="view-event-btn filter-btn" data-category="Arts & Culture">Arts & Culture</a>
+            <a class="view-event-btn filter-btn" data-category="Education">Education</a>
+            <a class="view-event-btn filter-btn" data-category="Health & Wellness">Health & Wellness</a>
+            <a class="view-event-btn filter-btn" data-category="Food & Drink">Food & Drink</a>
+            <a class="view-event-btn filter-btn" data-category="Networking">Networking</a>
+            <a class="view-event-btn filter-btn" data-category="Charity">Charity</a>
 </div>
 
-    </section>
-
-    <!-- Upcoming Events -->
-    <section class="event-section">
-        <h3>Upcoming Events</h3>
-        @foreach($upcomingEvents->take(5) as $event)
-            <div class="event-card">
-                <strong>{{ $event->eventname }}</strong>
-                <p>{{ Str::limit($event->description, 80) }}</p>
-                <span>Starts: {{ $event->startdate->format('d/m/Y H:i') }}</span><br>
-                <a class="view-event-btn" href="{{ route('events.show', ['id' => $event->eventid]) }}">View Event</a>
-            </div>
-        @endforeach
+  <div id="events-list-home">
+    @foreach ($upcomingEvents->take(5) as $event)
+        <div class="event-card">
+            <strong>{{ $event->eventname }}</strong>
+            <p>{{ Str::limit($event->description, 80) }}</p>
+            <span>Starts: {{ $event->startdate->format('d/m/Y H:i') }}</span><br>
+            <a class="view-event-btn" href="{{ route('events.show', ['id' => $event->eventid]) }}">View Event</a>
+      </div>
+    @endforeach
+  </div>
+  <div id="events-pagination-home"> </div>
     </section>
 
     <!-- Recently Added -->
-    <section class="event-section">
+    <section class="event-section" style="margin-top:30px;">
         <h3>Recently Added</h3>
         @foreach($recentEvents->take(5) as $event)
             <div class="event-card">
@@ -111,8 +109,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ---AJAX Browser filters -----
+document.addEventListener('DOMContentLoaded', function() {
+
+const eventsListHome = document.getElementById('events-list-home');
+const eventsPaginationHome = document.getElementById('events-pagination-home');
+
+let currentStatus = '';
+let currentCategory = '';
+
+function fetchEventsHome(page = 1) {
+    const params = new URLSearchParams();
+    if (currentStatus) params.append('status', currentStatus);
+    if (currentCategory) params.append('category', currentCategory);
+    params.append('page', page);
+
+    fetch(`/events/browse?${params.toString()}`)
+        .then(res => res.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Atualiza lista e paginação
+            eventsListHome.innerHTML = doc.getElementById('events-list-home').innerHTML;
+            eventsPaginationHome.innerHTML = doc.getElementById('events-pagination-home').innerHTML;
+
+            attachPaginationEventsHome();
+        });
+}
+
+function attachPaginationEventsHome() {
+    document.querySelectorAll('#events-pagination-home .page-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = this.dataset.page || this.getAttribute('href').split('page=')[1];
+            fetchEventsHome(page);
+        });
+    });
+}
+
+// Filtros
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        currentStatus = this.dataset.status || '';
+        currentCategory = this.dataset.category || '';
+
+        fetchEventsHome(1); // volta para página 1
+    });
+});
+
+});
 </script>
 @endpush
-
-
 
