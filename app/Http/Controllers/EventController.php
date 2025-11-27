@@ -48,7 +48,7 @@ class EventController extends Controller
             $query->whereHas('categories', fn($q) => $q->where('category.categoryname', $request->category));
         }
     
-        $events = $query->orderBy('startdate', 'asc')->paginate(10);
+        $events = $query->orderBy('startdate', 'asc')->paginate(3);
 
         if ($request->ajax()) {
             return view('events.browse', compact('events'))->render();
@@ -155,7 +155,7 @@ class EventController extends Controller
             'eventname'   => 'required|string|max:255',
             'description' => 'required|string',
             'startdate'   => 'required|date',
-            'enddate'     => 'required|date|after_or_equal:startdate',
+            'enddate'     => 'required|date|after:startdate',
             'capacity'    => 'required|integer|min:1',
             'price'       => 'required|numeric|min:0',
             'ispublic'    => 'required|boolean',

@@ -92,3 +92,37 @@ a:hover {
 .border-purple {
     border-color: var(--purple) !important;
 }
+
+/* Pagination Styling */
+.pagination-container {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* evita quebrar se o ecrã é pequeno */
+    margin-top: 15px;
+}
+
+.page-link {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid var(--purple);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--purple);
+    background-color: white;
+    transition: background-color 0.2s, color 0.2s, transform 0.2s;
+}
+
+.page-link:hover {
+    background-color: var(--purple);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.page-link.active {
+    background-color: var(--purple);
+    color: white !important;
+    border-color: var(--purple-dark);
+    font-weight: bold;
+}

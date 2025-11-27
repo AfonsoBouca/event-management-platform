@@ -40,7 +40,7 @@
 <!-- Upcoming Events -->
 <section class="mb-5">
     <div id="events-list-home" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-        @foreach($upcomingEvents->take(6) as $event)
+        @foreach($upcomingEvents->take(3) as $event)
             <div class="col">
                 <div class="card h-100">
                     <div class="card-body">
@@ -62,7 +62,7 @@
 <section class="mb-4">
     <h4 class="text-purple border-bottom pb-2 mb-3">Recently Added</h4>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-        @foreach($recentEvents->take(6) as $event)
+        @foreach($recentEvents->take(3) as $event)
             <div class="col">
                 <div class="card h-100">
                     <div class="card-body">
