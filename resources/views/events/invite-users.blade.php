@@ -9,6 +9,14 @@
         </a>
     </div>
 
+    {{-- Success message --}}
+    @if(session('status'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('status') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     {{-- Search bar --}}
     <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -30,16 +38,28 @@
             </div>
             <ul class="list-group list-group-flush">
                 @foreach($users as $u)
+                    @php
+                        $alreadyInvited = \App\Models\Invitation::where('eventid', $event->eventid)
+                            ->where('userid', $u->userid)->exists();
+                        $alreadyParticipant = \App\Models\EventParticipation::where('eventid', $event->eventid)
+                            ->where('userid', $u->userid)->exists();
+                    @endphp
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                             <strong>{{ $u->username }}</strong><br>
                             <small class="text-muted">{{ $u->email }}</small>
                         </div>
-                        <form method="POST"
-                              action="{{ route('events.inviteUser', ['eventid' => $event->eventid, 'userid' => $u->userid]) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-success btn-sm">Invite</button>
-                        </form>
+                        @if($alreadyParticipant)
+                            <span class="badge bg-secondary">Already Participant</span>
+                        @elseif($alreadyInvited)
+                            <span class="badge bg-info">Invited</span>
+                        @else
+                            <form method="POST"
+                                  action="{{ route('events.inviteUser', ['eventid' => $event->eventid, 'userid' => $u->userid]) }}">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">Invite</button>
+                            </form>
+                        @endif
                     </li>
                 @endforeach
             </ul>
