@@ -788,17 +788,23 @@ INSERT INTO eventCategory (eventId, categoryId) VALUES
 (2, 9),
 (3, 3),
 (4, 4),
+(4, 6),
+(5, 5),
 (5, 8),
 (6, 7),
+(7, 5),
 (7, 10),
 (8, 6),
 (9, 1),
+(10, 3),
 (10, 5),
 (11, 3),
+(11, 5),
 (12, 8),
 (13, 2),
 (14, 10),
-(15, 3);
+(15, 3),
+(15, 5);
 
 -- Display summary
 SELECT 'Database populated successfully!' AS status;

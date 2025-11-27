@@ -25,13 +25,13 @@
     <h5 class="text-purple mb-3">Browse by Category</h5>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Music">Music</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Tech">Technology</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Technology">Technology</a>
         <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Sports">Sports</a>
         <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Business">Business</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Arts%20%26%20Culture">Arts & Culture</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Arts & Culture">Arts & Culture</a>
         <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Education">Education</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Health%20%26%20Wellness">Health & Wellness</a>
-        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Food%20%26%20Drink">Food & Drink</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Health & Wellness">Health & Wellness</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Food & Drink">Food & Drink</a>
         <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Networking">Networking</a>
         <a class="btn btn-sm btn-outline-purple filter-btn" data-category="Charity">Charity</a>
     </div>

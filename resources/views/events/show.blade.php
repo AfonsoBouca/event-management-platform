@@ -86,7 +86,7 @@
                         <a href="{{ route('login') }}" class="btn btn-purple">Login to Join</a>
                     @endauth
 
-                    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">← Back to Homepage</a>
                 </div>
             </div>
         </div>
