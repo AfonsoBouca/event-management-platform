@@ -43,12 +43,6 @@ class User extends Authenticatable
     return 'passwordhash';
     }
 
-    public function getAuthIdentifierName()
-    {
-        return 'email';
-    }
-
-
     public function organizing()
     {
         return $this->hasMany(\App\Models\Event::class, 'createdby', 'userid');
