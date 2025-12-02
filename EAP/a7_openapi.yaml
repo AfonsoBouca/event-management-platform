@@ -6,7 +6,7 @@ info:
   description: "Web Resources Specification (A7) for MediaLibrary"
 
 servers:
-  - url: http://lbaw25124.lbaw.fe.up.pt
+  - url: https://gitlab.up.pt/lbaw/lbaw2526/lbaw25124
     description: Production server
 
 tags:
