@@ -67,10 +67,13 @@ class UserController extends Controller
     
         // validar inputs
         $request->validate([
+            'username' =>'required|unique:user,username,' . auth()->id(). ',userid',
             'email' => 'required|email',
             'password' => 'nullable|min:6',
             'profileimage' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
+
+        $user->username = $request->username;
     
         // atualizar email
         $user->email = $request->email;
