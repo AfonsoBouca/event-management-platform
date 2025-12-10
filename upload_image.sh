@@ -31,8 +31,8 @@ php artisan clear-compiled
 php artisan optimize
 
 # Build & push image
-docker buildx build --push -t "$IMAGE_NAME" .
-#   --platform linux/amd64,linux/arm64 \
-#  --push \
-#  -t "$IMAGE_NAME" \
-#  .
+docker buildx build \
+  --platform linux/amd64 \
+  --push \
+  -t "$IMAGE_NAME" \
+  .

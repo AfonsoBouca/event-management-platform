@@ -11,7 +11,12 @@
                 <div class="card-body">
                     <form method="POST" action="{{ route('user.update') }}" enctype="multipart/form-data">
                         @csrf
-                        
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" name="username" id="username" class="form-control" value="{{ $user->username }}" required>
+                        </div>
+                                            
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" name="email" id="email" class="form-control" value="{{ $user->email }}" required>
@@ -23,13 +28,34 @@
                             <div class="form-text">Leave blank to keep current password. Minimum 6 characters.</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="profileimage" class="form-label">Profile Image</label>
-                            <input type="file" name="profileimage" id="profileimage" class="form-control" accept="image/*">
-                        </div>
-
                         <button type="submit" class="btn btn-purple w-100">Save Changes</button>
                     </form>
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+
+                    <form method="POST" action="{{ route('file.upload') }}" enctype="multipart/form-data" class="mt-4">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label for="profileimage" class="form-label">Profile Image  (max size: 2MB)</label>
+                            <input type="file" name="file" id="profileimage" class="form-control" accept="image/*" required>
+                        </div>
+
+                        <input type="hidden" name="id" value="{{ $user->userid }}">
+                        <input type="hidden" name="type" value="profile">
+
+                        <button type="submit" class="btn btn-purple w-100">Update Profile Image</button>
+                    </form>
+                    
                 </div>
             </div>
 

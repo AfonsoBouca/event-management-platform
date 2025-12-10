@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Http\Controllers\FileController;
 
 class User extends Authenticatable
 {
@@ -61,13 +62,14 @@ class User extends Authenticatable
     }
 
     // App\Models\User.php
-public function attendingEvents()
-{
-    return $this->belongsToMany(Event::class, 'eventparticipation', 'userid', 'eventid');
-}
+    public function attendingEvents()
+    {
+        return $this->belongsToMany(Event::class, 'eventparticipation', 'userid', 'eventid');
+    }
+
+    public function getProfileImage(){
+        return FileController::get('profile' , $this->userid);
+    }
 
 
-
-
-   
 }
