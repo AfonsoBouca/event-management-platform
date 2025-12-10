@@ -4,6 +4,8 @@ namespace App\Policies;
 
 use App\Models\Event;
 use App\Models\User;
+use App\Models\Comment;
+
 
 class EventPolicy
 {
@@ -36,4 +38,14 @@ class EventPolicy
 
         return $event->isAttendee($user->userid);
     }
+
+    public function comment(User $user, Event $event){
+        return $event->isAttendee($user->userid);
+    }
+
+    public function viewComments(User $user, Event $event){
+        return $this->comment($user,$event);
+    }
+
+
 }

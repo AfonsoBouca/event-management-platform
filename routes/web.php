@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -62,9 +63,16 @@ Route::get('/events/{id}', [EventController::class, 'show'])
        ->where('id', '[0-9]+')
        ->name('events.show');
 
+// Comentar Eventos       
+Route::post('/events/{eventId}/comments', [CommentController::class, 'store'])
+      ->middleware('auth')
+      ->name('comments.store'); 
+
+Route::get('/events/{eventId}/comments', [CommentController::class, 'index'])
+      ->name('comments.index');      
+
 // Pedir para entrar no evento
 Route::post('/events/{id}/join', [EventController::class, 'requestToJoin'])
-    ->middleware('auth')
     ->name('events.join');
 
 // Editar Perfil

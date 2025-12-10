@@ -806,6 +806,33 @@ INSERT INTO eventCategory (eventId, categoryId) VALUES
 (15, 3),
 (15, 5);
 
+INSERT INTO eventTag(eventId, tagId) VALUES
+(1, 2),
+(1, 3),
+(1, 10),
+(2 , 4),
+(2, 1),
+(3, 7),
+(4, 1),
+(4, 8),
+(5, 1),
+(6, 5),
+(7, 4),
+(8, 1),
+(8, 8),
+(9, 9),
+(9, 6),
+(10, 4),
+(11, 1),
+(11, 8),
+(12, 4),
+(13, 2),
+(13, 3),
+(14, 4),
+(15, 7),
+(15, 4);
+
+
 -- Display summary
 SELECT 'Database populated successfully!' AS status;
 SELECT COUNT(*) AS total_users FROM "user";

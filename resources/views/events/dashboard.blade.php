@@ -37,6 +37,23 @@
     </div>
 </section>
 
+<!-- Search Tagging -->
+ <section class="mb-4">
+    <h5 class="text-purple mb-3">Tags</h5>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Workshop">Workshop</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Conference">Conference</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Seminar">Seminar</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Meetup">Meetup</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Festival">Festival</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Competition">Competition</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Exhibition">Exhibition</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Training">Training</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Hackathon">Hackathon</a>
+        <a class="btn btn-sm btn-outline-purple filter-btn" data-tag="Webinar">Webinar</a>
+    </div>
+ </section>
+
 <!-- Upcoming Events -->
 <section class="mb-5">
     <div id="events-list-home" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
@@ -137,11 +154,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentStatus = '';
     let currentCategory = '';
+    let currentTag = '';
 
     function fetchEventsHome(page = 1) {
         const params = new URLSearchParams();
         if (currentStatus) params.append('status', currentStatus);
         if (currentCategory) params.append('category', currentCategory);
+        if (currentTag) params.append('tag', currentTag);
         params.append('page', page);
 
         fetch(`/events/browse?${params.toString()}`)
@@ -175,9 +194,13 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             currentStatus = this.dataset.status || '';
             currentCategory = this.dataset.category || '';
+            currentTag = this.dataset.tag || '';
             fetchEventsHome(1);
         });
     });
 });
+
+
+
 </script>
 @endpush
