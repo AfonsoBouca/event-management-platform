@@ -88,6 +88,13 @@ CREATE TABLE pollOption (
     optionText VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE pollVote (
+    pollOptionId INT REFERENCES pollOption(pollOptionId) ON DELETE CASCADE,
+    userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
+    votedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (pollOptionId, userId)
+);
+
 CREATE TABLE report (
     reportId SERIAL PRIMARY KEY,
     userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
