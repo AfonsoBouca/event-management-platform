@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\FileController;
+
 
 
 // Home -> redireciona conforme autenticação
@@ -80,6 +82,10 @@ Route::get('/user/{username}', [UserController::class, 'showByUsername'])
 Route::post('/user/update', [UserController::class, 'update'])
     ->middleware('auth')
     ->name('user.update');
+
+//Atualizar Imagens
+Route::post('/file/upload', [FileController::class, 'upload'])
+    ->name('file.upload');
 
 // Gestão de Participação em Eventos (apenas organizadores)
 Route::get('/events/{id}/manage', [EventController::class, 'manageParticipation'])

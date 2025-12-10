@@ -45,25 +45,7 @@ class UserController extends Controller
         //dd('UPDATE FOI CHAMADO');
 
         $user = Auth::user();
-
-        if ($user->profileimage === null) {
-            $user->profileimage = 'avatars/default.png';
-        }
-        
-
-        if ($request->hasFile('profileimage')) {
-
-            // apagar imagem antiga (desde que não seja a default!)
-            if ($user->profileimage !== 'avatars/default.png') {
-                Storage::disk('public')->delete($user->profileimage);
-            }
-        
-            // guardar nova imagem
-            $path = $request->file('profileimage')->store('avatars', 'public');
-        
-            // atualizar utilizador
-            $user->profileimage = $path;
-        }        
+              
     
         // validar inputs
         $request->validate([

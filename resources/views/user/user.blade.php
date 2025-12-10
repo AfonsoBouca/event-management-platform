@@ -5,7 +5,7 @@
 <div class="card mb-4">
     <div class="card-body">
         <div class="d-flex align-items-center gap-4 flex-wrap">
-            <img src="{{ asset('storage/' . $user->profileimage) }}" 
+            <img src="{{ $user->getProfileImage() }}" 
                  alt="Profile" 
                  class="rounded-circle border border-3 border-purple"
                  style="width: 100px; height: 100px; object-fit: cover;">

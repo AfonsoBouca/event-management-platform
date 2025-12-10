@@ -60,6 +60,13 @@ return [
             'report' => false,
         ],
 
+        'Tutorial02' => [
+            'driver' => 'local',
+            'root' => public_path(), //s a Laravel helper function that returns the full path to the public directory of your application. By default, this directory is called public/.
+            'url' => env('APP_URL'),
+            'visibility' => 'public',
+        ]
+
     ],
 
     /*
