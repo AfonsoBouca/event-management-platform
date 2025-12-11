@@ -74,6 +74,7 @@
 
                         @if($isAttendee)
                             <span class="btn btn-success disabled">You are participating</span>
+                            <button id="openPhotos" class="btn btn-purple"> Photos </button>
                         @elseif($hasPendingRequest)
                             <span class="btn btn-info disabled">Request Pending</span>
                         @else
@@ -92,4 +93,38 @@
         </div>
     </div>
 </div>
+
+<div id="photosSidebar" 
+     style="position: fixed; top:0; right:-400px; width:400px; height:100%;
+            background:white; box-shadow:-2px 0 10px rgba(0,0,0,0.2);
+            transition: right 0.3s ease; padding:20px; z-index:9999;">
+    
+    <button id="closeSidebar" class="btn btn-outline-secondary mb-3">Close</button>
+
+    <div id="photosContent">
+        
+    </div>
+</div>
+
+<script>
+    document.getElementById('openPhotos').addEventListener('click', function () {
+
+        // abrir 
+        document.getElementById('photosSidebar').style.right = "0";
+
+        // ajax
+        fetch("/events/{{ $event->eventid }}/photos")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('photosContent').innerHTML = html;
+            });
+    });
+
+    // botao  fechar
+    document.getElementById('closeSidebar').addEventListener('click', function () {
+        document.getElementById('photosSidebar').style.right = "-400px";
+    });
+</script>
+
+
 @endsection

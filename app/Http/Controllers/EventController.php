@@ -462,5 +462,13 @@ public function removeParticipant($eventId, $userId)
     }
 
 
+    public function loadPhotos($id)
+    {
+        // futuramente podes buscar fotos da DB
+        return view('events.partials.photos', ['eventId' => $id]);
+    }
+    
+
+
 }    
       

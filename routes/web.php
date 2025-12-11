@@ -152,6 +152,8 @@ Route::post('/invitation/{invitationid}/reject', [EventController::class, 'rejec
     ->middleware('auth')
     ->name('invitation.reject');
 
+    Route::get('/events/{id}/photos', [EventController::class, 'loadPhotos'])
+    ->name('events.photos');
 
    
 
