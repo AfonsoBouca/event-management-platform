@@ -98,7 +98,18 @@
             <div class="card border-0 shadow-sm p-3 rounded-4 w-100">
               <strong class="text-dark">{{ $comment->author->username }}</strong>
               <small class="text-muted">{{ \Carbon\Carbon::parse($comment->createdat)->format('d/m/Y H:i') }}</small>
+    
               <p class="mb-2">{{ $comment->content }}</p>
+     <div class="d-flex align-items-center mb-2">
+       <form method="POST" action="{{ route('comments.vote', $comment) }}">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-outline-primary me-2">
+            &#x2B06; 
+        </button>
+    </form>
+    <span>{{ $comment->voters()->count() }}</span>
+</div>
+
 
               @include('comments.comments_actions', ['comment' => $comment])
                 <button class="btn btn-link text-purple p-0"
@@ -172,6 +183,11 @@ document.addEventListener('alpine:init', () => {
                     @auth
                         @if(Auth::check() && $event->createdby === Auth::user()->userid)
                             <a href="{{ route('events.manage', $event->eventid) }}" class="btn btn-purple">Manage Participation</a>
+                        @endif
+
+                        {{-- Polls link - visible to organizer and attendees --}}
+                        @if($event->createdby === Auth::user()->userid || $isAttendee)
+                            <a href="{{ route('polls.index', $event->eventid) }}" class="btn btn-outline-purple">Polls</a>
                         @endif
 
                         @if($isAttendee)

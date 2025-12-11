@@ -52,12 +52,24 @@ class CommentController extends Controller
         return redirect()->back();
     }
     
-             public function deleteComment(Comment $comment)
+    public function deleteComment(Comment $comment)
      {
                  $this->authorize('delete', $comment); 
     
                  $comment->delete();
     
                 return redirect()->back();
+    }
+
+    public function vote(Comment $comment)
+    {
+        $user = Auth::user();
+
+        if($comment->voters()->where('vote.userid',$user->userid)->exists()) {
+           $comment->voters()->detach($user->userid);
+        }else{
+            $comment->voters()->attach($user->userid);
+        }
+        return redirect()->back();
     }
 }

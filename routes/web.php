@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\PollController;
 
 
 
@@ -79,7 +80,11 @@ Route::delete('/comments/{comment}', [CommentController::class, 'deleteComment']
        ->name('comments.delete');
 
 Route::get('/events/{eventId}/comments', [CommentController::class, 'index'])
-      ->name('comments.index');      
+      ->name('comments.index');   
+
+Route::post('/comments/{comment}/vote', [CommentController::class, 'vote'])
+      ->name('comments.vote');
+      
 
 // Pedir para entrar no evento
 Route::post('/events/{id}/join', [EventController::class, 'requestToJoin'])
@@ -168,6 +173,27 @@ Route::post('/invitation/{invitationid}/reject', [EventController::class, 'rejec
     ->middleware('auth')
     ->name('invitation.reject');
 
+// Polls
+Route::get('/events/{id}/polls', [PollController::class, 'index'])
+    ->middleware('auth')
+    ->name('polls.index');
 
-   
+Route::get('/events/{id}/polls/create', [PollController::class, 'create'])
+    ->middleware('auth')
+    ->name('polls.create');
 
+Route::post('/events/{id}/polls', [PollController::class, 'store'])
+    ->middleware('auth')
+    ->name('polls.store');
+
+Route::post('/polls/{id}/vote', [PollController::class, 'vote'])
+    ->middleware('auth')
+    ->name('polls.vote');
+
+Route::get('/polls/{id}/results', [PollController::class, 'results'])
+    ->middleware('auth')
+    ->name('polls.results');
+
+Route::delete('/polls/{id}', [PollController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('polls.destroy');

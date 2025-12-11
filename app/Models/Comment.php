@@ -31,5 +31,9 @@ class Comment extends Model
                     ->with('author'); 
     }
 
+    public function voters()
+    {
+         return $this->belongsToMany(User::class, 'vote', 'commentid', 'userid');
+}
 
 }
