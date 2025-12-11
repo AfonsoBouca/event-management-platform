@@ -2,6 +2,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+
 
 class Comment extends Model
 {
@@ -28,4 +30,6 @@ class Comment extends Model
         return $this->hasMany(Comment::class, 'parentid', 'commentid')
                     ->with('author'); 
     }
+
+
 }

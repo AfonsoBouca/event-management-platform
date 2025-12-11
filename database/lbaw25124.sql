@@ -523,7 +523,7 @@ ALTER SEQUENCE tag_tagid_seq RESTART WITH 1;
 
 -- Insert Users (passwords are hashed versions of 'password123')
 INSERT INTO "user" (username, email, passwordHash, profileImage, registrationDate, isAdmin) VALUES
-('john_doe', 'john.doe@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/john.jpg', '2024-01-15 10:30:00', FALSE),
+('john_doe', 'john.doe@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'public/profile/default.png', '2024-01-15 10:30:00', FALSE),
 ('jane_smith', 'jane.smith@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/jane.jpg', '2024-02-20 14:20:00', FALSE),
 ('mike_wilson', 'mike.wilson@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/mike.jpg', '2024-03-10 09:15:00', FALSE),
 ('sarah_jones', 'sarah.jones@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/sarah.jpg', '2024-03-25 16:45:00', FALSE),

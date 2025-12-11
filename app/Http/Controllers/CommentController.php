@@ -36,4 +36,28 @@ class CommentController extends Controller
         }])->find($eventId);
         return view('events.show', compact('event'));
     }
+
+    public function editComment(Request $request, Comment $comment)
+    {
+        $this->authorize('update', $comment); 
+    
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+    
+        $comment->update([
+            'content' => $request->input('content'),
+        ]);
+    
+        return redirect()->back();
+    }
+    
+             public function deleteComment(Comment $comment)
+     {
+                 $this->authorize('delete', $comment); 
+    
+                 $comment->delete();
+    
+                return redirect()->back();
+    }
 }

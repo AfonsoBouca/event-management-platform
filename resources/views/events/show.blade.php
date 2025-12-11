@@ -91,13 +91,16 @@
 
   
     @foreach ($event->comments as $comment)
-        <div class="d-flex mb-4" x-data="{ open: false }">
-            <img src="{{ $comment->author->profilepicture ?? '/images/default.png' }}" 
+        <div class="d-flex mb-4" x-data="{ open: false, openEdit:false }">
+            <img src="{{ $comment->author->profilepicture ?? '/profile/default.png' }}" 
                 width="45" height="45"
                 class="rounded-circle me-3 border shadow-sm">
             <div class="card border-0 shadow-sm p-3 rounded-4 w-100">
               <strong class="text-dark">{{ $comment->author->username }}</strong>
-                <p class="mb-2">{{ $comment->content }}</p>
+              <small class="text-muted">{{ \Carbon\Carbon::parse($comment->createdat)->format('d/m/Y H:i') }}</small>
+              <p class="mb-2">{{ $comment->content }}</p>
+
+              @include('comments.comments_actions', ['comment' => $comment])
                 <button class="btn btn-link text-purple p-0"
                         @click="open = !open">
                     Reply
@@ -137,7 +140,9 @@
 
                                 <div class="card border-0 shadow-sm p-3 rounded-4 w-100">
                                     <strong>{{ $reply->author->username }}</strong>
-                                    <p class="mb-1">{{ $reply->content }}</p>
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($reply->createdat)->format('d/m/Y H:i') }}</small>
+                                      <p class="mb-1">{{ $reply->content }}</p>
+                                      @include('comments.comments_actions', ['comment' => $reply])
                                 </div>
 
                             </div>

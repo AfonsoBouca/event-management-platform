@@ -65,10 +65,18 @@ Route::get('/events/{id}', [EventController::class, 'show'])
        ->where('id', '[0-9]+')
        ->name('events.show');
 
-// Comentar Eventos       
+// Comentarios      
 Route::post('/events/{eventId}/comments', [CommentController::class, 'store'])
       ->middleware('auth')
       ->name('comments.store'); 
+
+Route::put('/comments/{comment}',[CommentController::class, 'editComment']) 
+       ->middleware('auth')
+       ->name('comments.edit');
+
+Route::delete('/comments/{comment}', [CommentController::class, 'deleteComment'])
+       ->middleware('auth')
+       ->name('comments.delete');
 
 Route::get('/events/{eventId}/comments', [CommentController::class, 'index'])
       ->name('comments.index');      
