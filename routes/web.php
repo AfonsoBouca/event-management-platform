@@ -7,7 +7,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
-
+use App\Http\Controllers\EventFileController;
 
 
 // Home -> redireciona conforme autenticação
@@ -152,8 +152,23 @@ Route::post('/invitation/{invitationid}/reject', [EventController::class, 'rejec
     ->middleware('auth')
     ->name('invitation.reject');
 
-    Route::get('/events/{id}/photos', [EventController::class, 'loadPhotos'])
+Route::get('/events/{id}/photos', [EventController::class, 'loadPhotos'])
     ->name('events.photos');
+
+// Listar fotos via AJAX
+Route::get('/events/{id}/photos', [EventFileController::class, 'list'])
+    ->name('events.photos');
+
+// Upload de fotos via AJAX
+Route::post('/events/{id}/photos/upload', [EventFileController::class, 'upload'])
+    ->name('events.photos.upload');
+
+// Delete (opcional)
+Route::delete('/photos/{photoid}', [EventFileController::class, 'delete'])
+    ->name('events.photos.delete');
+
+
+
 
    
 

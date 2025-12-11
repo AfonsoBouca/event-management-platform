@@ -462,10 +462,18 @@ public function removeParticipant($eventId, $userId)
     }
 
 
-    public function loadPhotos($id)
+    public function loadPhotos($eventId)
     {
+        $photos = \DB::table('eventphoto')
+            ->where('eventid', $eventId)
+            ->orderBy('createdat', 'desc')
+            ->get();
+
         // futuramente podes buscar fotos da DB
-        return view('events.partials.photos', ['eventId' => $id]);
+        return view('events.partials.photos', [
+            'eventId' => $eventId,
+            'photos' => $photos
+        ]);
     }
     
 

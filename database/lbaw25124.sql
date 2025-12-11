@@ -46,6 +46,14 @@ CREATE TABLE event (
     CHECK (endDate > startDate)
 );
 
+CREATE TABLE eventPhoto (
+    photoid SERIAL PRIMARY KEY,
+    filepath VARCHAR(255) NOT NULL,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
+    userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE comment (
     commentId SERIAL PRIMARY KEY,
     content TEXT NOT NULL,

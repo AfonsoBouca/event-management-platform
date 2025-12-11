@@ -16,6 +16,7 @@ class FileController extends Controller
     static $systemTypes = [
         'profile' => ['png', 'jpg', 'jpeg', 'gif'],
         'post' => ['mp3', 'mp4', 'gif', 'png', 'jpg', 'jpeg'],
+        'event' => ['png', 'jpg', 'jpeg']
     ];
 
     private static function isValidType(String $type){
@@ -84,7 +85,6 @@ class FileController extends Controller
             ->route('user.profile', $user->username)
             ->with('success', 'Profile image updated successfully.');
     }
-
 
 
     }
