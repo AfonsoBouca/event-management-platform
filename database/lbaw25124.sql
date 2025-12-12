@@ -451,25 +451,6 @@ AFTER INSERT ON eventParticipation
 FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_capacity_reach();
 
---TRIGGER 9
-CREATE OR REPLACE FUNCTION add_default_poll_options()
-RETURNS TRIGGER AS
-$BODY$
-BEGIN
-    INSERT INTO pollOption (pollId, optionText)
-    VALUES
-       (NEW.pollId, 'Yes'),
-       (NEW.pollId, 'No');    
-    RETURN NEW;
-END;
-$BODY$
-LANGUAGE plpgsql;
-
-CREATE TRIGGER poll_default_options_trigger
-AFTER INSERT ON poll
-FOR EACH ROW
-EXECUTE FUNCTION add_default_poll_options();  
-
 --TRIGGER 10
 CREATE OR REPLACE FUNCTION add_organizer_on_eventParticipation()
 RETURNS TRIGGER AS
@@ -689,26 +670,105 @@ INSERT INTO joinRequest (j_status, userId, eventId) VALUES
 ('Rejected', 9, 5),
 ('Pending', 10, 11);
 
--- Insert Polls
+-- Insert Polls (at least 1 per event)
 INSERT INTO poll (title, content, createdAt, eventId) VALUES
 ('Preferred Workshop Time', 'What time slot works best for the AI workshop?', '2025-10-18 10:00:00', 1),
+('Conference Lunch Preference', 'What type of lunch would you prefer?', '2025-10-19 09:00:00', 1),
 ('Food Preferences', 'Any dietary restrictions we should know about?', '2025-10-22 14:00:00', 2),
+('Favorite Art Style', 'Which art style interests you most?', '2025-10-25 10:00:00', 3),
+('Follow-up Event Interest', 'Would you attend a follow-up advanced workshop?', '2025-10-10 11:00:00', 4),
+('Cuisine Preference', 'Which Italian dish would you like to learn first?', '2025-10-30 14:00:00', 5),
+('Skill Level', 'What is your current cooking skill level?', '2025-10-31 10:00:00', 5),
+('Favorite Music Genre', 'Which genre are you most excited about?', '2024-08-10 12:00:00', 6),
+('Donation Method', 'How would you prefer to donate?', '2025-12-01 15:00:00', 7),
+('Entertainment Preference', 'What entertainment would you enjoy most?', '2025-12-02 10:00:00', 7),
+('Yoga Style Preference', 'Which yoga style do you prefer?', '2025-11-10 09:00:00', 8),
 ('T-Shirt Sizes', 'What size t-shirt would you like?', '2025-10-28 09:00:00', 9),
-('Follow-up Event Interest', 'Would you attend a follow-up advanced workshop?', '2025-10-30 11:00:00', 4);
+('Programming Language', 'Which programming language will you use?', '2025-10-29 11:00:00', 9),
+('Next Book Selection', 'Which book should we read next month?', '2024-09-05 14:00:00', 10),
+('Photography Focus', 'What type of photography interests you most?', '2025-11-08 10:00:00', 11),
+('Wine Preference', 'Which type of wine do you prefer?', '2024-06-28 16:00:00', 12),
+('Session Preference', 'Which leadership topic interests you most?', '2025-01-10 09:00:00', 13),
+('Task Preference', 'Which gardening task would you prefer?', '2025-11-05 08:00:00', 14),
+('Discussion Format', 'How would you prefer the Q&A session?', '2025-11-12 15:00:00', 15);
 
--- Insert Poll Options (Note: triggers will auto-add Yes/No, adding custom options)
+-- Insert Poll Options
 INSERT INTO pollOption (pollId, optionText) VALUES
 (1, 'Morning (9-11 AM)'),
 (1, 'Afternoon (2-4 PM)'),
 (1, 'Evening (6-8 PM)'),
-(2, 'Vegetarian'),
-(2, 'Vegan'),
-(2, 'Gluten-Free'),
-(2, 'No Restrictions'),
-(3, 'Small'),
-(3, 'Medium'),
-(3, 'Large'),
-(3, 'X-Large');
+(2, 'Sandwich & Salad'),
+(2, 'Hot Buffet'),
+(2, 'Pizza & Pasta'),
+(2, 'Healthy Options Only'),
+(3, 'Vegetarian'),
+(3, 'Vegan'),
+(3, 'Gluten-Free'),
+(3, 'No Restrictions'),
+(4, 'Abstract'),
+(4, 'Contemporary'),
+(4, 'Classical'),
+(4, 'Modern'),
+(5, 'Yes, definitely'),
+(5, 'Maybe'),
+(5, 'No, not interested'),
+(6, 'Fresh Pasta'),
+(6, 'Risotto'),
+(6, 'Tiramisu'),
+(6, 'Pizza from scratch'),
+(7, 'Beginner'),
+(7, 'Intermediate'),
+(7, 'Advanced'),
+(8, 'Rock'),
+(8, 'Electronic'),
+(8, 'Indie'),
+(8, 'Hip-Hop'),
+(8, 'Pop'),
+(9, 'Credit Card'),
+(9, 'Bank Transfer'),
+(9, 'Cash at Event'),
+(9, 'Online Platform'),
+(10, 'Live Band'),
+(10, 'DJ'),
+(10, 'Silent Auction'),
+(10, 'Comedy Show'),
+(11, 'Hatha'),
+(11, 'Vinyasa'),
+(11, 'Yin'),
+(11, 'Restorative'),
+(12, 'Small'),
+(12, 'Medium'),
+(12, 'Large'),
+(12, 'X-Large'),
+(13, 'Python'),
+(13, 'JavaScript'),
+(13, 'Java'),
+(13, 'Go'),
+(13, 'Rust'),
+(14, '1984 by George Orwell'),
+(14, 'The Great Gatsby'),
+(14, 'To Kill a Mockingbird'),
+(14, 'Pride and Prejudice'),
+(15, 'Portrait'),
+(15, 'Landscape'),
+(15, 'Street Photography'),
+(15, 'Wildlife'),
+(16, 'Red Wine'),
+(16, 'White Wine'),
+(16, 'Rosé'),
+(16, 'Sparkling'),
+(17, 'Strategic Planning'),
+(17, 'Team Management'),
+(17, 'Innovation & Change'),
+(17, 'Communication Skills'),
+(18, 'Planting'),
+(18, 'Weeding'),
+(18, 'Watering'),
+(18, 'Harvesting'),
+(19, 'Open Floor Q&A'),
+(19, 'Moderated Panel'),
+(19, 'Small Group Discussion'),
+(19, 'Written Questions Only');
 
 -- Insert Favourite Event
 INSERT INTO favouriteEvent (eventId, userId, addedDate) VALUES

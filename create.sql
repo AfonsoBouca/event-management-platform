@@ -435,24 +435,7 @@ AFTER INSERT ON eventParticipation
 FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_capacity_reach();
 
---TRIGGER 9
-CREATE OR REPLACE FUNCTION add_default_poll_options()
-RETURNS TRIGGER AS
-$BODY$
-BEGIN
-    INSERT INTO pollOption (pollId, optionText)
-    VALUES
-       (NEW.pollId, 'Yes'),
-       (NEW.pollId, 'No');    
-    RETURN NEW;
-END;
-$BODY$
-LANGUAGE plpgsql;
-
-CREATE TRIGGER poll_default_options_trigger
-AFTER INSERT ON poll
-FOR EACH ROW
-EXECUTE FUNCTION add_default_poll_options();  
+  
 
 --TRIGGER 10
 CREATE OR REPLACE FUNCTION add_organizer_on_eventParticipation()
