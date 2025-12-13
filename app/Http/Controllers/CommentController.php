@@ -9,10 +9,14 @@ use Illuminate\Support\Facades\Auth;
 class CommentController extends Controller
 {
     public function index($eventId){
-        $event = Event::findOrFail($eventId);
+        $event = Event::with(['comments' => function ($query) {
+         $query->withCount('voters')
+               ->orderByDesc('voters')
+               ->whereNull('parentid');
+        }])->findOrFail($eventId);
         $this->authorize('comment',$event);
         $comments = $event->comments()->with('author', 'replies.author')->get();
-        return response()->json($event->comments);
+         return response()->json($event->comments);
     }
 
     public function store(Request $request, $eventId){
@@ -28,13 +32,6 @@ class CommentController extends Controller
             'parentid' => $request -> parentid
         ]);
         return redirect()->back();
-    }
-
-    public function showComments($eventId){
-        $event = Event::with(['comments' => function($query){
-            $query->whereNull('parentid')->with('replies.author');
-        }])->find($eventId);
-        return view('events.show', compact('event'));
     }
 
     public function editComment(Request $request, Comment $comment)

@@ -46,6 +46,14 @@ CREATE TABLE event (
     CHECK (endDate > startDate)
 );
 
+CREATE TABLE eventPhoto (
+    photoid SERIAL PRIMARY KEY,
+    filepath VARCHAR(255) NOT NULL,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
+    userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE comment (
     commentId SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
@@ -530,19 +538,18 @@ ALTER SEQUENCE tag_tagid_seq RESTART WITH 1;
 
 -- Insert Users (passwords are hashed versions of 'password123')
 INSERT INTO "user" (username, email, passwordHash, profileImage, registrationDate, isAdmin) VALUES
-('john_doe', 'john.doe@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'public/profile/default.png', '2024-01-15 10:30:00', FALSE),
-('jane_smith', 'jane.smith@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/jane.jpg', '2024-02-20 14:20:00', FALSE),
-('mike_wilson', 'mike.wilson@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/mike.jpg', '2024-03-10 09:15:00', FALSE),
-('sarah_jones', 'sarah.jones@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/sarah.jpg', '2024-03-25 16:45:00', FALSE),
-('david_brown', 'david.brown@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/david.jpg', '2024-04-05 11:00:00', FALSE),
-('emily_davis', 'emily.davis@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/emily.jpg', '2024-04-18 13:30:00', FALSE),
-('alex_martin', 'alex.martin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/alex.jpg', '2024-05-02 10:00:00', FALSE),
-('lisa_garcia', 'lisa.garcia@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/lisa.jpg', '2024-05-20 15:20:00', FALSE),
-('tom_rodriguez', 'tom.rodriguez@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/tom.jpg', '2024-06-01 12:10:00', FALSE),
-('anna_lee', 'anna.lee@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/anna.jpg', '2024-06-15 14:50:00', FALSE),
-('admin_user', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/images/profiles/admin.jpg', '2024-01-01 08:00:00', TRUE);
+('john_doe', 'john.doe@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-01-15 10:30:00', FALSE),
+('jane_smith', 'jane.smith@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-02-20 14:20:00', FALSE),
+('mike_wilson', 'mike.wilson@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-03-10 09:15:00', FALSE),
+('sarah_jones', 'sarah.jones@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-03-25 16:45:00', FALSE),
+('david_brown', 'david.brown@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-04-05 11:00:00', FALSE),
+('emily_davis', 'emily.davis@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-04-18 13:30:00', FALSE),
+('alex_martin', 'alex.martin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-05-02 10:00:00', FALSE),
+('lisa_garcia', 'lisa.garcia@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-05-20 15:20:00', FALSE),
+('tom_rodriguez', 'tom.rodriguez@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-06-01 12:10:00', FALSE),
+('anna_lee', 'anna.lee@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-06-15 14:50:00', FALSE),
+('admin_user', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-01-01 08:00:00', TRUE);
 
--- Insert App Admins
 INSERT INTO appAdmin (username, email, passwordHash) VALUES
 ('superadmin', 'superadmin@eventplatform.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
 ('admin_support', 'support@eventplatform.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');

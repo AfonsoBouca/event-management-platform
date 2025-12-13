@@ -73,7 +73,7 @@
             @csrf
 
             <div class="d-flex mb-3">
-                <img src="{{ Auth::user()->profilepicture ?? '/images/default.png' }}" 
+                <img src="{{ Auth::user()->getProfileImage() ?? '/images/default.png' }}" 
                      class="rounded-circle me-2 border" width="45" height="45">
 
                 <textarea 
@@ -92,7 +92,7 @@
   
     @foreach ($event->comments as $comment)
         <div class="d-flex mb-4" x-data="{ open: false, openEdit:false }">
-            <img src="{{ $comment->author->profilepicture ?? '/profile/default.png' }}" 
+            <img src="{{ $comment->author->getprofileImage() ?? '/profile/default.png'}}" 
                 width="45" height="45"
                 class="rounded-circle me-3 border shadow-sm">
             <div class="card border-0 shadow-sm p-3 rounded-4 w-100">
@@ -123,7 +123,7 @@
                         <input type="hidden" name="parentid" value="{{ $comment->commentid }}">
 
                         <div class="d-flex mb-2">
-                            <img src="{{ Auth::user()->profilepicture ?? '/images/default.png' }}" 
+                            <img src="{{ $comment->author->getprofileImage() ?? '/profile/default.png' }}" 
                                 width="35" height="35"
                                 class="rounded-circle me-2 border shadow-sm">
 
@@ -145,7 +145,7 @@
                         @foreach ($comment->replies as $reply)
                             <div class="d-flex mb-3">
 
-                                <img src="{{ $reply->author->profilepicture ?? '/images/default.png' }}" 
+                                <img src="{{ $reply->author->getprofileImage() ?? '/images/default.png' }}" 
                                      width="35" height="35" 
                                      class="rounded-circle me-2 border shadow-sm">
 
@@ -192,6 +192,7 @@ document.addEventListener('alpine:init', () => {
 
                         @if($isAttendee)
                             <span class="btn btn-success disabled">You are participating</span>
+                            <button id="openPhotos" class="btn btn-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar"> Photos </button>
                         @elseif($hasPendingRequest)
                             <span class="btn btn-info disabled">Request Pending</span>
                         @else
@@ -210,5 +211,75 @@ document.addEventListener('alpine:init', () => {
         </div>
     </div>
 </div>
+
+<!-- <div id="photosSidebar" 
+     style="position: fixed; top:0; right:-400px; width:400px; height:100%;
+            background:white; box-shadow:-2px 0 10px rgba(0,0,0,0.2);
+            transition: right 0.3s ease; padding:20px; z-index:9999;">
+    
+    <button id="closeSidebar" class="btn btn-outline-secondary mb-3">Close</button>
+
+    <div id="photosContent">
+        
+    </div>
+</div> -->
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="photosSidebar" style="width:700px;">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Photos</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+
+  <div class="offcanvas-body">
+      <div id="photosContent">
+          <!-- AJAX loads here -->
+      </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('openPhotos')
+    .addEventListener('click', function () {
+        loadPhotos();
+    });
+
+function loadPhotos() {
+    fetch("/events/{{ $event->eventid }}/photos")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('photosContent').innerHTML = html;
+            attachPhotoEvents();
+        });
+}
+
+function attachPhotoEvents() {
+    const form = document.getElementById('photoUploadForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        let data = new FormData(form);
+
+        fetch("/events/{{ $event->eventid }}/photos/upload", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: data
+        })
+        .then(res => res.json())
+        .then(json => {
+            if (json.success) {
+                loadPhotos(); // refresh automático
+            }
+        });
+    });
+}
+</script>
+
+
+
+
 
 @endsection
