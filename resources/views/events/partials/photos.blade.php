@@ -9,12 +9,21 @@
 @if($photos->isEmpty())
     <p class="text-center text-muted">Be the first to upload </p>
 @else
-    <div class="row g-2">
-        @foreach ($photos as $p)
-            <div>
-                
-                <img src="{{ asset('event/' . $p->filepath) }}" width="200">
-            </div>
-        @endforeach
-    </div>
+    <div class="d-flex flex-column gap-3">
+    @foreach ($photos as $p)
+        <img 
+            src="{{ asset('event/' . $p->filepath) }}" 
+            class="img-fluid rounded border"
+            style="max-width: 100%; height: auto;"
+        >
+        <small class="text-muted">
+            Uploaded by <strong>{{ $p->username }}</strong>
+        </small>
+
+        
+    @endforeach
+</div>
 @endif
+
+
+

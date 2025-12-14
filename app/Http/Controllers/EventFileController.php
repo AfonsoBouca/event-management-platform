@@ -17,9 +17,11 @@ class EventFileController extends Controller
      */
     public function list($eventId)
     {
-        $photos = DB::table('eventphoto')->from('lbaw25124.eventphoto')
-            ->where('eventid', $eventId)
-            ->orderBy('createdat', 'desc')
+        $photos = DB::table('lbaw25124.eventphoto AS ep')
+            ->join('lbaw25124.user AS u', 'ep.userid', '=', 'u.userid')
+            ->select('ep.*', 'u.username')
+            ->where('ep.eventid', $eventId)
+            ->orderBy('ep.createdat', 'desc')
             ->get();
 
         return view('events.partials.photos', [
