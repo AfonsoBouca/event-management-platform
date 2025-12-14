@@ -79,6 +79,7 @@
 
                         @if($isAttendee)
                             <span class="btn btn-success disabled">You are participating</span>
+                            <button id="openPhotos" class="btn btn-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar"> Photos </button>
                         @elseif($hasPendingRequest)
                             <span class="btn btn-info disabled">Request Pending</span>
                         @else
@@ -97,4 +98,74 @@
         </div>
     </div>
 </div>
+
+<!-- <div id="photosSidebar" 
+     style="position: fixed; top:0; right:-400px; width:400px; height:100%;
+            background:white; box-shadow:-2px 0 10px rgba(0,0,0,0.2);
+            transition: right 0.3s ease; padding:20px; z-index:9999;">
+    
+    <button id="closeSidebar" class="btn btn-outline-secondary mb-3">Close</button>
+
+    <div id="photosContent">
+        
+    </div>
+</div> -->
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="photosSidebar" style="width:700px;">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Photos</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+
+  <div class="offcanvas-body">
+      <div id="photosContent">
+          <!-- AJAX loads here -->
+      </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('openPhotos')
+    .addEventListener('click', function () {
+        loadPhotos();
+    });
+
+function loadPhotos() {
+    fetch("/events/{{ $event->eventid }}/photos")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('photosContent').innerHTML = html;
+            attachPhotoEvents();
+        });
+}
+
+function attachPhotoEvents() {
+    const form = document.getElementById('photoUploadForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        let data = new FormData(form);
+
+        fetch("/events/{{ $event->eventid }}/photos/upload", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: data
+        })
+        .then(res => res.json())
+        .then(json => {
+            if (json.success) {
+                loadPhotos(); // refresh automático
+            }
+        });
+    });
+}
+</script>
+
+
+
+
 @endsection
