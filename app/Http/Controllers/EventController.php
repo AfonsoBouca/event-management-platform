@@ -475,6 +475,24 @@ public function removeParticipant($eventId, $userId)
             'photos' => $photos
         ]);
     }
+
+
+public function viewParticipation($id)
+{
+    $event = Event::with(['organizer', 'attendees'])->findOrFail($id);
+
+    $user = Auth::user();
+
+
+    if (!$user || (!$event->isOrganizer($user->userid) && !$event->isAttendee($user->userid))) {
+        abort(403);
+    }
+
+    $participants = $event->attendees()->withPivot('role')->get();
+
+    return view('events.partials.participants', compact('event', 'participants'));
+}
+   
     
 
 

@@ -59,6 +59,14 @@
                     </tr>
                 </table>
 
+                <div>
+                    @auth 
+                        @if($isAttendee)
+                            <button id="viewParticipants" class="btn btn-outline-purple " data-bs-toggle="offcanvas" data-bs-target="#participantSidebar"> View Participants </button>
+                        @endif
+                    @endauth
+                </div>
+
                 <div class="bg-light p-3 rounded border-start border-4 border-purple mt-3">
                     <h6 class="text-purple">Description</h6>
                     <p class="mb-0">{{ $event->description }}</p>
@@ -99,17 +107,7 @@
     </div>
 </div>
 
-<!-- <div id="photosSidebar" 
-     style="position: fixed; top:0; right:-400px; width:400px; height:100%;
-            background:white; box-shadow:-2px 0 10px rgba(0,0,0,0.2);
-            transition: right 0.3s ease; padding:20px; z-index:9999;">
-    
-    <button id="closeSidebar" class="btn btn-outline-secondary mb-3">Close</button>
 
-    <div id="photosContent">
-        
-    </div>
-</div> -->
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="photosSidebar" style="width:700px;">
   <div class="offcanvas-header">
@@ -124,11 +122,33 @@
   </div>
 </div>
 
+<div class="offcanvas offcanvas-end" tabindex="-1" id="participantSidebar" style="width:700px;">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Participants</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+
+  <div class="offcanvas-body">
+      <div id="participantsContent">
+          <!-- AJAX loads here -->
+      </div>
+  </div>
+</div>
+
 <script>
-document.getElementById('openPhotos')
-    .addEventListener('click', function () {
+const openPhotosBtn = document.getElementById('openPhotos');
+if (openPhotosBtn) {
+    openPhotosBtn.addEventListener('click', function () {
         loadPhotos();
     });
+}
+
+const viewParticipantsBtn = document.getElementById('viewParticipants');
+if (viewParticipantsBtn) {
+    viewParticipantsBtn.addEventListener('click', function () {
+        loadParticipants();
+    });
+}
 
 function loadPhotos() {
     fetch("/events/{{ $event->eventid }}/photos")
@@ -162,6 +182,14 @@ function attachPhotoEvents() {
             }
         });
     });
+}
+
+function loadParticipants() {
+    fetch("/events/{{ $event->eventid }}/viewParticipants")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('participantsContent').innerHTML = html;
+        });
 }
 </script>
 

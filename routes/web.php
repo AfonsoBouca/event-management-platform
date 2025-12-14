@@ -173,6 +173,9 @@ Route::delete('/photos/{photoid}', [EventFileController::class, 'delete'])
     ->name('events.photos.delete');
 
 
+Route::get('/events/{id}/viewParticipants', [EventController::class, 'viewParticipation'])
+    ->middleware('auth')
+    ->name('events.viewParticipants');
 
 
 Route::get('/events/{id}/polls/create', [PollController::class, 'create'])
