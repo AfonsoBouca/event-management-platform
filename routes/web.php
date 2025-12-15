@@ -105,6 +105,10 @@ Route::delete('/events/{eventId}/participants/{userId}', [EventController::class
     ->middleware('auth')
     ->name('events.participants.remove');
 
+Route::delete('/events/{eventId}/leave', [EventController::class, 'leaveEvent'])
+    ->middleware('auth')
+    ->name('events.leave');
+
 Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])
     ->where('userid', '[0-9]+')
     ->name('user.organizing');

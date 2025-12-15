@@ -26,6 +26,12 @@
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                             </div>
+                        @elseif($isAttendee)
+                            <form action="{{ route('events.leave', $event->eventid) }}" method="POST" onsubmit="return confirm('Are you sure you want to leave this event?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Leave Event</button>
+                            </form>
                         @endif
                     @endauth
                 </div>

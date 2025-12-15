@@ -461,6 +461,41 @@ public function removeParticipant($eventId, $userId)
             ->with('success', 'Participant removed successfully.');
     }
 
+    /**
+     * Allow an attendee to leave an event they are participating in.
+     */
+    public function leaveEvent($eventId)
+    {
+        $event = Event::findOrFail($eventId);
+        $userId = Auth::id();  
+        
+        if ($event->createdby == $userId) {
+            return redirect()
+                ->route('events.show', $eventId)
+                ->with('error', 'The organizer cannot leave their own event.');
+        }
+            
+        $participation = DB::table('eventparticipation')
+            ->where('eventid', $eventId)
+            ->where('userid', $userId)
+            ->first();
+        
+        if (!$participation) {
+            return redirect()
+                ->route('events.show', $eventId)
+                ->with('error', 'You are not participating in this event.');
+        }
+        
+        DB::table('eventparticipation')
+            ->where('eventid', $eventId)
+            ->where('userid', $userId)
+            ->delete();
+        
+        return redirect()
+            ->route('events.show', $eventId)
+            ->with('success', 'You have left the event successfully.');
+    }
+
 
     public function loadPhotos($eventId)
     {
