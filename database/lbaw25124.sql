@@ -459,6 +459,75 @@ END;
 $BODY$
 LANGUAGE plpgsql;
 
+--------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION notify_user_on_invitation()
+RETURNS TRIGGER AS
+$$
+DECLARE
+    event_name TEXT;
+BEGIN
+    SELECT eventName
+    INTO event_name
+    FROM event
+    WHERE eventId = NEW.eventId;
+
+    INSERT INTO notification (userId, title, message, notificationType)
+    VALUES (
+        NEW.userId,
+        'Event Invitation',
+        'You have been invited to the event "' || event_name || '".',
+        'Invitation'
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_user_on_invitation ON invitation;
+
+CREATE TRIGGER trg_notify_user_on_invitation
+AFTER INSERT ON invitation
+FOR EACH ROW
+EXECUTE FUNCTION notify_user_on_invitation();
+
+CREATE OR REPLACE FUNCTION notify_organizer_on_join_request()
+RETURNS TRIGGER AS
+$$
+DECLARE
+    organizer_id INT;
+    event_name TEXT;
+BEGIN
+    SELECT createdBy, eventName
+    INTO organizer_id, event_name
+    FROM event
+    WHERE eventId = NEW.eventId;
+
+    IF organizer_id IS NOT NULL AND organizer_id <> NEW.userId THEN
+        INSERT INTO notification (userId, title, message, notificationType)
+        VALUES (
+            organizer_id,
+            'Join Request',
+            'A user has requested to join your event "' || event_name || '".',
+            'JoinRequest'
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_organizer_on_join_request ON joinRequest;
+
+CREATE TRIGGER trg_notify_organizer_on_join_request
+AFTER INSERT ON joinRequest
+FOR EACH ROW
+EXECUTE FUNCTION notify_organizer_on_join_request();
+
+
+
+--------------------------------------------------------------
+
 CREATE TRIGGER trg_notify_organizer_on_capacity_reach
 AFTER INSERT ON eventParticipation
 FOR EACH ROW
