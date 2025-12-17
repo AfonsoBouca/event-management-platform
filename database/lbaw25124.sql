@@ -454,6 +454,12 @@ END;
 $BODY$
 LANGUAGE plpgsql;
 
+CREATE TRIGGER trg_notify_organizer_on_capacity_reach
+AFTER INSERT ON eventParticipation
+FOR EACH ROW
+EXECUTE FUNCTION notify_organizer_on_capacity_reach();
+
+
 --------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION notify_user_on_invitation()
@@ -487,14 +493,57 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_user_on_invitation();
 
 
+CREATE OR REPLACE FUNCTION notify_user_on_join_request_response()
+RETURNS TRIGGER AS
+$$
+DECLARE
+    event_name TEXT;
+    response_text TEXT;
+    notification_title TEXT;
+BEGIN
+    -- Só reage se o estado mudar
+    IF OLD.j_status IS DISTINCT FROM NEW.j_status THEN
+
+        -- Apenas Accepted ou Rejected
+        IF NEW.j_status IN ('Accepted', 'Rejected') THEN
+
+            SELECT eventName
+            INTO event_name
+            FROM lbaw25124.event
+            WHERE eventId = NEW.eventId;
+
+            IF NEW.j_status = 'Accepted' THEN
+                response_text := 'Your request to join the event "' || event_name || '" was accepted.';
+                notification_title := 'Join Request Accepted';
+            ELSE
+                response_text := 'Your request to join the event "' || event_name || '" was rejected.';
+                notification_title := 'Join Request Rejected';
+            END IF;
+
+            INSERT INTO lbaw25124.notification (userid, title, message, notificationType)
+            VALUES (
+                NEW.userid,
+                notification_title,
+                response_text,
+                'JoinRequest'
+            );
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_user_on_join_request_response
+ON lbaw25124.joinRequest;
+
+CREATE TRIGGER trg_notify_user_on_join_request_response
+AFTER UPDATE ON lbaw25124.joinRequest
+FOR EACH ROW
+EXECUTE FUNCTION notify_user_on_join_request_response();
 
 
 --------------------------------------------------------------
-
-CREATE TRIGGER trg_notify_organizer_on_capacity_reach
-AFTER INSERT ON eventParticipation
-FOR EACH ROW
-EXECUTE FUNCTION notify_organizer_on_capacity_reach();
 
 --TRIGGER 10
 CREATE OR REPLACE FUNCTION add_organizer_on_eventParticipation()
