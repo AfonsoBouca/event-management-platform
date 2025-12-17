@@ -30,6 +30,11 @@
                 <ul class="navbar-nav align-items-center gap-2">
                     @auth
                         <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm" href="{{ route('notifications.view') }}"> 
+                                Notifications
+                            </a>    
+                        </li>
+                        <li class="nav-item">
                             <a class="btn btn-outline-light btn-sm" href="{{ route('user.profile', Auth::user()->username) }}">
                                 {{ Auth::user()->username }}
                             </a>

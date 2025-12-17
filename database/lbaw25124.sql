@@ -65,6 +65,7 @@ CREATE TABLE comment (
 
 CREATE TABLE notification (
     notificationId SERIAL PRIMARY KEY,
+    userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
     title VARCHAR(100) NOT NULL,
     message TEXT NOT NULL,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -259,14 +260,16 @@ EXECUTE FUNCTION add_attendee_from_join_request();
  RETURNS TRIGGER AS
  $BODY$
  BEGIN
-   IF (OLD.eventName IS DISTINCT FROM NEW.eventName)
-      OR (OLD.description IS DISTINCT FROM NEW.description)
-      OR (OLD.startDate IS DISTINCT FROM NEW.startDate)
-      OR (OLD.endDate IS DISTINCT FROM NEW.endDate)
-      OR (OLD.location IS DISTINCT FROM NEW.location)
+   IF OLD.eventstatus IS DISTINCT FROM NEW.eventstatus
+    OR OLD.eventname IS DISTINCT FROM NEW.eventname
+    OR (OLD.description IS DISTINCT FROM NEW.description)
+    OR (OLD.startdate IS DISTINCT FROM NEW.startdate)
+    OR (OLD.enddate IS DISTINCT FROM NEW.enddate)
+    OR (OLD.location IS DISTINCT FROM NEW.location)
    THEN  
-      INSERT INTO notification (title, message, notificationType)
+      INSERT INTO notification (userid, title, message, notificationType)
       SELECT
+              eventParticipation.userId,
       'Event Updated',
            'The event ""' || NEW.eventName || '" has been updated. Please check the details.',
            'EventUpdate'
@@ -274,13 +277,13 @@ EXECUTE FUNCTION add_attendee_from_join_request();
       WHERE eventParticipation.eventId = NEW.eventId
       AND role = 'Attendee';
       
-      INSERT INTO eventNotification (notificationId, eventId)
-      SELECT n.notificationId, NEW.eventId
-      FROM notification n
-      WHERE n.notificationType = 'EventUpdate'
-      AND n.title = 'Event Update'
-      ORDER BY n.notificationId DESC
-      LIMIT 1;    
+    --   INSERT INTO eventNotification (notificationId, eventId)
+    --   SELECT n.notificationId, NEW.eventId
+    --   FROM notification n
+    --   WHERE n.notificationType = 'EventUpdate'
+    --   AND n.title = 'Event Update'
+    --   ORDER BY n.notificationId DESC
+    --   LIMIT 1;    
             
    END IF;
    
@@ -288,6 +291,8 @@ EXECUTE FUNCTION add_attendee_from_join_request();
 END   
 $BODY$
 LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_attendees_on_event_update ON event;
 
 CREATE TRIGGER trg_notify_attendees_on_event_update
 AFTER UPDATE ON event
@@ -841,14 +846,14 @@ INSERT INTO upload (filePath) VALUES
 ('/uploads/documents/event_guidelines.pdf');
 
 -- Insert Notification (some will be created by triggers, adding manual ones)
-INSERT INTO notification (title, message, time, isRead, notificationType) VALUES
-('Welcome!', 'Welcome to the event platform! Start exploring events near you.', '2024-01-15 10:35:00', TRUE, 'EventUpdate'),
-('Event Reminder', 'Your event "Tech Conference 2025" starts in 7 days!', '2025-10-25 09:00:00', FALSE, 'EventUpdate'),
-('New Comment', 'Someone commented on your event.', '2025-10-15 11:05:00', TRUE, 'NewComment'),
-('Invitation Received', 'You have been invited to "Cooking Masterclass"', '2025-10-28 10:00:00', FALSE, 'Invitation'),
-('Join Request Approved', 'Your request to join "Startup Networking Mixer" has been approved!', '2025-10-21 14:00:00', TRUE, 'JoinRequest'),
-('New Poll', 'A new poll has been created for "Tech Conference 2025"', '2025-10-18 10:05:00', FALSE, 'PollCreated'),
-('Report Update', 'Your report has been reviewed by our team.', '2025-10-26 11:00:00', TRUE, 'ReportStatus');
+INSERT INTO notification (userId, title, message, time, isRead, notificationType) VALUES
+(1, 'Welcome!', 'Welcome to the event platform! Start exploring events near you.', '2024-01-15 10:35:00', TRUE, 'EventUpdate'),
+(2, 'Event Reminder', 'Your event "Tech Conference 2025" starts in 7 days!', '2025-10-25 09:00:00', FALSE, 'EventUpdate'),
+(1, 'New Comment', 'Someone commented on your event.', '2025-10-15 11:05:00', TRUE, 'NewComment'),
+(1, 'Invitation Received', 'You have been invited to "Cooking Masterclass"', '2025-10-28 10:00:00', FALSE, 'Invitation'),
+(6, 'Join Request Approved', 'Your request to join "Startup Networking Mixer" has been approved!', '2025-10-21 14:00:00', TRUE, 'JoinRequest'),
+(3, 'New Poll', 'A new poll has been created for "Tech Conference 2025"', '2025-10-18 10:05:00', FALSE, 'PollCreated'),
+(5, 'Report Update', 'Your report has been reviewed by our team.', '2025-10-26 11:00:00', TRUE, 'ReportStatus');
 
 -- Insert Event Notification
 INSERT INTO eventNotification (notificationId, eventId) VALUES

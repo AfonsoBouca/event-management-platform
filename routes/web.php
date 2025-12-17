@@ -9,6 +9,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\EventFileController;
+use App\Http\Controllers\NotificationController;
+
 
 
 // Home -> redireciona conforme autenticação
@@ -201,3 +203,11 @@ Route::get('/polls/{id}/results', [PollController::class, 'results'])
 Route::delete('/polls/{id}', [PollController::class, 'destroy'])
     ->middleware('auth')
     ->name('polls.destroy');
+
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->middleware('auth')
+    ->name('notifications.view');
+
+Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+    ->middleware('auth')
+    ->name('notifications.read');
