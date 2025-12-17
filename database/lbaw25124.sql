@@ -334,30 +334,31 @@ EXECUTE FUNCTION notify_organizer_on_new_comment();
 --TRIGGER 5
 CREATE OR REPLACE FUNCTION notify_organizer_on_join_request()
 RETURNS TRIGGER AS
-$BODY$
-DECLARE 
-     organizer_id INT;
-     organizer_exists BOOLEAN;
+$$
+DECLARE
+    organizer_id INT;
+    event_name TEXT;
 BEGIN
-     SELECT createdBy INTO organizer_id
-     FROM event
-     WHERE eventId = NEW.eventId;
-     
-     IF organizer_id IS NOT NULL AND organizer_id <> NEW.userId THEN
-     
-     INSERT INTO notification(title, message, notificationType)
-     VALUES (
-        'Join Request' ,
-     'A user has requested to join your event',
-     'JoinRequest'
-     );
-     
-     END IF;
-    
-     RETURN NEW;
+    SELECT createdBy, eventName
+    INTO organizer_id, event_name
+    FROM event
+    WHERE eventId = NEW.eventId;
+
+    IF organizer_id IS NOT NULL AND organizer_id <> NEW.userId THEN
+        INSERT INTO notification (userId, title, message, notificationType)
+        VALUES (
+            organizer_id,
+            'Join Request',
+            'A user has requested to join your event "' || event_name || '".',
+            'JoinRequest'
+        );
+    END IF;
+
+    RETURN NEW;
 END;
-$BODY$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_organizer_on_join_request ON joinRequest;
 
 CREATE TRIGGER trg_notify_organizer_on_join_request
 AFTER INSERT ON joinRequest
@@ -367,30 +368,24 @@ EXECUTE FUNCTION notify_organizer_on_join_request();
 --TRIGGER 6
 CREATE OR REPLACE FUNCTION notify_attendees_about_poll()
 RETURNS TRIGGER AS
-$BODY$
-DECLARE 
-    attendee RECORD;
+$$
 BEGIN
- 
-    FOR attendee IN
-        SELECT userId
-        FROM eventParticipation
-        WHERE eventId = NEW.eventId
-          AND role = 'Attendee'
-    LOOP      
-      INSERT INTO notification(title, message, notificationType)
-      VALUES (
+    INSERT INTO notification (userId, title, message, notificationType)
+    SELECT
+        ep.userId,
         'New Poll',
-      'A new poll has been created for an event you are attending.',
-      'PollCreated'
-      );
-      
-    END LOOP;
-    
+        'A new poll was created for the event "' || e.eventName || '".',
+        'PollCreated'
+    FROM eventparticipation ep
+    JOIN event e ON e.eventId = NEW.eventId
+    WHERE ep.eventId = NEW.eventId
+      AND ep.role = 'Attendee';
+
     RETURN NEW;
 END;
-$BODY$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_attendees_about_poll ON poll;
 
 CREATE TRIGGER trg_notify_attendees_about_poll
 AFTER INSERT ON poll
@@ -491,38 +486,6 @@ AFTER INSERT ON invitation
 FOR EACH ROW
 EXECUTE FUNCTION notify_user_on_invitation();
 
-CREATE OR REPLACE FUNCTION notify_organizer_on_join_request()
-RETURNS TRIGGER AS
-$$
-DECLARE
-    organizer_id INT;
-    event_name TEXT;
-BEGIN
-    SELECT createdBy, eventName
-    INTO organizer_id, event_name
-    FROM event
-    WHERE eventId = NEW.eventId;
-
-    IF organizer_id IS NOT NULL AND organizer_id <> NEW.userId THEN
-        INSERT INTO notification (userId, title, message, notificationType)
-        VALUES (
-            organizer_id,
-            'Join Request',
-            'A user has requested to join your event "' || event_name || '".',
-            'JoinRequest'
-        );
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trg_notify_organizer_on_join_request ON joinRequest;
-
-CREATE TRIGGER trg_notify_organizer_on_join_request
-AFTER INSERT ON joinRequest
-FOR EACH ROW
-EXECUTE FUNCTION notify_organizer_on_join_request();
 
 
 
