@@ -21,7 +21,13 @@
                         @if($event->createdby === Auth::user()->userid)
                             <div class="d-flex gap-2">
                                 <a href="{{ route('events.editEvent', $event->eventid) }}" class="btn btn-purple btn-sm">Edit</a>
-                                <form action="{{ route('events.deleteEvent', $event->eventid) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                                @if($event->eventstatus !== 'Cancelled')
+                                    <form action="{{ route('events.cancel', $event->eventid) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this event? All participants will be notified.');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning btn-sm">Cancel Event</button>
+                                    </form>
+                                @endif
+                                <form action="{{ route('events.deleteEvent', $event->eventid) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>

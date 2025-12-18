@@ -220,6 +220,31 @@ public function deleteEvent($eventId)
         ->with('success', 'Event deleted successfully.');
 }
 
+public function cancelEvent($eventId)
+{
+    $event = Event::findOrFail($eventId);
+    $userId = Auth::user()->userid;
+
+    if ($event->createdby !== $userId) {
+        return redirect()
+            ->route('events.show', $eventId)
+            ->with('error', 'Only the organizer can cancel this event.');
+    }
+
+    if ($event->eventstatus === 'Cancelled') {
+        return redirect()
+            ->route('events.show', $eventId)
+            ->with('info', 'This event is already cancelled.');
+    }
+
+    $event->eventstatus = 'Cancelled';
+    $event->save();
+
+    return redirect()
+        ->route('events.show', $eventId)
+        ->with('success', 'Event cancelled successfully.');
+}
+
 public function updateEvent(Request $request, $eventId)
     {
         $event = Event::findOrFail($eventId);

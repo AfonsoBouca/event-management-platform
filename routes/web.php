@@ -142,6 +142,11 @@ Route::delete('/user/delete', [UserController::class, 'destroy'])
     ->middleware('auth')
     ->name('events.deleteEvent');
 
+ //cancelar evento
+ Route::post('/events/{id}/cancel', [EventController::class, 'cancelEvent'])
+    ->middleware('auth')
+    ->name('events.cancel');
+
  //editar evento
  Route::get('/events/{id}/edit', [EventController::class, 'editEvent'])
     ->middleware('auth')
