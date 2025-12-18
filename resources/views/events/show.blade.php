@@ -195,7 +195,21 @@ document.addEventListener('alpine:init', () => {
              <div class="card-footer bg-white">
                 <div class="d-flex flex-wrap gap-2">
                     @auth
-                        @if(Auth::check() && $event->createdby === Auth::user()->userid)
+                        {{-- Participation status - always first on the left --}}
+                        @if($isAttendee)
+                            <span class="btn btn-success disabled">You are participating</span>
+                            <button id="openPhotos" class="btn btn-outline-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar"> Photos </button>
+                        @elseif($hasPendingRequest)
+                            <span class="btn btn-info disabled">Request Pending</span>
+                        @elseif($event->createdby !== Auth::user()->userid)
+                            <form action="{{ route('events.join', $event->eventid) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-purple">Request to Join</button>
+                            </form>
+                        @endif
+
+                        {{-- Organizer controls --}}
+                        @if($event->createdby === Auth::user()->userid)
                             <a href="{{ route('events.manage', $event->eventid) }}" class="btn btn-purple">Manage Participation</a>
                         @endif
 
@@ -203,23 +217,11 @@ document.addEventListener('alpine:init', () => {
                         @if($event->createdby === Auth::user()->userid || $isAttendee)
                             <a href="{{ route('polls.index', $event->eventid) }}" class="btn btn-outline-purple">Polls</a>
                         @endif
-
-                        @if($isAttendee)
-                            <span class="btn btn-success disabled">You are participating</span>
-                            <button id="openPhotos" class="btn btn-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar"> Photos </button>
-                        @elseif($hasPendingRequest)
-                            <span class="btn btn-info disabled">Request Pending</span>
-                        @else
-                            <form action="{{ route('events.join', $event->eventid) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-purple">Request to Join</button>
-                            </form>
-                        @endif
                     @else
                         <a href="{{ route('login') }}" class="btn btn-purple">Login to Join</a>
                     @endauth
 
-                    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">← Back to Homepage</a>
+                    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary ms-auto">← Back to Homepage</a>
                 </div>
             </div>
         </div>
