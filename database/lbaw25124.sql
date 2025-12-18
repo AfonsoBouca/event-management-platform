@@ -531,7 +531,6 @@ INSERT INTO "user" (username, email, passwordHash, profileImage, registrationDat
 ('anna_lee', 'anna.lee@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-06-15 14:50:00', FALSE),
 ('admin_user', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'default.png', '2024-01-01 08:00:00', TRUE);
 
--- Insert App Admins
 INSERT INTO appAdmin (username, email, passwordHash) VALUES
 ('superadmin', 'superadmin@eventplatform.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
 ('admin_support', 'support@eventplatform.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
@@ -880,6 +879,33 @@ INSERT INTO eventCategory (eventId, categoryId) VALUES
 (14, 10),
 (15, 3),
 (15, 5);
+
+INSERT INTO eventTag(eventId, tagId) VALUES
+(1, 2),
+(1, 3),
+(1, 10),
+(2 , 4),
+(2, 1),
+(3, 7),
+(4, 1),
+(4, 8),
+(5, 1),
+(6, 5),
+(7, 4),
+(8, 1),
+(8, 8),
+(9, 9),
+(9, 6),
+(10, 4),
+(11, 1),
+(11, 8),
+(12, 4),
+(13, 2),
+(13, 3),
+(14, 4),
+(15, 7),
+(15, 4);
+
 
 -- Display summary
 SELECT 'Database populated successfully!' AS status;

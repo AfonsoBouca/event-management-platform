@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\Invitation;
 use App\Models\EventParticipation;
+use App\Models\Tag;
 
 
 class EventController extends Controller
@@ -30,6 +31,7 @@ class EventController extends Controller
             ->where('ispublic', true)
             ->take(5)
             ->get();
+    
 
         return view('events.dashboard', compact('upcomingEvents', 'recentEvents'));
     }
@@ -45,9 +47,17 @@ class EventController extends Controller
         }
        
         if ($request->category) {
-            $query->whereHas('categories', fn($q) => $q->where('category.categoryname', $request->category));
+            $query->whereHas('categories', function($q) use ($request) {
+                $q->where('categoryname', $request->category);
+            });
         }
-    
+
+        if ($request->tag) {
+            $query->whereHas('tags', function($q) use ($request) {
+                $q->where('tagname', $request->tag);
+            });
+        }
+
         $events = $query->orderBy('startdate', 'asc')->paginate(3);
 
         if ($request->ajax()) {
@@ -56,7 +66,7 @@ class EventController extends Controller
     
         return view('events.browse', compact('events'));
     }
-    
+  
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -497,20 +507,6 @@ public function removeParticipant($eventId, $userId)
     }
 
 
-    public function loadPhotos($eventId)
-    {
-        $photos = \DB::table('eventphoto')
-            ->where('eventid', $eventId)
-            ->orderBy('createdat', 'desc')
-            ->get();
-
-        // futuramente podes buscar fotos da DB
-        return view('events.partials.photos', [
-            'eventId' => $eventId,
-            'photos' => $photos
-        ]);
-    }
-
 
 public function viewParticipation($id)
 {
@@ -528,6 +524,22 @@ public function viewParticipation($id)
     return view('events.partials.participants', compact('event', 'participants'));
 }
    
+    
+
+
+    public function loadPhotos($eventId)
+    {
+        $photos = \DB::table('eventphoto')
+            ->where('eventid', $eventId)
+            ->orderBy('createdat', 'desc')
+            ->get();
+
+        // futuramente podes buscar fotos da DB
+        return view('events.partials.photos', [
+            'eventId' => $eventId,
+            'photos' => $photos
+        ]);
+    }
     
 
 

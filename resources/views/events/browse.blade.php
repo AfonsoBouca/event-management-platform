@@ -28,7 +28,6 @@
     @endforeach
 </div>
 
-    <!-- Paginação -->
    <div id="events-pagination-home">  
     <div class="pagination-container">
         @if ($events->onFirstPage() === false)

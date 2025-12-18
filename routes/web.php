@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -7,6 +8,8 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
+
+
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\EventFileController;
 
@@ -65,9 +68,28 @@ Route::get('/events/{id}', [EventController::class, 'show'])
        ->where('id', '[0-9]+')
        ->name('events.show');
 
+// Comentarios      
+Route::post('/events/{eventId}/comments', [CommentController::class, 'store'])
+      ->middleware('auth')
+      ->name('comments.store'); 
+
+Route::put('/comments/{comment}',[CommentController::class, 'editComment']) 
+       ->middleware('auth')
+       ->name('comments.edit');
+
+Route::delete('/comments/{comment}', [CommentController::class, 'deleteComment'])
+       ->middleware('auth')
+       ->name('comments.delete');
+
+Route::get('/events/{eventId}/comments', [CommentController::class, 'index'])
+      ->name('comments.index');   
+
+Route::post('/comments/{comment}/vote', [CommentController::class, 'vote'])
+      ->name('comments.vote');
+      
+
 // Pedir para entrar no evento
 Route::post('/events/{id}/join', [EventController::class, 'requestToJoin'])
-    ->middleware('auth')
     ->name('events.join');
 
 // Editar Perfil
@@ -157,6 +179,51 @@ Route::post('/invitation/{invitationid}/reject', [EventController::class, 'rejec
     ->middleware('auth')
     ->name('invitation.reject');
 
+Route::get('/events/{id}/photos', [EventController::class, 'loadPhotos'])
+    ->name('events.photos');
+
+// Listar fotos via AJAX
+Route::get('/events/{id}/photos', [EventFileController::class, 'list'])
+    ->name('events.photos');
+
+// Upload de fotos via AJAX
+Route::post('/events/{id}/photos/upload', [EventFileController::class, 'upload'])
+    ->name('events.photos.upload');
+
+// Delete (opcional)
+Route::delete('/photos/{photoid}', [EventFileController::class, 'delete'])
+    ->name('events.photos.delete');
+
+
+
+
+   
+
+
+// Polls
+Route::get('/events/{id}/polls', [PollController::class, 'index'])
+    ->middleware('auth')
+    ->name('polls.index');
+
+Route::get('/events/{id}/polls/create', [PollController::class, 'create'])
+    ->middleware('auth')
+    ->name('polls.create');
+
+Route::post('/events/{id}/polls', [PollController::class, 'store'])
+    ->middleware('auth')
+    ->name('polls.store');
+
+Route::post('/polls/{id}/vote', [PollController::class, 'vote'])
+    ->middleware('auth')
+    ->name('polls.vote');
+
+Route::get('/polls/{id}/results', [PollController::class, 'results'])
+    ->middleware('auth')
+    ->name('polls.results');
+
+Route::delete('/polls/{id}', [PollController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('polls.destroy');
 // Polls
 Route::get('/events/{id}/polls', [PollController::class, 'index'])
     ->middleware('auth')

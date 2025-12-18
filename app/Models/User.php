@@ -71,5 +71,8 @@ class User extends Authenticatable
         return FileController::get('profile' , $this->userid);
     }
 
+    public function votes(){
+        return $this->belongsToMany(Comment::class, 'vote', 'userid', 'commentid');
+    }
 
 }

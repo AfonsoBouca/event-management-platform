@@ -11,7 +11,7 @@ class Category extends Model
 
     public $timestamps = false;
 
-    // Relação inversa many-to-many com eventos
+    
     public function events()
     {
         return $this->belongsToMany(

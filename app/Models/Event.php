@@ -79,4 +79,16 @@ class Event extends Model
         );
     }
 
+    public function tags()
+{
+    return $this->belongsToMany(\App\Models\Tag::class, 'eventtag', 'eventid', 'tagid');
+}
+
+    public function comments()
+    {
+    return $this->hasMany(\App\Models\Comment::class, 'eventid', 'eventid')
+                ->whereNull('parentid')
+                ->with('replies.author');
+
+    }
 }
