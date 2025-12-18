@@ -8,8 +8,6 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
-
-
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\EventFileController;
 
@@ -41,7 +39,6 @@ Route::get('/dashboard', [EventController::class, 'dashboard'])
     ->name('dashboard');
 
 // Pesquisa de eventos públicos
-
 Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
 Route::get('/ajax/search', [EventController::class, 'ajaxSearch'])->name('events.ajaxSearch');
 
@@ -60,8 +57,6 @@ Route::post('/events', [EventController::class, 'store'])
     ->name('events.store');
  
 Route::get('/events', [EventController::class, 'browse'])->name('events.index');
-
-Route::get('/events/browse', [EventController::class, 'browse'])->name('events.browse');
 
 // Ver evento específico
 Route::get('/events/{id}', [EventController::class, 'show'])
@@ -85,6 +80,7 @@ Route::get('/events/{eventId}/comments', [CommentController::class, 'index'])
       ->name('comments.index');   
 
 Route::post('/comments/{comment}/vote', [CommentController::class, 'vote'])
+      ->middleware('auth')
       ->name('comments.vote');
       
 
@@ -132,7 +128,7 @@ Route::delete('/events/{eventId}/leave', [EventController::class, 'leaveEvent'])
     ->name('events.leave');
 
 Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])
-    ->where('userid', '[0-9]+')
+    ->where('id', '[0-9]+')
     ->name('user.organizing');
 
 
@@ -179,75 +175,29 @@ Route::post('/invitation/{invitationid}/reject', [EventController::class, 'rejec
     ->middleware('auth')
     ->name('invitation.reject');
 
-Route::get('/events/{id}/photos', [EventController::class, 'loadPhotos'])
-    ->name('events.photos');
-
-// Listar fotos via AJAX
+// Event Photos
 Route::get('/events/{id}/photos', [EventFileController::class, 'list'])
     ->name('events.photos');
 
-// Upload de fotos via AJAX
 Route::post('/events/{id}/photos/upload', [EventFileController::class, 'upload'])
+    ->middleware('auth')
     ->name('events.photos.upload');
 
-// Delete (opcional)
 Route::delete('/photos/{photoid}', [EventFileController::class, 'delete'])
+    ->middleware('auth')
     ->name('events.photos.delete');
 
 
-
-
-   
-
-
-// Polls
-Route::get('/events/{id}/polls', [PollController::class, 'index'])
-    ->middleware('auth')
-    ->name('polls.index');
-
-Route::get('/events/{id}/polls/create', [PollController::class, 'create'])
-    ->middleware('auth')
-    ->name('polls.create');
-
-Route::post('/events/{id}/polls', [PollController::class, 'store'])
-    ->middleware('auth')
-    ->name('polls.store');
-
-Route::post('/polls/{id}/vote', [PollController::class, 'vote'])
-    ->middleware('auth')
-    ->name('polls.vote');
-
-Route::get('/polls/{id}/results', [PollController::class, 'results'])
-    ->middleware('auth')
-    ->name('polls.results');
-
-Route::delete('/polls/{id}', [PollController::class, 'destroy'])
-    ->middleware('auth')
-    ->name('polls.destroy');
-// Polls
-Route::get('/events/{id}/polls', [PollController::class, 'index'])
-    ->middleware('auth')
-    ->name('polls.index');
-Route::get('/events/{id}/photos', [EventController::class, 'loadPhotos'])
-    ->name('events.photos');
-
-// Listar fotos via AJAX
-Route::get('/events/{id}/photos', [EventFileController::class, 'list'])
-    ->name('events.photos');
-
-// Upload de fotos via AJAX
-Route::post('/events/{id}/photos/upload', [EventFileController::class, 'upload'])
-    ->name('events.photos.upload');
-
-// Delete (opcional)
-Route::delete('/photos/{photoid}', [EventFileController::class, 'delete'])
-    ->name('events.photos.delete');
-
-
+// Ver participantes
 Route::get('/events/{id}/viewParticipants', [EventController::class, 'viewParticipation'])
     ->middleware('auth')
     ->name('events.viewParticipants');
 
+
+// Polls
+Route::get('/events/{id}/polls', [PollController::class, 'index'])
+    ->middleware('auth')
+    ->name('polls.index');
 
 Route::get('/events/{id}/polls/create', [PollController::class, 'create'])
     ->middleware('auth')
