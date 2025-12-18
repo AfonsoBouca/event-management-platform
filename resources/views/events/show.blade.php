@@ -204,14 +204,8 @@ document.addEventListener('alpine:init', () => {
                             <a href="{{ route('polls.index', $event->eventid) }}" class="btn btn-outline-purple">Polls</a>
                         @endif
 
-                        {{-- Polls link - visible to organizer and attendees --}}
-                        @if($event->createdby === Auth::user()->userid || $isAttendee)
-                            <a href="{{ route('polls.index', $event->eventid) }}" class="btn btn-outline-purple">Polls</a>
-                        @endif
-
                         @if($isAttendee)
                             <span class="btn btn-success disabled">You are participating</span>
-                            <button id="openPhotos" class="btn btn-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar"> Photos </button>
                             <button id="openPhotos" class="btn btn-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar"> Photos </button>
                         @elseif($hasPendingRequest)
                             <span class="btn btn-info disabled">Request Pending</span>
