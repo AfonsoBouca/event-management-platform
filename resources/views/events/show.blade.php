@@ -3,7 +3,8 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <div class="card shadow">
+        {{-- Event Details Card --}}
+        <div class="card shadow mb-4">
             <div class="card-header bg-white">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
@@ -38,7 +39,7 @@
             </div>
 
             <div class="card-body">
-                <table class="table table-borderless">
+                <table class="table table-borderless mb-0">
                     <tr>
                         <th class="text-purple" style="width: 150px;">Location</th>
                         <td>{{ $event->location }}</td>
@@ -65,140 +66,27 @@
                     </tr>
                 </table>
 
-                <div>
-                    @auth 
-                        @if($isAttendee)
-                            <button id="viewParticipants" class="btn btn-outline-purple " data-bs-toggle="offcanvas" data-bs-target="#participantSidebar"> View Participants </button>
-                        @endif
-                    @endauth
-                </div>
+                @auth 
+                    @if($isAttendee)
+                        <div class="mt-3">
+                            <button id="viewParticipants" class="btn btn-outline-purple" data-bs-toggle="offcanvas" data-bs-target="#participantSidebar">View Participants</button>
+                        </div>
+                    @endif
+                @endauth
 
                 <div class="bg-light p-3 rounded border-start border-4 border-purple mt-3">
-                    <h6 class="text-purple">Description</h6>
+                    <h6 class="text-purple mb-2">Description</h6>
                     <p class="mb-0">{{ $event->description }}</p>
                 </div>
             </div>
-@can('viewComments', $event)
- <div class="card mb-3">
-  <div class="card-body">
-   <h5 class="text-purple mb-3">Comments</h5>
-    <div class="card shadow-sm border-0 mb-4 p-3 rounded-4">
-        <form method="POST" action="{{ route('comments.store', ['eventId' => $event->eventid]) }}">
-            @csrf
 
-            <div class="d-flex mb-3">
-                <img src="{{ Auth::user()->getProfileImage() ?? '/images/default.png' }}" 
-                     class="rounded-circle me-2 border" width="45" height="45">
-
-                <textarea 
-                    name="content"
-                    class="form-control rounded-3 shadow-sm"
-                    placeholder="Write a comment..."
-                    rows="2"
-                    required
-                ></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-purple">Comment</button>
-        </form>
-    </div>
-
-  
-    @foreach ($event->comments as $comment)
-        <div class="d-flex mb-4" x-data="{ open: false, openEdit:false }">
-            <img src="{{ $comment->author->getprofileImage() ?? '/profile/default.png'}}" 
-                width="45" height="45"
-                class="rounded-circle me-3 border shadow-sm">
-            <div class="card border-0 shadow-sm p-3 rounded-4 w-100">
-              <strong class="text-dark">{{ $comment->author->username }}</strong>
-              <small class="text-muted">{{ \Carbon\Carbon::parse($comment->createdat)->format('d/m/Y H:i') }}</small>
-    
-              <p class="mb-2">{{ $comment->content }}</p>
-     <div class="d-flex align-items-center mb-2">
-       <form method="POST" action="{{ route('comments.vote', $comment) }}">
-        @csrf
-        <button type="submit" class="btn btn-sm btn-outline-primary me-2">
-            &#x2B06; 
-        </button>
-    </form>
-    <span>{{ $comment->voters()->count() }}</span>
-</div>
-
-
-              @include('comments.comments_actions', ['comment' => $comment])
-                <button class="btn btn-link text-purple p-0"
-                        @click="open = !open">
-                    Reply
-                </button>
-                <div x-show="open" x-transition class="mt-3">
-                    <form method="POST" action="{{ route('comments.store', ['eventId' => $event->eventid]) }}">
-                        @csrf
-
-                        <input type="hidden" name="parentid" value="{{ $comment->commentid }}">
-
-                        <div class="d-flex mb-2">
-                            <img src="{{ $comment->author->getprofileImage() ?? '/profile/default.png' }}" 
-                                width="35" height="35"
-                                class="rounded-circle me-2 border shadow-sm">
-
-                            <textarea 
-                                name="content" 
-                                class="form-control rounded-3 shadow-sm"
-                                rows="2"
-                                placeholder="Write a reply..."
-                                required
-                            ></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-sm btn-purple">Reply</button>
-                    </form>
-                </div>
-                @if ($comment->replies->count())
-                    <div class="mt-3 ps-4 border-start">
-
-                        @foreach ($comment->replies as $reply)
-                            <div class="d-flex mb-3">
-
-                                <img src="{{ $reply->author->getprofileImage() ?? '/images/default.png' }}" 
-                                     width="35" height="35" 
-                                     class="rounded-circle me-2 border shadow-sm">
-
-                                <div class="card border-0 shadow-sm p-3 rounded-4 w-100">
-                                    <strong>{{ $reply->author->username }}</strong>
-                                    <small class="text-muted">{{ \Carbon\Carbon::parse($reply->createdat)->format('d/m/Y H:i') }}</small>
-                                      <p class="mb-1">{{ $reply->content }}</p>
-                                      @include('comments.comments_actions', ['comment' => $reply])
-                                </div>
-
-                            </div>
-                        @endforeach
-
-                    </div>
-                @endif
-            </div>
-        </div>
-    @endforeach
-
-<script src="https://unpkg.com/alpinejs" defer></script>
-
-<script>
-document.addEventListener('alpine:init', () => {
-    @foreach ($event->comments as $comment)
-        Alpine.data('replyComponent{{ $comment->commentid }}', () => ({
-            reply{{ $comment->commentid }}: false,
-        }))
-    @endforeach
-});
-</script>
-@endcan
-
-             <div class="card-footer bg-white">
+            <div class="card-footer bg-white">
                 <div class="d-flex flex-wrap gap-2">
                     @auth
                         {{-- Participation status - always first on the left --}}
                         @if($isAttendee)
                             <span class="btn btn-success disabled">You are participating</span>
-                            <button id="openPhotos" class="btn btn-outline-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar"> Photos </button>
+                            <button id="openPhotos" class="btn btn-outline-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar">Photos</button>
                         @elseif($hasPendingRequest)
                             <span class="btn btn-info disabled">Request Pending</span>
                         @elseif($event->createdby !== Auth::user()->userid)
@@ -225,51 +113,160 @@ document.addEventListener('alpine:init', () => {
                 </div>
             </div>
         </div>
+
+        {{-- Comments Section - Separate card below event details --}}
+        @can('viewComments', $event)
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="text-purple mb-4">Comments</h5>
+                    
+                    {{-- New Comment Form --}}
+                    <div class="card border-0 shadow-sm mb-4 p-3 rounded-3 bg-light">
+                        <form method="POST" action="{{ route('comments.store', ['eventId' => $event->eventid]) }}">
+                            @csrf
+                            <div class="d-flex gap-3">
+                                <img src="{{ Auth::user()->getProfileImage() ?? '/images/default.png' }}" 
+                                     class="rounded-circle border" width="45" height="45" alt="Profile">
+                                <div class="flex-grow-1">
+                                    <textarea 
+                                        name="content"
+                                        class="form-control rounded-3"
+                                        placeholder="Write a comment..."
+                                        rows="2"
+                                        required
+                                    ></textarea>
+                                    <button type="submit" class="btn btn-purple btn-sm mt-2">Comment</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    {{-- Comments List --}}
+                    @forelse ($event->comments as $comment)
+                        <div class="d-flex mb-4" x-data="{ open: false }">
+                            <img src="{{ $comment->author->getprofileImage() ?? '/images/default.png' }}" 
+                                 width="45" height="45"
+                                 class="rounded-circle me-3 border shadow-sm flex-shrink-0" alt="Profile">
+                            <div class="card border-0 shadow-sm p-3 rounded-3 w-100">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <strong class="text-dark">{{ $comment->author->username }}</strong>
+                                        <small class="text-muted ms-2">{{ \Carbon\Carbon::parse($comment->createdat)->format('d/m/Y H:i') }}</small>
+                                    </div>
+                                </div>
+                                
+                                <p class="mb-2">{{ $comment->content }}</p>
+                                
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <form method="POST" action="{{ route('comments.vote', $comment) }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            &#x2B06; {{ $comment->voters()->count() }}
+                                        </button>
+                                    </form>
+                                    
+                                    @include('comments.comments_actions', ['comment' => $comment])
+                                    
+                                    <button class="btn btn-link text-purple p-0 ms-2" @click="open = !open">
+                                        Reply
+                                    </button>
+                                </div>
+
+                                {{-- Reply Form --}}
+                                <div x-show="open" x-transition class="mt-3 ps-3 border-start border-2">
+                                    <form method="POST" action="{{ route('comments.store', ['eventId' => $event->eventid]) }}">
+                                        @csrf
+                                        <input type="hidden" name="parentid" value="{{ $comment->commentid }}">
+                                        <div class="d-flex gap-2">
+                                            <img src="{{ Auth::user()->getProfileImage() ?? '/images/default.png' }}" 
+                                                 width="35" height="35"
+                                                 class="rounded-circle border shadow-sm flex-shrink-0" alt="Profile">
+                                            <div class="flex-grow-1">
+                                                <textarea 
+                                                    name="content" 
+                                                    class="form-control rounded-3"
+                                                    rows="2"
+                                                    placeholder="Write a reply..."
+                                                    required
+                                                ></textarea>
+                                                <button type="submit" class="btn btn-sm btn-purple mt-2">Reply</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                {{-- Replies --}}
+                                @if ($comment->replies->count())
+                                    <div class="mt-3 ps-3 border-start border-2">
+                                        @foreach ($comment->replies as $reply)
+                                            <div class="d-flex mb-3">
+                                                <img src="{{ $reply->author->getprofileImage() ?? '/images/default.png' }}" 
+                                                     width="35" height="35" 
+                                                     class="rounded-circle me-2 border shadow-sm flex-shrink-0" alt="Profile">
+                                                <div class="card border-0 shadow-sm p-3 rounded-3 w-100 bg-light">
+                                                    <div class="mb-1">
+                                                        <strong>{{ $reply->author->username }}</strong>
+                                                        <small class="text-muted ms-2">{{ \Carbon\Carbon::parse($reply->createdat)->format('d/m/Y H:i') }}</small>
+                                                    </div>
+                                                    <p class="mb-1">{{ $reply->content }}</p>
+                                                    @include('comments.comments_actions', ['comment' => $reply])
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted text-center">No comments yet. Be the first to comment!</p>
+                    @endforelse
+                </div>
+            </div>
+        @endcan
     </div>
 </div>
 
-
-
+{{-- Photos Sidebar --}}
 <div class="offcanvas offcanvas-end" tabindex="-1" id="photosSidebar" style="width:700px;">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title">Photos</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-  </div>
-
-  <div class="offcanvas-body">
-      <div id="photosContent">
-          <!-- AJAX loads here -->
-      </div>
-  </div>
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Photos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="photosContent">
+            <!-- AJAX loads here -->
+        </div>
+    </div>
 </div>
 
+{{-- Participants Sidebar --}}
 <div class="offcanvas offcanvas-end" tabindex="-1" id="participantSidebar" style="width:700px;">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title">Participants</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-  </div>
-
-  <div class="offcanvas-body">
-      <div id="participantsContent">
-          <!-- AJAX loads here -->
-      </div>
-  </div>
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Participants</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="participantsContent">
+            <!-- AJAX loads here -->
+        </div>
+    </div>
 </div>
+
+{{-- Alpine.js for interactive components --}}
+<script src="https://unpkg.com/alpinejs" defer></script>
 
 <script>
-const openPhotosBtn = document.getElementById('openPhotos');
-if (openPhotosBtn) {
-    openPhotosBtn.addEventListener('click', function () {
-        loadPhotos();
-    });
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const openPhotosBtn = document.getElementById('openPhotos');
+    if (openPhotosBtn) {
+        openPhotosBtn.addEventListener('click', loadPhotos);
+    }
 
-const viewParticipantsBtn = document.getElementById('viewParticipants');
-if (viewParticipantsBtn) {
-    viewParticipantsBtn.addEventListener('click', function () {
-        loadParticipants();
-    });
-}
+    const viewParticipantsBtn = document.getElementById('viewParticipants');
+    if (viewParticipantsBtn) {
+        viewParticipantsBtn.addEventListener('click', loadParticipants);
+    }
+});
 
 function loadPhotos() {
     fetch("/events/{{ $event->eventid }}/photos")
@@ -286,7 +283,6 @@ function attachPhotoEvents() {
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-
         let data = new FormData(form);
 
         fetch("/events/{{ $event->eventid }}/photos/upload", {
@@ -299,7 +295,7 @@ function attachPhotoEvents() {
         .then(res => res.json())
         .then(json => {
             if (json.success) {
-                loadPhotos(); // refresh automático
+                loadPhotos();
             }
         });
     });
@@ -313,8 +309,5 @@ function loadParticipants() {
         });
 }
 </script>
-
-
-
 
 @endsection
