@@ -65,6 +65,7 @@ CREATE TABLE comment (
 
 CREATE TABLE notification (
     notificationId SERIAL PRIMARY KEY,
+    userId INT REFERENCES "user"(userId) ON DELETE CASCADE,
     title VARCHAR(100) NOT NULL,
     message TEXT NOT NULL,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -204,6 +205,10 @@ CREATE INDEX idx_eventParticipation_eventId ON eventParticipation USING btree(ev
 ALTER TABLE event ADD COLUMN event_tsv tsvector;
 CREATE INDEX event_search ON event USING GIN(event_tsv);
 
+------------------------------------------------------------------------------------------------------------------------
+-- Triggers
+------------------------------------------------------------------------------------------------------------------------
+
 -- Optional trigger for automatic FTS update
 CREATE OR REPLACE FUNCTION event_tsv_trigger() RETURNS trigger AS $$
 BEGIN
@@ -216,7 +221,9 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER tsv_update BEFORE INSERT OR UPDATE
   ON event FOR EACH ROW EXECUTE FUNCTION event_tsv_trigger();
 
---TRIGGER 1
+------------------------------------------------------------------------------------------------------------------------
+--TRIGGER 1 - 
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION add_attendee_from_invitation() RETURNS TRIGGER AS
 $BODY$
 BEGIN
@@ -234,8 +241,9 @@ CREATE TRIGGER invitation_accept_trigger
 AFTER UPDATE ON invitation
 FOR EACH ROW
 EXECUTE FUNCTION add_attendee_from_invitation(); 
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 2
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION add_attendee_from_join_request() RETURNS TRIGGER AS
 $BODY$
 BEGIN
@@ -253,20 +261,23 @@ CREATE TRIGGER join_request_accept_trigger
 AFTER UPDATE ON joinRequest
 FOR EACH ROW
 EXECUTE FUNCTION add_attendee_from_join_request();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 3
+------------------------------------------------------------------------------------------------------------------------
  CREATE OR REPLACE FUNCTION notify_attendees_on_event_update()
  RETURNS TRIGGER AS
  $BODY$
  BEGIN
-   IF (OLD.eventName IS DISTINCT FROM NEW.eventName)
-      OR (OLD.description IS DISTINCT FROM NEW.description)
-      OR (OLD.startDate IS DISTINCT FROM NEW.startDate)
-      OR (OLD.endDate IS DISTINCT FROM NEW.endDate)
-      OR (OLD.location IS DISTINCT FROM NEW.location)
+   IF OLD.eventstatus IS DISTINCT FROM NEW.eventstatus
+    OR OLD.eventname IS DISTINCT FROM NEW.eventname
+    OR (OLD.description IS DISTINCT FROM NEW.description)
+    OR (OLD.startdate IS DISTINCT FROM NEW.startdate)
+    OR (OLD.enddate IS DISTINCT FROM NEW.enddate)
+    OR (OLD.location IS DISTINCT FROM NEW.location)
    THEN  
-      INSERT INTO notification (title, message, notificationType)
+      INSERT INTO notification (userid, title, message, notificationType)
       SELECT
+              eventParticipation.userId,
       'Event Updated',
            'The event ""' || NEW.eventName || '" has been updated. Please check the details.',
            'EventUpdate'
@@ -274,14 +285,6 @@ EXECUTE FUNCTION add_attendee_from_join_request();
       WHERE eventParticipation.eventId = NEW.eventId
       AND role = 'Attendee';
       
-      INSERT INTO eventNotification (notificationId, eventId)
-      SELECT n.notificationId, NEW.eventId
-      FROM notification n
-      WHERE n.notificationType = 'EventUpdate'
-      AND n.title = 'Event Update'
-      ORDER BY n.notificationId DESC
-      LIMIT 1;    
-            
    END IF;
    
    RETURN NEW;
@@ -289,12 +292,15 @@ END
 $BODY$
 LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_notify_attendees_on_event_update ON event;
+
 CREATE TRIGGER trg_notify_attendees_on_event_update
 AFTER UPDATE ON event
 FOR EACH ROW
 EXECUTE FUNCTION notify_attendees_on_event_update();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 4
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_organizer_on_new_comment()
 RETURNS TRIGGER AS
 $BODY$
@@ -325,74 +331,72 @@ CREATE TRIGGER trg_notify_organizer_on_new_comment
 AFTER INSERT ON comment
 FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_new_comment();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 5
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_organizer_on_join_request()
 RETURNS TRIGGER AS
-$BODY$
-DECLARE 
-     organizer_id INT;
-     organizer_exists BOOLEAN;
+$$
+DECLARE
+    organizer_id INT;
+    event_name TEXT;
 BEGIN
-     SELECT createdBy INTO organizer_id
-     FROM event
-     WHERE eventId = NEW.eventId;
-     
-     IF organizer_id IS NOT NULL AND organizer_id <> NEW.userId THEN
-     
-     INSERT INTO notification(title, message, notificationType)
-     VALUES (
-        'Join Request' ,
-     'A user has requested to join your event',
-     'JoinRequest'
-     );
-     
-     END IF;
-    
-     RETURN NEW;
+    SELECT createdBy, eventName
+    INTO organizer_id, event_name
+    FROM event
+    WHERE eventId = NEW.eventId;
+
+    IF organizer_id IS NOT NULL AND organizer_id <> NEW.userId THEN
+        INSERT INTO notification (userId, title, message, notificationType)
+        VALUES (
+            organizer_id,
+            'Join Request',
+            'A user has requested to join your event "' || event_name || '".',
+            'JoinRequest'
+        );
+    END IF;
+
+    RETURN NEW;
 END;
-$BODY$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_organizer_on_join_request ON joinRequest;
 
 CREATE TRIGGER trg_notify_organizer_on_join_request
 AFTER INSERT ON joinRequest
 FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_join_request();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 6
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_attendees_about_poll()
 RETURNS TRIGGER AS
-$BODY$
-DECLARE 
-    attendee RECORD;
+$$
 BEGIN
- 
-    FOR attendee IN
-        SELECT userId
-        FROM eventParticipation
-        WHERE eventId = NEW.eventId
-          AND role = 'Attendee'
-    LOOP      
-      INSERT INTO notification(title, message, notificationType)
-      VALUES (
+    INSERT INTO notification (userId, title, message, notificationType)
+    SELECT
+        ep.userId,
         'New Poll',
-      'A new poll has been created for an event you are attending.',
-      'PollCreated'
-      );
-      
-    END LOOP;
-    
+        'A new poll was created for the event "' || e.eventName || '".',
+        'PollCreated'
+    FROM eventparticipation ep
+    JOIN event e ON e.eventId = NEW.eventId
+    WHERE ep.eventId = NEW.eventId
+      AND ep.role = 'Attendee';
+
     RETURN NEW;
 END;
-$BODY$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_attendees_about_poll ON poll;
 
 CREATE TRIGGER trg_notify_attendees_about_poll
 AFTER INSERT ON poll
 FOR EACH ROW
 EXECUTE FUNCTION notify_attendees_about_poll();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 7
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_admin_on_report()
 RETURNS TRIGGER AS
 $BODY$
@@ -420,8 +424,9 @@ CREATE TRIGGER trg_notify_admin_on_report
 AFTER INSERT ON report
 FOR EACH ROW
 EXECUTE FUNCTION notify_admin_on_report();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 8
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_organizer_on_capacity_reach()
 RETURNS TRIGGER AS
 $BODY$
@@ -458,6 +463,89 @@ CREATE TRIGGER trg_notify_organizer_on_capacity_reach
 AFTER INSERT ON eventParticipation
 FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_capacity_reach();
+
+
+--------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION notify_user_on_invitation()
+RETURNS TRIGGER AS
+$$
+DECLARE
+    event_name TEXT;
+BEGIN
+    SELECT eventName
+    INTO event_name
+    FROM event
+    WHERE eventId = NEW.eventId;
+
+    INSERT INTO notification (userId, title, message, notificationType)
+    VALUES (
+        NEW.userId,
+        'Event Invitation',
+        'You have been invited to the event "' || event_name || '".',
+        'Invitation'
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_user_on_invitation ON invitation;
+
+CREATE TRIGGER trg_notify_user_on_invitation
+AFTER INSERT ON invitation
+FOR EACH ROW
+EXECUTE FUNCTION notify_user_on_invitation();
+------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION notify_user_on_join_request_response()
+RETURNS TRIGGER AS
+$$
+DECLARE
+    event_name TEXT;
+    response_text TEXT;
+    notification_title TEXT;
+BEGIN
+    IF OLD.j_status IS DISTINCT FROM NEW.j_status THEN
+        IF NEW.j_status IN ('Accepted', 'Rejected') THEN
+
+            SELECT eventName
+            INTO event_name
+            FROM lbaw25124.event
+            WHERE eventId = NEW.eventId;
+
+            IF NEW.j_status = 'Accepted' THEN
+                response_text := 'Your request to join the event "' || event_name || '" was accepted.';
+                notification_title := 'Join Request Accepted';
+            ELSE
+                response_text := 'Your request to join the event "' || event_name || '" was rejected.';
+                notification_title := 'Join Request Rejected';
+            END IF;
+
+            INSERT INTO lbaw25124.notification (userid, title, message, notificationType)
+            VALUES (
+                NEW.userid,
+                notification_title,
+                response_text,
+                'JoinRequest'
+            );
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_notify_user_on_join_request_response
+ON lbaw25124.joinRequest;
+
+CREATE TRIGGER trg_notify_user_on_join_request_response
+AFTER UPDATE ON lbaw25124.joinRequest
+FOR EACH ROW
+EXECUTE FUNCTION notify_user_on_join_request_response();
+
+
+--------------------------------------------------------------
 
 --TRIGGER 10
 CREATE OR REPLACE FUNCTION add_organizer_on_eventParticipation()
@@ -840,14 +928,14 @@ INSERT INTO upload (filePath) VALUES
 ('/uploads/documents/event_guidelines.pdf');
 
 -- Insert Notification (some will be created by triggers, adding manual ones)
-INSERT INTO notification (title, message, time, isRead, notificationType) VALUES
-('Welcome!', 'Welcome to the event platform! Start exploring events near you.', '2024-01-15 10:35:00', TRUE, 'EventUpdate'),
-('Event Reminder', 'Your event "Tech Conference 2025" starts in 7 days!', '2025-10-25 09:00:00', FALSE, 'EventUpdate'),
-('New Comment', 'Someone commented on your event.', '2025-10-15 11:05:00', TRUE, 'NewComment'),
-('Invitation Received', 'You have been invited to "Cooking Masterclass"', '2025-10-28 10:00:00', FALSE, 'Invitation'),
-('Join Request Approved', 'Your request to join "Startup Networking Mixer" has been approved!', '2025-10-21 14:00:00', TRUE, 'JoinRequest'),
-('New Poll', 'A new poll has been created for "Tech Conference 2025"', '2025-10-18 10:05:00', FALSE, 'PollCreated'),
-('Report Update', 'Your report has been reviewed by our team.', '2025-10-26 11:00:00', TRUE, 'ReportStatus');
+INSERT INTO notification (userId, title, message, time, isRead, notificationType) VALUES
+(1, 'Welcome!', 'Welcome to the event platform! Start exploring events near you.', '2024-01-15 10:35:00', TRUE, 'EventUpdate'),
+(2, 'Event Reminder', 'Your event "Tech Conference 2025" starts in 7 days!', '2025-10-25 09:00:00', FALSE, 'EventUpdate'),
+(1, 'New Comment', 'Someone commented on your event.', '2025-10-15 11:05:00', TRUE, 'NewComment'),
+(1, 'Invitation Received', 'You have been invited to "Cooking Masterclass"', '2025-10-28 10:00:00', FALSE, 'Invitation'),
+(6, 'Join Request Approved', 'Your request to join "Startup Networking Mixer" has been approved!', '2025-10-21 14:00:00', TRUE, 'JoinRequest'),
+(3, 'New Poll', 'A new poll has been created for "Tech Conference 2025"', '2025-10-18 10:05:00', FALSE, 'PollCreated'),
+(5, 'Report Update', 'Your report has been reviewed by our team.', '2025-10-26 11:00:00', TRUE, 'ReportStatus');
 
 -- Insert Event Notification
 INSERT INTO eventNotification (notificationId, eventId) VALUES
