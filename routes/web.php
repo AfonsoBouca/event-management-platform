@@ -10,6 +10,7 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\EventFileController;
 use App\Http\Controllers\NotificationController;
+use App\Events\NotificationCreated;
 
 
 
@@ -211,3 +212,15 @@ Route::get('/notifications', [NotificationController::class, 'index'])
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
     ->middleware('auth')
     ->name('notifications.read');
+
+
+
+Route::get('/pusher-nuclear-test', function () {
+    event(new NotificationCreated([
+        'userId' => auth()->user()->userid,
+        'title' => 'NUCLEAR TEST',
+        'message' => 'If you see this, broadcastOn ran'
+    ]));
+
+    return 'ok';
+})->middleware('auth');

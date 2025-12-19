@@ -8,6 +8,7 @@ use App\Models\PollOption;
 use App\Models\PollVote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationBroadcaster;
 
 class PollController extends Controller
 {
@@ -89,6 +90,13 @@ class PollController extends Controller
                 'optiontext' => $optionText,
             ]);
         }
+
+        $participants = $event->attendees()->pluck('user.userid'); 
+        foreach ($participants as $userid) {
+            NotificationBroadcaster::broadcastLatestForUser($userid);        
+        }        
+        
+        
 
         return redirect()->route('polls.index', $eventId)
             ->with('success', 'Poll created successfully.');

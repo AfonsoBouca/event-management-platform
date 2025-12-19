@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\Invitation;
 use App\Models\EventParticipation;
+use App\Events\NotificationCreated;
+use App\Models\Notification;
+use App\Services\NotificationBroadcaster;
 
 
 class EventController extends Controller
@@ -244,11 +247,19 @@ public function updateEvent(Request $request, $eventId)
             'price' => $request->price,
         ]);
 
+        $participants = $event->attendees()->pluck('user.userid'); 
+        foreach ($participants as $userid) {
+            NotificationBroadcaster::broadcastLatestForUser($userid);        
+        }
+        $participants = $event->organizer()->pluck('user.userid'); 
+        foreach ($participants as $userid) {
+            NotificationBroadcaster::broadcastLatestForUser($userid);    
+        }            
         return redirect()
             ->route('events.show', $event->eventid)
             ->with('success', 'Event updated successfully.');
+    
     }
-
 
     // --------------------------------------------------------------------------------------------------------------------------------
     // User Management
@@ -313,6 +324,8 @@ public function updateEvent(Request $request, $eventId)
             'userid' => $user->userid,
             'j_status' => 'Pending',
         ]);
+
+        NotificationBroadcaster::broadcastLatestForUser($event->createdby);
         
         return redirect()->route('events.show', $id)
             ->with('success', 'Your request to join has been sent!');
@@ -332,6 +345,13 @@ public function updateEvent(Request $request, $eventId)
         
         $joinRequest->j_status = 'Accepted';
         $joinRequest->save();
+
+
+
+    $joinRequest->j_status = 'Accepted';
+    $joinRequest->save();
+
+    NotificationBroadcaster::broadcastLatestForUser($joinRequest->userid);
         
         return redirect()
             ->route('events.manage', $eventId)
@@ -352,6 +372,12 @@ public function updateEvent(Request $request, $eventId)
         
         $joinRequest->j_status = 'Rejected';
         $joinRequest->save();
+
+        $joinRequest->j_status = 'Rejected';
+        $joinRequest->save();
+
+        NotificationBroadcaster::broadcastLatestForUser($joinRequest->userid);
+
         
         return redirect()
             ->route('events.manage', $eventId)

@@ -10,13 +10,23 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- CSS customizado (opcional) -->
+
+    <!-- CSS customizado -->
     <link href="{{ url('css/app.css') }}" rel="stylesheet">
 
+    {{-- (opcional) scripts específicos das páginas --}}
     @stack('scripts')
 </head>
+
 <body class="bg-light">
+
+    {{-- 🔹 USER_ID disponível para o JS --}}
+    @auth
+        <script>
+            window.USER_ID = {{ auth()->user()->userid }};
+        </script>
+    @endauth
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-purple">
         <div class="container">
@@ -79,7 +89,32 @@
         @yield('content')
     </main>
 
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast align-items-center text-bg-primary border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="toastBody">
+                 Nova notificação
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- JS compilado (Echo + Pusher + listeners) --}}
+    @vite(['resources/js/app.js'])
+    <script>
+        console.log('AFTER VITE');
+    </script>
+    
+    <script>
+        console.log('INLINE SCRIPT WORKS');
+    </script>
+
+
 </body>
 </html>

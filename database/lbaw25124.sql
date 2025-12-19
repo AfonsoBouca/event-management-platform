@@ -205,6 +205,10 @@ CREATE INDEX idx_eventParticipation_eventId ON eventParticipation USING btree(ev
 ALTER TABLE event ADD COLUMN event_tsv tsvector;
 CREATE INDEX event_search ON event USING GIN(event_tsv);
 
+------------------------------------------------------------------------------------------------------------------------
+-- Triggers
+------------------------------------------------------------------------------------------------------------------------
+
 -- Optional trigger for automatic FTS update
 CREATE OR REPLACE FUNCTION event_tsv_trigger() RETURNS trigger AS $$
 BEGIN
@@ -217,7 +221,9 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER tsv_update BEFORE INSERT OR UPDATE
   ON event FOR EACH ROW EXECUTE FUNCTION event_tsv_trigger();
 
---TRIGGER 1
+------------------------------------------------------------------------------------------------------------------------
+--TRIGGER 1 - 
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION add_attendee_from_invitation() RETURNS TRIGGER AS
 $BODY$
 BEGIN
@@ -235,8 +241,9 @@ CREATE TRIGGER invitation_accept_trigger
 AFTER UPDATE ON invitation
 FOR EACH ROW
 EXECUTE FUNCTION add_attendee_from_invitation(); 
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 2
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION add_attendee_from_join_request() RETURNS TRIGGER AS
 $BODY$
 BEGIN
@@ -254,8 +261,9 @@ CREATE TRIGGER join_request_accept_trigger
 AFTER UPDATE ON joinRequest
 FOR EACH ROW
 EXECUTE FUNCTION add_attendee_from_join_request();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 3
+------------------------------------------------------------------------------------------------------------------------
  CREATE OR REPLACE FUNCTION notify_attendees_on_event_update()
  RETURNS TRIGGER AS
  $BODY$
@@ -277,14 +285,6 @@ EXECUTE FUNCTION add_attendee_from_join_request();
       WHERE eventParticipation.eventId = NEW.eventId
       AND role = 'Attendee';
       
-    --   INSERT INTO eventNotification (notificationId, eventId)
-    --   SELECT n.notificationId, NEW.eventId
-    --   FROM notification n
-    --   WHERE n.notificationType = 'EventUpdate'
-    --   AND n.title = 'Event Update'
-    --   ORDER BY n.notificationId DESC
-    --   LIMIT 1;    
-            
    END IF;
    
    RETURN NEW;
@@ -298,8 +298,9 @@ CREATE TRIGGER trg_notify_attendees_on_event_update
 AFTER UPDATE ON event
 FOR EACH ROW
 EXECUTE FUNCTION notify_attendees_on_event_update();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 4
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_organizer_on_new_comment()
 RETURNS TRIGGER AS
 $BODY$
@@ -330,8 +331,9 @@ CREATE TRIGGER trg_notify_organizer_on_new_comment
 AFTER INSERT ON comment
 FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_new_comment();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 5
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_organizer_on_join_request()
 RETURNS TRIGGER AS
 $$
@@ -364,8 +366,9 @@ CREATE TRIGGER trg_notify_organizer_on_join_request
 AFTER INSERT ON joinRequest
 FOR EACH ROW
 EXECUTE FUNCTION notify_organizer_on_join_request();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 6
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_attendees_about_poll()
 RETURNS TRIGGER AS
 $$
@@ -391,8 +394,9 @@ CREATE TRIGGER trg_notify_attendees_about_poll
 AFTER INSERT ON poll
 FOR EACH ROW
 EXECUTE FUNCTION notify_attendees_about_poll();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 7
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_admin_on_report()
 RETURNS TRIGGER AS
 $BODY$
@@ -420,8 +424,9 @@ CREATE TRIGGER trg_notify_admin_on_report
 AFTER INSERT ON report
 FOR EACH ROW
 EXECUTE FUNCTION notify_admin_on_report();
-
+------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 8
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_organizer_on_capacity_reach()
 RETURNS TRIGGER AS
 $BODY$
@@ -461,7 +466,7 @@ EXECUTE FUNCTION notify_organizer_on_capacity_reach();
 
 
 --------------------------------------------------------
-
+------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION notify_user_on_invitation()
 RETURNS TRIGGER AS
 $$
@@ -491,7 +496,7 @@ CREATE TRIGGER trg_notify_user_on_invitation
 AFTER INSERT ON invitation
 FOR EACH ROW
 EXECUTE FUNCTION notify_user_on_invitation();
-
+------------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION notify_user_on_join_request_response()
 RETURNS TRIGGER AS
@@ -501,10 +506,7 @@ DECLARE
     response_text TEXT;
     notification_title TEXT;
 BEGIN
-    -- Só reage se o estado mudar
     IF OLD.j_status IS DISTINCT FROM NEW.j_status THEN
-
-        -- Apenas Accepted ou Rejected
         IF NEW.j_status IN ('Accepted', 'Rejected') THEN
 
             SELECT eventName
