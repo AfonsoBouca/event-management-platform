@@ -328,6 +328,11 @@ public function updateEvent(Request $request, $eventId)
         
         $event = Event::findOrFail($id);
         
+        if ($event->eventstatus === 'Cancelled') {
+            return redirect()->route('events.show', $id)
+                ->with('error', 'This event has been cancelled and is no longer accepting join requests.');
+        }
+        
         if ($event->isAttendee($user->userid)) {
             return redirect()->route('events.show', $id)
                 ->with('info', 'You are already a participant of this event.');
@@ -370,7 +375,7 @@ public function updateEvent(Request $request, $eventId)
         
         return redirect()
             ->route('events.manage', $eventId)
-            ->with('success', 'Pedido aprovado com sucesso!');
+            ->with('success', 'Request approved successfully!');
     }
 
     /**

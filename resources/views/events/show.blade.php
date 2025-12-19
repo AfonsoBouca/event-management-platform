@@ -101,7 +101,7 @@
                             <button id="openPhotos" class="btn btn-outline-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar">Photos</button>
                         @elseif($hasPendingRequest)
                             <span class="btn btn-info disabled">Request Pending</span>
-                        @elseif($event->createdby !== Auth::user()->userid)
+                        @elseif($event->createdby !== Auth::user()->userid && $event->eventstatus !== 'Cancelled')
                             <form action="{{ route('events.join', $event->eventid) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-purple">Request to Join</button>
