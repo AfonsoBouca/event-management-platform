@@ -92,6 +92,12 @@
                         {{-- Participation status - always first on the left --}}
                         @if($isAttendee)
                             <span class="btn btn-success disabled">You are participating</span>
+                            
+                            {{-- Organizer controls (before Photos) --}}
+                            @if($event->createdby === Auth::user()->userid)
+                                <a href="{{ route('events.manage', $event->eventid) }}" class="btn btn-outline-purple">Manage Participation</a>
+                            @endif
+                            
                             <button id="openPhotos" class="btn btn-outline-purple" data-bs-toggle="offcanvas" data-bs-target="#photosSidebar">Photos</button>
                         @elseif($hasPendingRequest)
                             <span class="btn btn-info disabled">Request Pending</span>
@@ -100,11 +106,6 @@
                                 @csrf
                                 <button type="submit" class="btn btn-purple">Request to Join</button>
                             </form>
-                        @endif
-
-                        {{-- Organizer controls --}}
-                        @if($event->createdby === Auth::user()->userid)
-                            <a href="{{ route('events.manage', $event->eventid) }}" class="btn btn-purple">Manage Participation</a>
                         @endif
 
                         {{-- Polls link - visible to organizer and attendees --}}
