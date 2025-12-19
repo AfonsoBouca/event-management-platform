@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Comment;
 use App\Models\Event;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notification;
+use App\Events\NotificationCreated;
+
 class CommentController extends Controller
 {
     public function index($eventId){
@@ -25,12 +28,34 @@ class CommentController extends Controller
             'parentid' => 'nullable|integer|exists:comment,commentid',
         ]);
 
+            $event = Event::findOrFail($eventId);
+            $authorId = Auth::user()->userid;
+
         $comment = Comment::create([
             'content' => $request -> input('content'),
             'authorid' => Auth::id(),
             'eventid' => $eventId,
             'parentid' => $request -> parentid
         ]);
+
+        $recipientIds = $event->attendees()
+            ->get()
+            ->pluck('userid')
+            ->push($event->createdby)
+            ->unique()
+            ->reject(fn($id) => (int)$id === (int)$authorId);
+
+
+        foreach ($recipientIds as $uid) {
+            $n = Notification::where('userid', $uid)
+                ->where('notificationtype', 'NewComment')
+                ->orderByDesc('notificationid')
+                ->first();
+
+        if ($n) {
+            event(new NotificationCreated($n->toArray()));
+        }
+    }        
         return redirect()->back();
     }
 

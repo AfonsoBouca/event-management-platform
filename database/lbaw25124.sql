@@ -301,36 +301,53 @@ EXECUTE FUNCTION notify_attendees_on_event_update();
 ------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 4
 ------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION notify_organizer_on_new_comment()
+DROP TRIGGER IF EXISTS trg_notify_users_on_new_comment ON comment;
+DROP FUNCTION IF EXISTS notify_users_on_new_comment();
+
+CREATE OR REPLACE FUNCTION notify_users_on_new_comment()
 RETURNS TRIGGER AS
-$BODY$
-DECLARE 
+$$
+DECLARE
     organizer_id INT;
+    event_name TEXT;
 BEGIN
+    SELECT e.createdBy, e.eventName
+    INTO organizer_id, event_name
+    FROM event e
+    WHERE e.eventId = NEW.eventId;
 
-    SELECT createdBy INTO organizer_id
-    FROM event
-    WHERE eventId = NEW.eventId;
-    
-    IF organizer_id IS NOT NULL AND organizer_id <> NEW.authorId THEN 
-    INSERT INTO notification (title, message, notificationType)
-    VALUES (
+    -- 1) Notificar Attendees (exclui autor)
+    INSERT INTO notification (userId, title, message, notificationType)
+    SELECT
+        ep.userId,
         'New Comment',
-    'A new comment was added to your event.',
-    'NewComment'
-    );   
-    
-    END IF;
-  
-  RETURN NEW;
-END;
-$BODY$
-LANGUAGE plpgsql;
+        'A new comment was added to the event "' || event_name || '".',
+        'NewComment'
+    FROM eventParticipation ep
+    WHERE ep.eventId = NEW.eventId
+      AND ep.role = 'Attendee'
+      AND ep.userId <> NEW.authorId;
 
-CREATE TRIGGER trg_notify_organizer_on_new_comment
+    -- 2) Notificar Organizer (exclui autor)
+    IF organizer_id IS NOT NULL AND organizer_id <> NEW.authorId THEN
+        INSERT INTO notification (userId, title, message, notificationType)
+        VALUES (
+            organizer_id,
+            'New Comment',
+            'A new comment was added to your event "' || event_name || '".',
+            'NewComment'
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_notify_users_on_new_comment
 AFTER INSERT ON comment
 FOR EACH ROW
-EXECUTE FUNCTION notify_organizer_on_new_comment();
+EXECUTE FUNCTION notify_users_on_new_comment();
+
 ------------------------------------------------------------------------------------------------------------------------
 --TRIGGER 5
 ------------------------------------------------------------------------------------------------------------------------
