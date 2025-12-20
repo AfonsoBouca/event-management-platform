@@ -101,6 +101,22 @@
         </div>
     </div>
 
+    <footer class="bg-white border-top mt-auto">
+        <div class="container py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <span class="text-muted small">
+                © {{ date('Y') }} Wevent 
+            </span>
+
+            <div class="d-flex gap-3">
+                <a href="{{ route('about') }}" class="text-decoration-none text-muted small">
+                    About
+                </a>
+
+            </div>
+        </div>
+    </footer>
+
+
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

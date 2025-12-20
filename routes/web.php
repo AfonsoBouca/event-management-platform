@@ -246,3 +246,6 @@ Route::get('/pusher-nuclear-test', function () {
 
     return 'ok';
 })->middleware('auth');
+
+Route::view('/about', 'about')->name('about');
+
