@@ -195,6 +195,13 @@ CREATE TABLE eventTag (
     PRIMARY KEY (eventId, tagId)
 );
 
+CREATE TABLE password_reset_tokens (
+    email VARCHAR(255) PRIMARY KEY,
+    token VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP
+);
+
+
 -- Indexes
 CREATE INDEX idx_user_email ON "user" USING btree(email);
 CREATE INDEX idx_event_createdBy ON event USING btree(createdBy);

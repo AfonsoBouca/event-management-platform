@@ -12,8 +12,8 @@ use App\Http\Controllers\PollController;
 use App\Http\Controllers\EventFileController;
 use App\Http\Controllers\NotificationController;
 use App\Events\NotificationCreated;
-
-
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ResetPasswordController;
 
 // Home -> redireciona conforme autenticação
 Route::get('/', function () {
@@ -248,4 +248,19 @@ Route::get('/pusher-nuclear-test', function () {
 })->middleware('auth');
 
 Route::view('/about', 'about')->name('about');
+
+
+Route::get('/forgot-password', function () {
+    return view('auth.forgotPassword');
+})->name('password.request');
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])
+    ->name('password.email');
+
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])
+    ->name('password.reset');
+
+Route::post('/reset-password', [ResetPasswordController::class, 'update'])
+    ->name('password.update');
+
 

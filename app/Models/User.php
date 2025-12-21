@@ -15,6 +15,7 @@ class User extends Authenticatable
     protected $table = 'user';
     protected $primaryKey = 'userid';
     public $timestamps = false;
+    protected $schema = 'lbaw25124';
 
     protected $fillable = [
         'username',

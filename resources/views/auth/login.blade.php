@@ -45,6 +45,13 @@
                         <label class="form-check-label" for="remember">Remember me</label>
                     </div>
 
+                    <div class="mb-3 text-end">
+                        <a href="{{ route('password.request') }}" class="text-decoration-none text-purple">
+                            Forgot your password?
+                        </a>
+                    </div>
+
+
                     <button type="submit" class="btn btn-purple w-100 mb-2">
                         Login
                     </button>
