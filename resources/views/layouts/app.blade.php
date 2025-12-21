@@ -18,7 +18,7 @@
     @stack('scripts')
 </head>
 
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
 
     {{-- 🔹 USER_ID disponível para o JS --}}
     @auth
