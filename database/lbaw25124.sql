@@ -210,13 +210,17 @@ CREATE INDEX event_search ON event USING GIN(event_tsv);
 ------------------------------------------------------------------------------------------------------------------------
 
 -- Optional trigger for automatic FTS update
-CREATE OR REPLACE FUNCTION event_tsv_trigger() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION event_tsv_trigger()
+RETURNS trigger AS $$
 BEGIN
   NEW.event_tsv :=
-    to_tsvector('english', COALESCE(NEW.eventName, '') || ' ' || COALESCE(NEW.description, ''));
+      setweight(to_tsvector('english', COALESCE(NEW.eventName, '')), 'A') ||
+      setweight(to_tsvector('english', COALESCE(NEW.location, '')), 'B') ||
+      setweight(to_tsvector('english', COALESCE(NEW.description, '')), 'C');
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE TRIGGER tsv_update BEFORE INSERT OR UPDATE
   ON event FOR EACH ROW EXECUTE FUNCTION event_tsv_trigger();
