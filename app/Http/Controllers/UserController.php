@@ -109,6 +109,23 @@ class UserController extends Controller
         return redirect('/login')->with('status', 'Your account has been deleted.');
     }
 
+   
+    public function bannedUsers()
+    {
+        
+        $bannedUsers = User::where('isbanned', true)->paginate(10);
+
+        return view('admin.banned', compact('bannedUsers'));
+    }
+
+    public function unbanUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->isbanned = false;
+        $user->save();
+
+        return redirect()->back()->with('success', 'User unbanned successfully!');
+    }
     
 }
 

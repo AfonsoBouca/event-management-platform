@@ -121,18 +121,22 @@ class EventController extends Controller
         $event = Event::with(['organizer', 'attendees'])->findOrFail($id);
         
         $user = Auth::user();
+        $admin = auth()->guard('admin')->check() ? auth()->guard('admin')->user() : null;
+
         
         if (!$event->ispublic) {
-            if (!$user) {
+            if (!$user && !$admin) {
                 abort(403, 'This event is private.');
             }
-            
+
+            if(!$admin && $user) {
             $isOrganizer = $event->createdby === $user->userid;
             $isAttendee = $event->isAttendee($user->userid);
             
             if (!$isOrganizer && !$isAttendee) {
                 abort(403, 'You do not have permission to view this private event.');
             }
+          }
         }
         
         $hasPendingRequest = false;
@@ -147,7 +151,7 @@ class EventController extends Controller
                 ->exists();
         }
         
-        return view('events.show', compact('event', 'isAttendee', 'hasPendingRequest'));
+        return view('events.show', compact('event', 'isAttendee', 'hasPendingRequest','admin'));
     }
 
     // --------------------------------------------------------------------------------------------------------------------------------
@@ -198,8 +202,11 @@ public function editEvent($eventId)
     {
         $event = Event::findOrFail($eventId);
         $userId = Auth::user()->userid;
+        $admin = Auth::guard('admin')->check();
 
-        if (!$event->isOrganizer($userId) || $event->createdby !== $userId) {
+         // Só o organizador pode editar
+
+        if ((!$event->isOrganizer($userId) || $event->createdby !== $userId) && !$admin) {
             return redirect() ->route('user.profile', ['username' => Auth::user()->username])
                 ->with('error', 'You do not have permission to delete this event.');
         }
@@ -211,25 +218,36 @@ public function deleteEvent($eventId)
 {
     $event = Event::findOrFail($eventId);
     $userId = Auth::user()->userid;
+    $admin = Auth::guard('admin')->check();
 
-    if (!$event ->isOrganizer($userId) || $event->createdby !== $userId) {
+     // Só o organizador pode editar
+
+    if ((!$event ->isOrganizer($userId) || $event->createdby !== $userId) && !$admin) {
         return redirect() ->route('user.profile', ['username' => Auth::user()->username])
          ->with('error', 'You do not have permission to delete this event.');
     }
 
     $event->delete();
+    if ($admin) {
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Event deleted successfully.');
 
+    }
+    else{
     return redirect()
         ->route('user.profile', ['username' => Auth::user()->username])
         ->with('success', 'Event deleted successfully.');
+    }
 }
 
 public function cancelEvent($eventId)
 {
     $event = Event::findOrFail($eventId);
     $userId = Auth::user()->userid;
+    $admin = Auth::guard('admin')->check();
 
-    if ($event->createdby !== $userId) {
+
+    if (($event->createdby !== $userId) && !$admin) {
         return redirect()
             ->route('events.show', $eventId)
             ->with('error', 'Only the organizer can cancel this event.');
@@ -253,9 +271,10 @@ public function updateEvent(Request $request, $eventId)
     {
         $event = Event::findOrFail($eventId);
         $userId = Auth::user()->userid;
+        $admin = Auth::guard('admin')->check();
 
         // Só o organizador pode atualizar
-        if ($event->createdby !== $userId || !$event->isOrganizer($userId)) {
+        if (($event->createdby !== $userId || !$event->isOrganizer($userId)) && !$admin) {
             return redirect()
                 ->route('user.profile', ['username' => Auth::user()->username])
                 ->with('error', 'You do not have permission to edit this event.');
@@ -270,6 +289,8 @@ public function updateEvent(Request $request, $eventId)
             'enddate' => 'required|date|after_or_equal:startdate',
             'capacity' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
+            'ispublic' => 'required|boolean',
+            'eventstatus' => 'required|in:Upcoming,Ongoing,Completed,Cancelled',
         ]);
 
         // Atualiza os campos
@@ -281,6 +302,8 @@ public function updateEvent(Request $request, $eventId)
             'enddate' => $request->enddate,
             'capacity' => $request->capacity,
             'price' => $request->price,
+            'ispublic' => $request->ispublic,
+            'eventstatus' => $request->eventstatus,
         ]);
 
         $participants = $event->attendees()->pluck('user.userid'); 
@@ -569,10 +592,23 @@ public function viewParticipation($id)
 {
     $event = Event::with(['organizer', 'attendees'])->findOrFail($id);
 
+    $admin = auth()->guard('admin')->user();
     $user = Auth::user();
 
 
-    if (!$user || (!$event->isOrganizer($user->userid) && !$event->isAttendee($user->userid))) {
+     // If admin exists → bypass all restrictions
+    if($admin) {
+        $participants = $event->attendees()->withPivot('role')->get();
+        return view('events.partials.participants', compact('event', 'participants'));
+    }
+
+    // If normal user not authenticated → forbid
+    if (!$user) {
+        abort(403);
+    }
+
+    // Normal user must be organizer or attendee
+    if (!$event->isOrganizer($user->userid) && !$event->isAttendee($user->userid)) {
         abort(403);
     }
 

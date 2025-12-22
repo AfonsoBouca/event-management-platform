@@ -21,7 +21,10 @@ class CommentPolicy
      */
     public function view(User $user, Comment $comment): bool
     {
-        return false;
+        if(auth()->guard('admin')->check()){
+            return true;
+        }
+        return $user->userid === $comment->authorid;
     }
 
     /**
@@ -47,6 +50,9 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment)
     {
+        if(auth()->guard('admin')->check()){
+            return true;
+        }
         return $user->userid === $comment->authorid;
     }
 

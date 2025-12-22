@@ -76,4 +76,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Comment::class, 'vote', 'userid', 'commentid');
     }
 
+    public function isAdmin(): bool
+{
+    return $this->isadmin === true;
+}
+
 }

@@ -20,9 +20,10 @@ class PollController extends Controller
     {
         $event = Event::findOrFail($eventId);
         $user = Auth::user();
+        $admin = Auth::guard('admin')->check();
 
         // Check if user can view polls (must be attendee or organizer)
-        if (!$event->isOrganizer($user->userid) && !$event->isAttendee($user->userid)) {
+        if (!$event->isOrganizer($user->userid) && !$event->isAttendee($user->userid) && !$admin) {
             return redirect()->route('events.show', $eventId)
                 ->with('error', 'You must be a participant to view polls.');
         }
@@ -32,7 +33,8 @@ class PollController extends Controller
             ->orderBy('createdat', 'desc')
             ->get();
 
-        return view('polls.index', compact('event', 'polls'));
+        $showResultsOnly = $event->isOrganizer($user->userid) || $admin;    
+        return view('polls.index', compact('event', 'polls', 'showResultsOnly'));
     }
 
     /**

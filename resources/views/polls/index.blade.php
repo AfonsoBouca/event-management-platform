@@ -37,84 +37,69 @@
                 
                 <div class="card-body">
                     <p class="text-muted">{{ $poll->content }}</p>
-                    
                     @php
-                        $hasVoted = $poll->hasUserVoted(Auth::user()->userid);
-                        $userVote = $hasVoted ? $poll->getUserVote(Auth::user()->userid) : null;
-                        $totalVotes = $poll->total_votes;
-                    @endphp
-                    
-                    @if($hasVoted || $event->isOrganizer(Auth::user()->userid))
-                        <!-- Show Results -->
-                        <div class="mt-3">
-                            <small class="text-muted d-block mb-2">Total votes: {{ $totalVotes }}</small>
-                            
-                            @foreach($poll->options as $option)
-                                @php
-                                    $voteCount = $option->vote_count;
-                                    $percentage = $totalVotes > 0 ? round(($voteCount / $totalVotes) * 100, 1) : 0;
-                                    $isUserVote = $userVote && $userVote->polloptionid === $option->polloptionid;
-                                @endphp
-                                
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="{{ $isUserVote ? 'fw-bold text-purple' : '' }}">
-                                            {{ $option->optiontext }}
-                                            @if($isUserVote)
-                                                <span class="badge bg-purple">Your vote</span>
-                                            @endif
-                                        </span>
-                                        <span class="text-muted">{{ $voteCount }} votes ({{ $percentage }}%)</span>
-                                    </div>
-                                    <div class="progress" style="height: 8px;">
-                                        <div class="progress-bar bg-purple" role="progressbar" 
-                                             style="width: {{ $percentage }}%;" 
-                                             aria-valuenow="{{ $percentage }}" 
-                                             aria-valuemin="0" 
-                                             aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <!-- Show Voting Form -->
-                        <form action="{{ route('polls.vote', $poll->pollid) }}" method="POST">
-                            @csrf
-                            
-                            <div class="mt-3">
-                                @foreach($poll->options as $option)
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" 
-                                               name="option_id" 
-                                               id="option_{{ $option->polloptionid }}" 
-                                               value="{{ $option->polloptionid }}" required>
-                                        <label class="form-check-label" for="option_{{ $option->polloptionid }}">
-                                            {{ $option->optiontext }}
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
-                            
-                            <button type="submit" class="btn btn-purple mt-3">Vote</button>
-                        </form>
-                    @endif
+    $totalVotes = $poll->total_votes;
+    $userVote = null;
+
+    if (!$showResultsOnly) {
+        $hasVoted = $poll->hasUserVoted(Auth::user()->userid);
+        $userVote = $hasVoted ? $poll->getUserVote(Auth::user()->userid) : null;
+    }
+@endphp
+
+@if($showResultsOnly || ($userVote))
+    <!-- Mostra apenas resultados -->
+    <div class="mt-3">
+        <small class="text-muted d-block mb-2">Total votes: {{ $totalVotes }}</small>
+
+        @foreach($poll->options as $option)
+            @php
+                $voteCount = $option->vote_count;
+                $percentage = $totalVotes > 0 ? round(($voteCount / $totalVotes) * 100, 1) : 0;
+                $isUserVote = $userVote && $userVote->polloptionid === $option->polloptionid;
+            @endphp
+            <div class="mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="{{ $isUserVote ? 'fw-bold text-purple' : '' }}">
+                        {{ $option->optiontext }}
+                        @if($isUserVote)
+                            <span class="badge bg-purple">Your vote</span>
+                        @endif
+                    </span>
+                    <span class="text-muted">{{ $voteCount }} votes ({{ $percentage }}%)</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-purple" style="width: {{ $percentage }}%;"></div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+@else
+    <!-- Formulário de votação para participantes -->
+    <form action="{{ route('polls.vote', $poll->pollid) }}" method="POST">
+        @csrf
+        <div class="mt-3">
+            @foreach($poll->options as $option)
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" 
+                           name="option_id" 
+                           id="option_{{ $option->polloptionid }}" 
+                           value="{{ $option->polloptionid }}" required>
+                    <label class="form-check-label" for="option_{{ $option->polloptionid }}">
+                        {{ $option->optiontext }}
+                    </label>
+                </div>
+            @endforeach
+        </div>
+        <button type="submit" class="btn btn-purple mt-3">Vote</button>
+    </form>
+@endif
                 </div>
             </div>
         @empty
-            <div class="card shadow-sm">
-                <div class="card-body text-center py-5">
-                    <p class="text-muted mb-3">No polls have been created for this event yet.</p>
-                    
-                    @if($event->isOrganizer(Auth::user()->userid))
-                        <a href="{{ route('polls.create', $event->eventid) }}" class="btn btn-purple">
-                            Create the first poll
-                        </a>
-                    @endif
-                </div>
-            </div>
-        @endforelse
-
+            <p class="text-muted">No polls have been created for this event yet.</p>
+        @endforelse    
+                   
         <!-- Back Button -->
         <div class="mt-4">
             <a href="{{ route('events.show', $event->eventid) }}" class="btn btn-outline-secondary">

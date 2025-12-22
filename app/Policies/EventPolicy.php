@@ -14,7 +14,7 @@ class EventPolicy
      */
     public function manage(User $user, Event $event): bool
     {
-        return $user->userid === $event->createdby;
+        return $user->userid === $event->createdby || auth()->guard('admin')->check();
     }
 
     /**
@@ -24,6 +24,10 @@ class EventPolicy
      */
     public function view(?User $user, Event $event): bool
     {
+        if (auth()->guard('admin')->check()) {
+            return true;
+        }
+
         if ($event->ispublic) {
             return true;
         }
@@ -43,8 +47,23 @@ class EventPolicy
         return $event->isAttendee($user->userid);
     }
 
-    public function viewComments(User $user, Event $event){
-        return $this->comment($user,$event);
+    public function viewComments(?User $user, Event $event){
+        // Admins sempre podem ver
+        if (auth('admin')->check()) {
+            return true;
+        }
+    
+        // Organizadores podem ver
+        if ($user && $event->isOrganizer($user->userid)) {
+            return true;
+        }
+    
+        // Participantes podem ver
+        if ($user && $event->isAttendee($user->userid)) {
+            return true;
+        }
+    
+        return false;
     }
 
      public function viewMessages(User $user, Event $event)

@@ -10,6 +10,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\EventFileController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ReportController;
+
 use App\Http\Controllers\NotificationController;
 use App\Events\NotificationCreated;
 use App\Http\Controllers\ForgotPasswordController;
@@ -29,6 +33,29 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('/login', 'authenticate');
 });
 
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
+
+    Route::middleware('auth:admin')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    });
+});
+
+Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function () {
+    Route::get('/events', [DashboardController::class, 'browseEvents'])->name('browse');
+});
+
+Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
+Route::patch('/admin/reports/{id}/update-status', [ReportController::class, 'updateStatus'])->name('admin.reports.updateStatus');
+
+Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
+    Route::get('banned-users', [UserController::class, 'bannedUsers'])->name('admin.banned.users');
+    Route::patch('user/{id}/unban', [UserController::class, 'unbanUser'])->name('admin.user.unban');
+});
+
+
 Route::controller(RegisterController::class)->group(function () {
     Route::get('/register', 'showRegistrationForm')->name('register');
     Route::post('/register', 'register');
@@ -41,6 +68,7 @@ Route::controller(LogoutController::class)->group(function () {
 // Dashboard
 Route::get('/dashboard', [EventController::class, 'dashboard'])
     ->name('dashboard');
+
 
 // Pesquisa de eventos públicos
 Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
@@ -69,7 +97,7 @@ Route::get('/events/{id}', [EventController::class, 'show'])
 
 // Comentarios      
 Route::post('/events/{eventId}/comments', [CommentController::class, 'store'])
-      ->middleware('auth')
+      ->middleware(['auth:web,admin'])
       ->name('comments.store'); 
 
 Route::put('/comments/{comment}',[CommentController::class, 'editComment']) 
@@ -77,7 +105,7 @@ Route::put('/comments/{comment}',[CommentController::class, 'editComment'])
        ->name('comments.edit');
 
 Route::delete('/comments/{comment}', [CommentController::class, 'deleteComment'])
-       ->middleware('auth')
+       ->middleware(['auth:web,admin'])
        ->name('comments.delete');
 
 Route::get('/events/{eventId}/comments', [CommentController::class, 'index'])
@@ -98,7 +126,7 @@ Route::get('/user/edit', [UserController::class, 'edit'])
     ->name('user.edit');
 
 Route::get('/user/{username}', [UserController::class, 'showByUsername'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('user.profile');
 
 // Atualizar Perfil
@@ -112,19 +140,19 @@ Route::post('/file/upload', [FileController::class, 'upload'])
 
 // Gestão de Participação em Eventos (apenas organizadores)
 Route::get('/events/{id}/manage', [EventController::class, 'manageParticipation'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.manage');
 
 Route::post('/events/{eventId}/join-requests/{joinId}/approve', [EventController::class, 'approveJoinRequest'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.join-requests.approve');
 
 Route::post('/events/{eventId}/join-requests/{joinId}/reject', [EventController::class, 'rejectJoinRequest'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.join-requests.reject');
 
 Route::delete('/events/{eventId}/participants/{userId}', [EventController::class, 'removeParticipant'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.participants.remove');
 
 Route::delete('/events/{eventId}/leave', [EventController::class, 'leaveEvent'])
@@ -138,41 +166,41 @@ Route::get('/user/{id}/organizing', [EventController::class, 'organizing'])
 
  //apagar conta
 Route::delete('/user/delete', [UserController::class, 'destroy'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('user.delete');
 
  //apagar evento
  Route::delete('/events/{id}', [EventController::class, 'deleteEvent'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.deleteEvent');
 
  //cancelar evento
  Route::post('/events/{id}/cancel', [EventController::class, 'cancelEvent'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.cancel');
 
  //editar evento
  Route::get('/events/{id}/edit', [EventController::class, 'editEvent'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.editEvent');
     
 Route::put('/events/{id}', [EventController::class, 'updateEvent'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.updateEvent');
 
 // Entrar em página de pesquisa
 Route::get('/events/{id}/invite/users', [EventController::class, 'inviteSearch'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.invite.search');
     
 // Página onde organizador procura utilizadores
 Route::get('/events/{id}/invite/search', [EventController::class, 'searchUsers'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.searchUsers');
 
 // Enviar convite
 Route::post('/events/{eventid}/invite/{userid}', [EventController::class, 'inviteUser'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.inviteUser');
 
 // Accept / Reject Invitations
@@ -199,13 +227,12 @@ Route::delete('/photos/{photoid}', [EventFileController::class, 'delete'])
 
 // Ver participantes
 Route::get('/events/{id}/viewParticipants', [EventController::class, 'viewParticipation'])
-    ->middleware('auth')
     ->name('events.viewParticipants');
 
 
 // Polls
 Route::get('/events/{id}/polls', [PollController::class, 'index'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('polls.index');
 
 Route::get('/events/{id}/polls/create', [PollController::class, 'create'])

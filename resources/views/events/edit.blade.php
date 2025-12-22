@@ -55,6 +55,24 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="eventstatus" class="form-label">Event Status</label>
+                            <select name="eventstatus" id="eventstatus" class="form-select" required>
+                                <option value="Upcoming" {{ $event->eventstatus === 'Upcoming' ? 'selected' : '' }}>Upcoming</option>
+                                <option value="Ongoing" {{ $event->eventstatus === 'Ongoing' ? 'selected' : '' }}>Ongoing</option>
+                                <option value="Completed" {{ $event->eventstatus === 'Completed' ? 'selected' : '' }}>Completed</option>
+                                <option value="Cancelled" {{ $event->eventstatus === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+
+                        </div>
+                         <div class="mb-3">
+                            <label for="ispublic" class="form-label">Visibility</label>
+                            <select name="ispublic" id="ispublic" class="form-select" required>
+                                <option value="1" {{ $event->ispublic ? 'selected' : '' }}>Public</option>
+                                <option value="0" {{ !$event->ispublic ? 'selected' : '' }}>Private</option>
+                            </select>
+                         </div>
+
                         <div class="d-flex gap-2">
                             <button class="btn btn-purple" type="submit">Save Changes</button>
                             <a href="{{ route('events.show', $event->eventid) }}" class="btn btn-outline-secondary">Cancel</a>

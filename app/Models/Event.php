@@ -91,4 +91,10 @@ class Event extends Model
                 ->with('replies.author');
 
     }
+
+    public function creator()
+{
+    return $this->belongsTo(User::class, 'createdby', 'userid');
+}
+
 }

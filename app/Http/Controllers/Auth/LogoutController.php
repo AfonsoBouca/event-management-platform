@@ -20,8 +20,12 @@ class LogoutController extends Controller
      */
     public function logout(Request $request)
     {
-        // Log out the authenticated user.
-        Auth::logout();
+        if(Auth::guard('admin')->check()){
+            Auth::guard('admin')->logout();
+        }
+        if(Auth::guard('web')->check()){
+            Auth::guard('web')->logout();
+        }
 
         // Invalidate the current session to prevent session fixation or reuse.
         $request->session()->invalidate();
