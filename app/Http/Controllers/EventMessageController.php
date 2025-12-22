@@ -15,10 +15,11 @@ class EventMessageController extends Controller
     {
         $event = Event::findOrFail($eventId);
         $this->authorize('viewMessages', $event);
+        $admin = auth('admin')->check();
+        $user = auth()->user();
 
         // organizer OU attendee
-        if (!auth()->user() ||
-            (!$event->isOrganizer(auth()->id()) && !$event->isAttendee(auth()->id()))) {
+        if (!$admin && (!$user || (!$event->isOrganizer($user->userid) && !$event->isAttendee($user->userid)))) {
             abort(403);
         }
 

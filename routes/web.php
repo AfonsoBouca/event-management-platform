@@ -292,7 +292,7 @@ Route::post('/reset-password', [ResetPasswordController::class, 'update'])
     ->name('password.update');
 // Event Messages
 Route::get('/events/{id}/messages', [EventMessageController::class, 'index'])
-    ->middleware('auth')
+    ->middleware(['auth:web,admin'])
     ->name('events.messages');
 
 Route::post('/events/{id}/messages', [EventMessageController::class, 'store'])

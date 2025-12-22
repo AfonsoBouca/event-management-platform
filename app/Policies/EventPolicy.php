@@ -66,15 +66,36 @@ class EventPolicy
         return false;
     }
 
-     public function viewMessages(User $user, Event $event)
-    {
-        return $event->isOrganizer($user->userid)
-            || $event->isAttendee($user->userid);
-    }
-
-    public function postMessage(User $user, Event $event)
-    {
-        return $event->isOrganizer($user->userid);
-    }
+   
+    public function viewMessages(?User $user, Event $event)
+        {
+            // Admin sempre pode ver
+            if (auth('admin')->check()) {
+                return true;
+            }
+        
+            // Organizadores podem ver
+            if ($user && $event->isOrganizer($user->userid)) {
+                return true;
+            }
+        
+            // Participantes podem ver
+            if ($user && $event->isAttendee($user->userid)) {
+                return true;
+            }
+        
+            return false;
+        }
+        
+        public function postMessage(?User $user, Event $event)
+        {
+            // Admin também pode postar se quiser
+            if (auth('admin')->check()) {
+                return true;
+            }
+        
+            return $user && $event->isOrganizer($user->userid);
+        }
+        
 
 }
