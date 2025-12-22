@@ -13,7 +13,7 @@ DROP TYPE IF EXISTS RoleType, EventStatus, NotificationType, ReportType, R_J_Sta
 -- Enum Types
 CREATE TYPE RoleType AS ENUM ('Attendee', 'Organizer');
 CREATE TYPE EventStatus AS ENUM ('Upcoming', 'Ongoing', 'Completed', 'Cancelled');
-CREATE TYPE NotificationType AS ENUM ('EventUpdate', 'NewComment','PollCreated','PollClosed','Invitation', 'JoinRequest', 'ReportStatus');
+CREATE TYPE NotificationType AS ENUM ('EventUpdate', 'NewComment','PollCreated','PollClosed','Invitation', 'JoinRequest', 'ReportStatus', 'EventMessage');
 CREATE TYPE ReportType AS ENUM ('FraudulentEvent', 'ImproperLanguage', 'Other');
 CREATE TYPE R_J_Status AS ENUM ('Pending', 'Accepted', 'Rejected');
 
@@ -195,6 +195,15 @@ CREATE TABLE eventTag (
     PRIMARY KEY (eventId, tagId)
 );
 
+CREATE TABLE eventMessage (
+    messageId SERIAL PRIMARY KEY,
+    eventId INT REFERENCES event(eventId) ON DELETE CASCADE,
+    authorId INT REFERENCES "user"(userId) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 CREATE TABLE password_reset_tokens (
     email VARCHAR(255) PRIMARY KEY,
     token VARCHAR(255) NOT NULL,
@@ -207,6 +216,7 @@ CREATE INDEX idx_user_email ON "user" USING btree(email);
 CREATE INDEX idx_event_createdBy ON event USING btree(createdBy);
 CREATE INDEX idx_comment_eventId ON comment USING btree(eventId);
 CREATE INDEX idx_eventParticipation_eventId ON eventParticipation USING btree(eventId);
+CREATE INDEX idx_eventMessage_eventId ON eventMessage(eventId);
 
 -- FTS (Full Text Search)
 ALTER TABLE event ADD COLUMN event_tsv tsvector;
@@ -592,6 +602,42 @@ CREATE TRIGGER trg_add_organizer_on_eventParticipation
 AFTER INSERT ON event
 FOR EACH ROW
 EXECUTE FUNCTION add_organizer_on_eventParticipation();
+
+
+------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION notify_attendees_on_event_message()
+RETURNS TRIGGER AS
+$$
+DECLARE
+    event_name TEXT;
+BEGIN
+    SELECT eventName
+    INTO event_name
+    FROM event
+    WHERE eventId = NEW.eventId;
+
+    INSERT INTO notification (userId, title, message, notificationType)
+    SELECT
+        ep.userId,
+        'New Event Message',
+        'A new message was posted in the event "' || event_name || '".',
+        'EventMessage'
+    FROM eventParticipation ep
+    WHERE ep.eventId = NEW.eventId
+      AND ep.role = 'Attendee'
+      AND ep.userId <> NEW.authorId;
+
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_notify_attendees_on_event_message
+AFTER INSERT ON eventMessage
+FOR EACH ROW
+EXECUTE FUNCTION notify_attendees_on_event_message();
+
 
 SET search_path TO lbaw25124;
 

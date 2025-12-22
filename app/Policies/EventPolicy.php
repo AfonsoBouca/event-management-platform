@@ -47,5 +47,15 @@ class EventPolicy
         return $this->comment($user,$event);
     }
 
+     public function viewMessages(User $user, Event $event)
+    {
+        return $event->isOrganizer($user->userid)
+            || $event->isAttendee($user->userid);
+    }
+
+    public function postMessage(User $user, Event $event)
+    {
+        return $event->isOrganizer($user->userid);
+    }
 
 }

@@ -14,6 +14,7 @@ use App\Http\Controllers\NotificationController;
 use App\Events\NotificationCreated;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\EventMessageController;
 
 // Home -> redireciona conforme autenticação
 Route::get('/', function () {
@@ -262,5 +263,14 @@ Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])
 
 Route::post('/reset-password', [ResetPasswordController::class, 'update'])
     ->name('password.update');
+// Event Messages
+Route::get('/events/{id}/messages', [EventMessageController::class, 'index'])
+    ->middleware('auth')
+    ->name('events.messages');
+
+Route::post('/events/{id}/messages', [EventMessageController::class, 'store'])
+    ->middleware('auth')
+    ->name('events.messages.store');
+
 
 

@@ -78,6 +78,15 @@
                             <button id="viewParticipants" class="btn btn-outline-purple" data-bs-toggle="offcanvas" data-bs-target="#participantSidebar">View Participants</button>
                         </div>
                     @endif
+                    @if($isAttendee || $event->createdby === Auth::user()->userid)
+                        <button id="openMessages"
+                            class="btn btn-outline-purple mt-2"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#messagesSidebar">
+                            Event Messages
+                        </button>
+                    @endif
+
                 @endauth
 
                 <div class="bg-light p-3 rounded border-start border-4 border-purple mt-3">
@@ -259,6 +268,18 @@
     </div>
 </div>
 
+{{-- Event Messages Sidebar --}}
+<div class="offcanvas offcanvas-end" tabindex="-1" id="messagesSidebar" style="width:700px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Event Messages</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="messagesContent"></div>
+    </div>
+</div>
+
+
 {{-- Alpine.js for interactive components --}}
 <script src="https://unpkg.com/alpinejs" defer></script>
 
@@ -272,6 +293,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const viewParticipantsBtn = document.getElementById('viewParticipants');
     if (viewParticipantsBtn) {
         viewParticipantsBtn.addEventListener('click', loadParticipants);
+    }
+
+    const openMessagesBtn = document.getElementById('openMessages');
+    if (openMessagesBtn) {
+        openMessagesBtn.addEventListener('click', loadMessages);
     }
 });
 
@@ -315,6 +341,35 @@ function loadParticipants() {
             document.getElementById('participantsContent').innerHTML = html;
         });
 }
+
+
+function loadMessages() {
+    fetch("/events/{{ $event->eventid }}/messages")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('messagesContent').innerHTML = html;
+            attachMessageForm();
+        });
+}
+
+function attachMessageForm() {
+    const form = document.getElementById('messageForm');
+    if (!form) return;
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+
+        fetch("/events/{{ $event->eventid }}/messages", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: new FormData(form)
+        })
+        .then(() => loadMessages());
+    });
+}
+
 </script>
 
 @endsection
