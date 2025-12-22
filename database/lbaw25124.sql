@@ -1069,6 +1069,22 @@ INSERT INTO eventTag(eventId, tagId) VALUES
 (15, 7),
 (15, 4);
 
+INSERT INTO eventMessage (eventId, authorId, content, createdAt) VALUES
+(1, 1, 'Welcome everyone! We are excited to have you at Tech Conference 2025. The full schedule will be shared soon.', '2025-10-10 09:00:00'),
+(1, 1, 'Reminder: Please bring your badge and a valid ID for check-in on the first day.', '2025-11-28 15:00:00'),
+(2, 2, 'Looking forward to meeting you all! The event will start promptly at 6 PM.', '2025-11-10 18:00:00'),
+(3, 3, 'Dress code is smart casual. Complimentary drinks will be served during the opening.', '2025-11-05 20:00:00'),
+(4, 4, 'Thank you all for participating! Slides and training plans will be shared via email.', '2024-10-15 13:00:00'),
+(5, 5, 'Please arrive 15 minutes early. Aprons and ingredients are provided.', '2025-11-05 10:00:00'),
+(6, 1, 'The festival was a huge success! Thank you for being part of it.', '2024-08-23 10:00:00'),
+(7, 6, 'Thank you for supporting our cause. Donation receipts will be emailed after the event.', '2025-12-16 09:00:00'),
+(8, 7, 'Please remember to bring comfortable clothing and a reusable water bottle.', '2025-11-15 08:30:00'),
+(9, 2, 'Teams can start checking in from 8:30 AM. Wi-Fi credentials will be provided on site.', '2025-11-24 18:00:00'),
+(11, 3, 'Feel free to bring your own camera gear, but we will also have equipment available.', '2025-11-08 17:00:00'),
+(14, 10, 'Gloves and tools will be available, but feel free to bring your own.', '2025-11-07 09:00:00'),
+(15, 5, 'The discussion will begin immediately after the screening. Stay tuned!', '2025-11-14 19:00:00');
+
+
 
 -- Display summary
 SELECT 'Database populated successfully!' AS status;
