@@ -30,7 +30,7 @@ class ForgotPasswordController extends Controller
         // gerar token
         $token = Str::random(64);
     
-        DB::table('lbaw25124.password_reset_tokens')->updateOrInsert(
+        DB::table('event_platform.password_reset_tokens')->updateOrInsert(
             ['email' => $user->email],
             [
                 'token' => $token,

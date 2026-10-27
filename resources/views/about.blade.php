@@ -6,8 +6,8 @@
         <h3 class="text-purple mb-3">About Wevent</h3>
 
         <p>
-            <strong>Wevent</strong> is an event management platform developed as part of the
-            <strong>LBAW</strong> course at FEUP.
+            <strong>Wevent</strong> is an event management platform for organizing,
+            discovering, and participating in events.
         </p>
 
         <p>
@@ -102,7 +102,7 @@
 </div>
 
         <p class="text-muted small">
-            Developed by Group 12-4 · 2025/2026 · LBAW · FEUP
+            Built with Laravel and PostgreSQL.
         </p>
     </div>
 </div>

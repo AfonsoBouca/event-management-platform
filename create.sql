@@ -1,4 +1,4 @@
-SET search_path TO lbaw25124;
+SET search_path TO event_platform;
 
 -- Drop tables 
 DROP TABLE IF EXISTS eventNotification, favouriteEvent, eventParticipation,

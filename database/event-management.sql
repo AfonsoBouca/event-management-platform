@@ -1,6 +1,6 @@
-DROP SCHEMA IF EXISTS lbaw25124 CASCADE;
-CREATE SCHEMA IF NOT EXISTS lbaw25124;
-SET search_path TO lbaw25124;
+DROP SCHEMA IF EXISTS event_platform CASCADE;
+CREATE SCHEMA IF NOT EXISTS event_platform;
+SET search_path TO event_platform;
 
 -- Drop tables 
 DROP TABLE IF EXISTS eventCategory, eventTag, eventNotification, favouriteEvent, eventParticipation,
@@ -550,7 +550,7 @@ BEGIN
 
             SELECT eventName
             INTO event_name
-            FROM lbaw25124.event
+            FROM event_platform.event
             WHERE eventId = NEW.eventId;
 
             IF NEW.j_status = 'Accepted' THEN
@@ -561,7 +561,7 @@ BEGIN
                 notification_title := 'Join Request Rejected';
             END IF;
 
-            INSERT INTO lbaw25124.notification (userid, title, message, notificationType)
+            INSERT INTO event_platform.notification (userid, title, message, notificationType)
             VALUES (
                 NEW.userid,
                 notification_title,
@@ -576,10 +576,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS trg_notify_user_on_join_request_response
-ON lbaw25124.joinRequest;
+ON event_platform.joinRequest;
 
 CREATE TRIGGER trg_notify_user_on_join_request_response
-AFTER UPDATE ON lbaw25124.joinRequest
+AFTER UPDATE ON event_platform.joinRequest
 FOR EACH ROW
 EXECUTE FUNCTION notify_user_on_join_request_response();
 
@@ -640,7 +640,7 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_attendees_on_event_message();
 
 
-SET search_path TO lbaw25124;
+SET search_path TO event_platform;
 
 -- Clear existing data (in correct order due to foreign keys)
 DELETE FROM eventNotification;

@@ -30,6 +30,6 @@
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <!-- DB_* settings are loaded from .env.testing -->
         <!-- Add schema if you want to enforce it here -->
-        <!-- <env name="DB_SCHEMA" value="thingy_test"/> -->
+        <!-- <env name="DB_SCHEMA" value="event_platform_test"/> -->
     </php>
 </phpunit>

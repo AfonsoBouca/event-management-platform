@@ -8,20 +8,18 @@ use Illuminate\Support\Facades\DB;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Runs database/thingy-seed.sql as-is.
-     * The SQL reads current_setting('app.schema', true) and defaults to 'thingy'.
+     * Runs the application schema and seed data script.
      */
     public function run(): void
     {
-        // Get schema name from environment (e.g., .env or .env.testing)
+        // Get the schema name from the environment.
         $schema = env('DB_SCHEMA');
 
         // Load the raw SQL file
-        $path = base_path('database/lbaw25124.sql');
+        $path = base_path('database/event-management.sql');
         $sql = file_get_contents($path);
 
-        // If DB_SCHEMA is set, expose it to the SQL script
-        // (the script reads it via current_setting('app.schema', true))
+        // Expose the configured schema to the SQL script.
         if ($schema !== null) {
             DB::statement("SELECT set_config('app.schema', ?, false)", [$schema]);
         }
@@ -30,6 +28,6 @@ class DatabaseSeeder extends Seeder
         DB::unprepared($sql);
 
         // Show a message in the Artisan console
-        $this->command?->info('Database seeded using schema: ' . ($schema ?? 'thingy (default)'));
+        $this->command?->info('Database seeded using schema: ' . ($schema ?? 'event_platform (default)'));
     }
 }

@@ -12,7 +12,7 @@ class ResetPasswordController extends Controller
     // Mostrar formulário
     public function show(string $token)
     {
-        $record = DB::table('lbaw25124.password_reset_tokens')
+        $record = DB::table('event_platform.password_reset_tokens')
             ->where('token', $token)
             ->first();
 
@@ -35,7 +35,7 @@ class ResetPasswordController extends Controller
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $record = DB::table('lbaw25124.password_reset_tokens')
+        $record = DB::table('event_platform.password_reset_tokens')
             ->where('token', $request->token)
             ->first();
 
@@ -49,7 +49,7 @@ class ResetPasswordController extends Controller
         ]);
 
         // Invalidar token
-        DB::table('lbaw25124.password_reset_tokens')
+        DB::table('event_platform.password_reset_tokens')
             ->where('email', $record->email)
             ->delete();
 

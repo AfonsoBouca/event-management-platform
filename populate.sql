@@ -1,4 +1,4 @@
-SET search_path TO lbaw25124;
+SET search_path TO event_platform;
 
 -- Clear existing data (in correct order due to foreign keys)
 DELETE FROM eventNotification;

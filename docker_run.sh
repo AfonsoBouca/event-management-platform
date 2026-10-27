@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -------------------------------------------------------------------
-# docker_run.sh — Entrypoint script for LBAW Laravel + Nginx container
+# docker_run.sh — Entrypoint script for Wevent Laravel + Nginx container
 #
 # This script prepares Laravel’s caches for production
 # and starts both PHP-FPM (background) and Nginx (foreground).

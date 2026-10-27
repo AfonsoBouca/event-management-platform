@@ -17,8 +17,8 @@ class EventFileController extends Controller
      */
     public function list($eventId)
     {
-        $photos = DB::table('lbaw25124.eventphoto AS ep')
-            ->join('lbaw25124.user AS u', 'ep.userid', '=', 'u.userid')
+        $photos = DB::table('event_platform.eventphoto AS ep')
+            ->join('event_platform.user AS u', 'ep.userid', '=', 'u.userid')
             ->select('ep.*', 'u.username')
             ->where('ep.eventid', $eventId)
             ->orderBy('ep.createdat', 'desc')
@@ -54,7 +54,7 @@ class EventFileController extends Controller
         Storage::disk(self::$diskName)->putFileAs('event', $file, $fileName);
 
         // Inserir na tabela
-        DB::table('eventphoto')->from('lbaw25124.eventphoto')->insert([
+        DB::table('eventphoto')->from('event_platform.eventphoto')->insert([
             'eventid'  => $eventId,
             'userid'   => $userId,
             'filepath' => $fileName,

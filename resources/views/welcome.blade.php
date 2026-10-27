@@ -82,7 +82,7 @@
     <!-- Footer -->
     <footer class="py-3 bg-purple text-white text-center">
         <div class="container">
-            <small>&copy; {{ date('Y') }} Wevent - LBAW 25124</small>
+            <small>&copy; {{ date('Y') }} Wevent</small>
         </div>
     </footer>
 

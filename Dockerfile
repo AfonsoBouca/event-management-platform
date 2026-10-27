@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# LBAW Laravel Application Dockerfile
+# Wevent Laravel Application Dockerfile
 #
 # Builds a production-ready container with:
 # - PHP 8.3 FPM (Laravel runtime)
@@ -46,11 +46,9 @@ COPY --chown=www-data:www-data . .
 # Copy configuration files into container
 # - PHP overrides (php.ini)
 # - Nginx site config
-# - Production .env for Laravel
 # - Entrypoint script to launch php-fpm + nginx
 COPY ./etc/php/php.ini /usr/local/etc/php/conf.d/php.ini
 COPY ./etc/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY .env.production /var/www/.env
 COPY docker_run.sh /docker_run.sh
 
 # Ensure entrypoint script is executable
